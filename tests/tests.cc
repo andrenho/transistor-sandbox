@@ -16,7 +16,21 @@ TEST_SUITE("Sandbox") {
         CHECK(pos.dir == pos2.dir);
     }
 
-    TEST_CASE("Serialization / unserialization") {
+    TEST_CASE("Wire placement")
+    {
+        ts_Sandbox sb;
+        ts_sandbox_init(&sb);
+        ts_board_add_wire(&sb.boards[0], { 1, 1, TS_S }, { TS_W1, TS_TOP });
+
+        ts_Response response = ts_board_add_wire(&sb.boards[0], { 1, 11, TS_S }, { TS_W1, TS_TOP });
+        CHECK(response == TS_CANNOT_PLACE);
+
+        CHECK(ts_board_wire(&sb.boards[0], { 1, 1, TS_S })->layer == TS_TOP);
+        CHECK(ts_board_wire(&sb.boards[0], { 1, 2, TS_S }) == NULL);
+    }
+
+    TEST_CASE("Serialization / unserialization")
+    {
         ts_Sandbox sb;
         ts_sandbox_init(&sb);
 
@@ -35,7 +49,7 @@ TEST_SUITE("Sandbox") {
         CHECK(sb.boards[0].w == sb2.boards[0].w);
         CHECK(sb.boards[0].h == sb2.boards[0].h);
 
-        CHECK(ts_board_wire(&sb.boards[0], { 1, 1, TS_S })->layer = TS_TOP);
+        CHECK(ts_board_wire(&sb.boards[0], { 1, 1, TS_S })->layer == TS_TOP);
         CHECK(ts_board_wire(&sb.boards[0], { 1, 2, TS_S }) == NULL);
     }
 

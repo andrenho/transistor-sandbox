@@ -22,6 +22,8 @@ ts_Response ts_board_finalize(ts_Board* board)
 
 ts_Response ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 {
+    if (pos.x >= board->w || pos.y >= board->h)
+        return ts_error(board->sandbox, TS_CANNOT_PLACE, "Wire out of bounds");
     hmput(board->wires, ts_pos_hash(pos), wire);
     return TS_OK;
 }
