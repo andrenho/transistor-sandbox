@@ -2,59 +2,112 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #include <lauxlib.h>
 #include <lualib.h>
+
+#define STB_DS_IMPLEMENTATION
 #include <stb_ds.h>
 
-#include "board.h"
+#include "board/board.h"
+#include "util/serialize.h"
 
-typedef struct ts_Sandbox {
-    ts_Board* boards;
-} ts_Sandbox;
-
-ts_Sandbox* ts_sandbox_create()
+ts_Response ts_sandbox_init(ts_Sandbox* sb)
 {
-    ts_Sandbox* sb = calloc(1, sizeof(ts_Sandbox));
-    arrpush(sb->boards, ts_board_create(10, 10));
-    return sb;
+    memset(sb, 0, sizeof(ts_Sandbox));
+
+    arrpush(sb->boards, (ts_Board) {});
+    ts_board_init(&sb->boards[0], sb, 10, 10);
+
+    sb->last_error = TS_OK;
+    sb->last_error_message[0] = '\0';
+    return TS_OK;
 }
 
-void ts_sandbox_free(ts_Sandbox* sb)
+ts_Response ts_sandbox_finalize(ts_Sandbox** sb)
 {
-    free(sb);
+    for (int i = 0; i < arrlen((*sb)->boards); ++i)
+        ts_board_finalize(&(*sb)->boards[i]);
+    arrfree((*sb)->boards);
+
+    *sb = NULL;
+
+    return TS_OK;
 }
 
-ts_Sandbox* ts_sandbox_unserialize(lua_State* L, char* error_buf, size_t error_sz)
+int ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, char* buf, size_t buf_sz)
 {
-    if (!lua_istable(L, -1)) {
-        snprintf(error_buf, error_sz, "The returned element is not a table");
-        return NULL;
+    SR_INIT("{");
+    SR_CONT("  boards = {");
+    for (int i = 0; i < arrlen(sb->boards); ++i)
+        SR_CALL(ts_board_serialize, &sb->boards[i], 4);
+    SR_CONT("  },");
+    SR_FINI("}");
+}
+
+ts_Response ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L)
+{
+    if (!lua_istable(L, -1))
+        return ts_error(sb, TS_DESERIALIZATION_ERROR, "The returned element is not a table");
+
+    ts_sandbox_init(sb);
+
+    lua_getfield(L, -1, "boards");
+    if (!lua_istable(L, -1))
+        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'boards'");
+    lua_pushnil(L);
+    while (lua_next(L, -2)) {
+        arrpush(sb->boards, (ts_Board) {});
+        ts_Response r = ts_board_unserialize(&arrlast(sb->boards), L, sb);
+        if (r != TS_OK)
+            return r;
+        lua_pop(L, 1);
     }
 
-    ts_Sandbox* sb = ts_sandbox_create();
-    return sb;
+    return TS_OK;
 }
 
-ts_Sandbox* ts_sandbox_unserialize_from_string(const char* str, char* error_buf, size_t error_sz)
+ts_Response ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str)
 {
+    ts_Response response = TS_OK;
+
     lua_State* L = luaL_newstate();
 
     luaL_openlibs(L);
-    luaL_dostring(L, str);
-
-    if (lua_gettop(L) != 1) {
-        snprintf(error_buf, error_sz, "A element was not added to the stack.");
-        lua_close(L);
-        return NULL;
+    if (luaL_dostring(L, str)) {
+        response = ts_error(sb, TS_DESERIALIZATION_ERROR, "Error reported from Lua: %s", lua_tostring(L, -1));
+        goto end;
     }
 
-    ts_Sandbox* sb = ts_sandbox_unserialize(L, error_buf, error_sz);
+    if (lua_gettop(L) != 1) {
+        response = ts_error(sb, TS_DESERIALIZATION_ERROR, "A element was not added to the stack.");
+        goto end;
+    }
+
+    response = ts_sandbox_unserialize(sb, L);
+    lua_pop(L, 1);
+
+end:
     lua_close(L);
-    return sb;
+    return response;
 }
 
-void ts_sandbox_serialize(ts_Sandbox* sb, char* buf, size_t buf_sz)
+ts_Response ts_error(ts_Sandbox* sb, ts_Response response, const char* fmt, ...)
 {
-    snprintf(buf, buf_sz, "{}");
+    va_list ap;
+    va_start(ap, fmt);
+
+    sb->last_error = response;
+    vsnprintf(sb->last_error_message, sizeof sb->last_error_message, fmt, ap);
+
+    va_end(ap);
+    return response;
+}
+
+const char* ts_last_error(ts_Sandbox const* sb, ts_Response* response)
+{
+    if (response)
+        *response = sb->last_error;
+    return sb->last_error_message;
 }

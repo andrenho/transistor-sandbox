@@ -4,13 +4,24 @@
 #include <stddef.h>
 #include <lua.h>
 
-typedef struct ts_Sandbox ts_Sandbox;
+#include "util/response.h"
 
-ts_Sandbox* ts_sandbox_create();
-void        ts_sandbox_free(ts_Sandbox* sb);
+typedef struct ts_Board ts_Board;
 
-ts_Sandbox* ts_sandbox_unserialize(lua_State* L, char* error_buf, size_t error_sz);
-ts_Sandbox* ts_sandbox_unserialize_from_string(const char* str, char* error_buf, size_t error_sz);
-void        ts_sandbox_serialize(ts_Sandbox* sb, char* buf, size_t buf_sz);
+typedef struct ts_Sandbox {
+    ts_Board*   boards;
+    ts_Response last_error;
+    char        last_error_message[2048];
+} ts_Sandbox;
+
+ts_Response ts_sandbox_init(ts_Sandbox* sb);
+ts_Response ts_sandbox_finalize(ts_Sandbox** sb);
+
+int         ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, char* buf, size_t buf_sz);
+ts_Response ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L);
+ts_Response ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str);
+
+ts_Response ts_error(ts_Sandbox* sb, ts_Response response, const char* fmt, ...) __attribute__((format(printf, 3, 0)));
+const char* ts_last_error(ts_Sandbox const* sb, ts_Response* response);
 
 #endif //SANDBOX_H

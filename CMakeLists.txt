@@ -54,10 +54,18 @@ pkg_check_modules(LUA REQUIRED luajit)
 #
 
 add_library(${PROJECT_NAME} STATIC
+        contrib/stb/stb_ds.h
         src/sandbox/sandbox.h
         src/sandbox/sandbox.c
-        src/sandbox/board.c
-        src/sandbox/board.h
+        src/board/board.c
+        src/board/board.h
+        src/util/response.h
+        src/util/serialize.h
+        src/board/wire.h
+        src/board/position.c
+        src/board/position.h
+        src/transistor-sandbox.h
+        src/board/wire.c
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})
@@ -85,7 +93,7 @@ add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL
         contrib/doctest/doctest.h
         tests/tests.cc
 )
-target_compile_options(${PROJECT_NAME}-tests PRIVATE ${warnings})
+target_compile_options(${PROJECT_NAME}-tests PRIVATE ${warnings} )
 target_link_directories(${PROJECT_NAME}-tests PRIVATE ${LUA_LIBRARY_DIRS})
 target_link_libraries(${PROJECT_NAME}-tests PRIVATE ${PROJECT_NAME} ${LUA_LIBRARIES})
 target_include_directories(${PROJECT_NAME}-tests PRIVATE contrib/doctest)
