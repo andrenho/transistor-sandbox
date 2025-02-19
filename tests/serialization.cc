@@ -5,29 +5,7 @@ extern "C" {
 #include "transistor-sandbox.h"
 }
 
-TEST_SUITE("Sandbox") {
-
-    TEST_CASE("Position hashing")
-    {
-        ts_Position pos = { 1492, 328, TS_W };
-        ts_Position pos2 = ts_pos_unhash(ts_pos_hash(pos));
-        CHECK(pos.x == pos2.x);
-        CHECK(pos.y == pos2.y);
-        CHECK(pos.dir == pos2.dir);
-    }
-
-    TEST_CASE("Wire placement")
-    {
-        ts_Sandbox sb;
-        ts_sandbox_init(&sb);
-        ts_board_add_wire(&sb.boards[0], { 1, 1, TS_S }, { TS_W1, TS_TOP });
-
-        ts_Response response = ts_board_add_wire(&sb.boards[0], { 1, 11, TS_S }, { TS_W1, TS_TOP });
-        CHECK(response == TS_CANNOT_PLACE);
-
-        CHECK(ts_board_wire(&sb.boards[0], { 1, 1, TS_S })->layer == TS_TOP);
-        CHECK(ts_board_wire(&sb.boards[0], { 1, 2, TS_S }) == NULL);
-    }
+TEST_SUITE("Serialization") {
 
     TEST_CASE("Serialization / unserialization")
     {
