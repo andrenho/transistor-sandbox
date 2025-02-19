@@ -46,17 +46,25 @@ add_compile_definitions(
 # external libraries
 #
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LUA REQUIRED luajit)
+
 #
 # library
 #
 
 add_library(${PROJECT_NAME} STATIC
-        src/sandbox.h
-        src/sandbox.c
+        src/sandbox/sandbox.h
+        src/sandbox/sandbox.c
+        src/sandbox/board.c
+        src/sandbox/board.h
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(${PROJECT_NAME} PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/contrib/stb
+        ${LUA_INCLUDE_DIRS})
 
 #
 # executable
@@ -66,7 +74,8 @@ add_executable(${PROJECT_NAME}-cli EXCLUDE_FROM_ALL
         exe/main.c)
 
 target_compile_options(${PROJECT_NAME}-cli PRIVATE ${warnings})
-target_link_libraries(${PROJECT_NAME}-cli PRIVATE ${PROJECT_NAME})
+target_link_directories(${PROJECT_NAME}-cli PRIVATE ${LUA_LIBRARY_DIRS})
+target_link_libraries(${PROJECT_NAME}-cli PRIVATE ${PROJECT_NAME} ${LUA_LIBRARIES})
 
 #
 # testing
@@ -77,7 +86,8 @@ add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL
         tests/tests.cc
 )
 target_compile_options(${PROJECT_NAME}-tests PRIVATE ${warnings})
-target_link_libraries(${PROJECT_NAME}-tests PRIVATE ${PROJECT_NAME})
+target_link_directories(${PROJECT_NAME}-tests PRIVATE ${LUA_LIBRARY_DIRS})
+target_link_libraries(${PROJECT_NAME}-tests PRIVATE ${PROJECT_NAME} ${LUA_LIBRARIES})
 target_include_directories(${PROJECT_NAME}-tests PRIVATE contrib/doctest)
 
 enable_testing()
