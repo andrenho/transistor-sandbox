@@ -1,8 +1,8 @@
 #include "position.h"
 
-ts_PositionHash ts_pos_hash(ts_Position const* pos)
+ts_PositionHash ts_pos_hash(ts_Position pos)
 {
-    return (pos->y << 18) | (pos->x << 4) | pos->dir;
+    return (pos.y << 18) | (pos.x << 4) | pos.dir;
 }
 
 ts_Position ts_pos_unhash(ts_PositionHash hash)

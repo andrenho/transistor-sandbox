@@ -20,10 +20,18 @@ ts_Response ts_board_finalize(ts_Board* board)
     return TS_OK;
 }
 
-ts_Response ts_board_add_wire(ts_Board* board, ts_Position const* pos, ts_Wire const* wire)
+ts_Response ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 {
-    hmput(board->wires, ts_pos_hash(pos), *wire);
+    hmput(board->wires, ts_pos_hash(pos), wire);
     return TS_OK;
+}
+
+ts_Wire* ts_board_wire(ts_Board* board, ts_Position pos)
+{
+    int i = hmgeti(board->wires, ts_pos_hash(pos));
+    if (i == -1)
+        return NULL;
+    return &board->wires[i].value;
 }
 
 int ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_sz)
@@ -43,7 +51,25 @@ int ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_
 
 ts_Response ts_board_unserialize(ts_Board* board, lua_State* L, ts_Sandbox* sb)
 {
-    lua_getfield(L, -1, "w"); board->w = luaL_checkinteger(L, -1); lua_pop(L, 1);
-    lua_getfield(L, -1, "h"); board->h = luaL_checkinteger(L, -1); lua_pop(L, 1);
+    lua_getfield(L, -1, "w"); int w = luaL_checkinteger(L, -1); lua_pop(L, 1);
+    lua_getfield(L, -1, "h"); int h = luaL_checkinteger(L, -1); lua_pop(L, 1);
+
+    ts_board_init(board, sb, w, h);
+
+    lua_getfield(L, -1, "wires");
+    if (!lua_istable(L, -1))
+        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'wires'");
+    lua_pushnil(L);
+    while (lua_next(L, -2)) {
+        ts_PositionHash pos_hash = luaL_checkinteger(L, -2);
+        ts_Wire wire;
+        ts_Response r = ts_wire_unserialize(&wire, L, sb);
+        if (r != TS_OK)
+            return r;
+        hmput(board->wires, pos_hash, wire);
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+
     return TS_OK;
 }

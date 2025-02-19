@@ -64,6 +64,7 @@ ts_Response ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L)
             return r;
         lua_pop(L, 1);
     }
+    lua_pop(L, 1);
 
     return TS_OK;
 }

@@ -1,11 +1,7 @@
 #ifndef POSITION_H
 #define POSITION_H
 
-#include <lua.h>
 #include <stdint.h>
-#include <sys/types.h>
-
-#include "util/response.h"
 
 // max position is 16384 (0x3FFF, 14 bits)
 
@@ -20,7 +16,7 @@ typedef struct ts_Position {
     ts_Direction dir;
 } ts_Position;
 
-ts_PositionHash ts_pos_hash(ts_Position const* pos);
+ts_PositionHash ts_pos_hash(ts_Position pos);
 ts_Position     ts_pos_unhash(ts_PositionHash hash);
 
 #endif //POSITION_H
