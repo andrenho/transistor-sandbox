@@ -9,7 +9,6 @@ static const ts_ComponentDef vcc = {
     .key        = "vcc",
     .type       = TS_SINGLE_TILE,
     .can_rotate = false,
-    /*
     .n_pins     = 4,
     .pins       = (ts_PinDef[]) {
         { "O0", TS_OUTPUT, TS_W1 },
@@ -17,7 +16,6 @@ static const ts_ComponentDef vcc = {
         { "O2", TS_OUTPUT, TS_W1 },
         { "O3", TS_OUTPUT, TS_W1 },
     },
-    */
     .simulate = vcc_sim,
 };
 

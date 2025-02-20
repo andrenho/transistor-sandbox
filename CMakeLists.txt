@@ -72,6 +72,8 @@ add_library(${PROJECT_NAME} STATIC
         src/component/componentdef.h
         src/component/defaultcomponents.h
         src/component/defaultcomponents.c
+        src/component/component.h
+        src/component/component.c
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})
@@ -115,11 +117,21 @@ add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS ${PROJECT_NAME}-t
 #
 
 add_custom_target(${PROJECT_NAME}-test-leaks)
-add_custom_command(TARGET ${PROJECT_NAME}-test-leaks
-        POST_BUILD
-        COMMENT "Check for leaks using valgrind."
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        DEPENDS ${PROJECT_NAME}-tests
-        COMMAND valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --suppressions=${CMAKE_SOURCE_DIR}/valgrind.supp ./${PROJECT_NAME}-tests
-)
+if (APPLE)
+    add_custom_command(TARGET ${PROJECT_NAME}-test-leaks
+            POST_BUILD
+            COMMENT "Check for leaks using leaks."
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            DEPENDS ${PROJECT_NAME}-tests
+            COMMAND MallocStackLogging=1 leaks --atExit -- ./${PROJECT_NAME}-tests
+    )
+else()
+    add_custom_command(TARGET ${PROJECT_NAME}-test-leaks
+            POST_BUILD
+            COMMENT "Check for leaks using valgrind."
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            DEPENDS ${PROJECT_NAME}-tests
+            COMMAND valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --suppressions=${CMAKE_SOURCE_DIR}/valgrind.supp ./${PROJECT_NAME}-tests
+    )
+endif()
 add_dependencies(${PROJECT_NAME}-test-leaks ${PROJECT_NAME}-tests)

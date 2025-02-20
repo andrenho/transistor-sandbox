@@ -30,7 +30,7 @@ typedef struct ts_ComponentDef {
 
     size_t           data_size;
 
-    void             (*init)();
+    void             (*init)(ts_Component* component);
 
     void             (*on_click)(ts_Component* component);
     void             (*simulate)(ts_Component* component);

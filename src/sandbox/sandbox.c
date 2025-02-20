@@ -17,7 +17,7 @@
 static ts_Response ts_sandbox_init_common(ts_Sandbox* sb)
 {
     memset(sb, 0, sizeof(ts_Sandbox));
-    ts_component_db_init(&sb->component_db);
+    ts_component_db_init(&sb->component_db, sb);
 
     arrpush(sb->boards, (ts_Board) {});
     ts_board_init(&sb->boards[0], sb, 10, 10);

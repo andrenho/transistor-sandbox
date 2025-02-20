@@ -4,6 +4,7 @@
 #include <stb_ds.h>
 
 #include "util/serialize.h"
+#include "component/componentdb.h"
 
 //
 // initialization
@@ -28,9 +29,9 @@ ts_Response ts_board_finalize(ts_Board* board)
 // wires
 //
 
-ts_Wire* ts_board_wire(ts_Board* board, ts_Position pos)
+ts_Wire* ts_board_wire(ts_Board const* board, ts_Position pos)
 {
-    int i = hmgeti(board->wires, ts_pos_hash(pos));
+    int i = hmgeti(((ts_Board *) board)->wires, ts_pos_hash(pos));
     if (i == -1)
         return NULL;
     return &board->wires[i].value;
@@ -53,6 +54,29 @@ ts_Response ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position e
     if (sz == 0)
         return ts_error(board->sandbox, TS_CANNOT_PLACE, "No wire has been placed");
     return TS_OK;
+}
+
+//
+// components
+//
+
+ts_Response ts_board_add_component(ts_Board* board, const char* name, ts_Position pos, ts_Direction direction)
+{
+    ts_Component component = {};
+    ts_Response r = ts_component_db_init_component(&board->sandbox->component_db, name, &component);
+    component.direction = direction;
+    if (r != TS_OK)
+        return r;
+    hmput(board->components, ts_pos_hash(pos), component);
+    return TS_OK;
+}
+
+ts_Component* ts_board_component(ts_Board const* board, ts_Position pos)
+{
+    int i = hmgeti(((ts_Board *) board)->components, ts_pos_hash(pos));
+    if (i == -1)
+        return NULL;
+    return &board->components[i].value;
 }
 
 //

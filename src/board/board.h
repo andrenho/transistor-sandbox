@@ -4,6 +4,7 @@
 #include "sandbox/sandbox.h"
 #include "position.h"
 #include "wire.h"
+#include "component/component.h"
 
 typedef struct ts_Board {
     ts_Sandbox* sandbox;
@@ -12,6 +13,10 @@ typedef struct ts_Board {
         ts_PositionHash key;
         ts_Wire         value;
     }* wires;
+    struct {
+        ts_PositionHash key;
+        ts_Component    value;
+    }* components;
 } ts_Board;
 
 // initialization
@@ -19,12 +24,13 @@ ts_Response ts_board_init(ts_Board* board, ts_Sandbox* sb, int w, int h);
 ts_Response ts_board_finalize(ts_Board* board);
 
 // wires
-ts_Wire*    ts_board_wire(ts_Board* board, ts_Position pos);  // NULL if not present
+ts_Wire*    ts_board_wire(ts_Board const* board, ts_Position pos);  // NULL if not present
 ts_Response ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire);
 ts_Response ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end, ts_Orientation orientation, ts_Wire wire);
 
 // components
-// TODO
+ts_Response   ts_board_add_component(ts_Board* board, const char* name, ts_Position pos, ts_Direction direction);
+ts_Component* ts_board_component(ts_Board const* board, ts_Position pos);
 
 // clearing
 // TODO
