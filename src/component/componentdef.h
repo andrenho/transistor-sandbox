@@ -20,7 +20,7 @@ typedef struct ts_PinDef {
 } ts_PinDef;
 
 typedef struct ts_ComponentDef {
-    const char*      name;
+    const char*      key;
     ts_ComponentType type;
     bool             can_rotate;
     uint8_t          ic_width;

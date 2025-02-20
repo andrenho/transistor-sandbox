@@ -6,7 +6,7 @@ static void vcc_sim(ts_Component* component)
 };
 
 static const ts_ComponentDef vcc = {
-    .name       = "vcc",
+    .key        = "vcc",
     .type       = TS_SINGLE_TILE,
     .can_rotate = false,
     .n_pins     = 4,

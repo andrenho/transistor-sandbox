@@ -8,10 +8,7 @@
 typedef struct ts_Sandbox ts_Sandbox;
 
 typedef struct ts_ComponentDB {
-    struct {
-        const char*     key;
-        ts_ComponentDef value;
-    } *items;
+    ts_ComponentDef* items;
 } ts_ComponentDB;
 
 // initialization

@@ -21,7 +21,7 @@ ts_Response ts_component_db_finalize(ts_ComponentDB* db)
 
 ts_Response ts_component_db_add_def(ts_ComponentDB* db, ts_ComponentDef const* def)
 {
-    shput(db->items, def->name, *def);
+    shputs(db->items, *def);
     return TS_OK;
 }
 
