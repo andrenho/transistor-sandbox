@@ -95,6 +95,13 @@ int ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_
         SR_ADD_INLINE(",\n");
     }
     SR_CONT("  },");
+    SR_CONT("  components = {");
+    for (int i = 0; i < hmlen(board->components); ++i) {
+        SR_CONT_INLINE("    [%u] = ", board->components[i].key);
+        SR_CALL(ts_component_serialize, &board->components[i].value, 4);
+        SR_ADD_INLINE(",\n");
+    }
+    SR_CONT("  },");
     SR_FINI("},");
 }
 

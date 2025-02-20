@@ -5,6 +5,12 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#include <lua.h>
+
+#include "util/response.h"
+
+typedef struct ts_Sandbox ts_Sandbox;
+
 // max position is 16384 (0x3FFF, 14 bits)
 
 typedef uint32_t ts_PositionHash;
@@ -26,5 +32,8 @@ ts_PositionHash ts_pos_hash(ts_Position pos);
 ts_Position     ts_pos_unhash(ts_PositionHash hash);
 
 size_t          ts_pos_a_to_b(ts_Position a, ts_Position b, ts_Orientation orientation, ts_Position* list, size_t list_sz);
+
+const char*     ts_direction_serialize(ts_Direction dir);
+ts_Response     ts_direction_unserialize(ts_Direction* dir, lua_State* L, ts_Sandbox* sb);
 
 #endif //POSITION_H
