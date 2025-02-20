@@ -70,6 +70,8 @@ add_library(${PROJECT_NAME} STATIC
         src/component/componentdb.c
         src/component/componentdb.h
         src/component/componentdef.h
+        src/component/defaultcomponents.h
+        src/component/defaultcomponents.c
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})

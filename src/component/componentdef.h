@@ -25,8 +25,8 @@ typedef struct ts_ComponentDef {
     bool             can_rotate;
     uint8_t          ic_width;
 
-    ts_PinDef*       pins;
     uint8_t          n_pins;
+    ts_PinDef*       pins;
 
     size_t           data_size;
 
@@ -39,6 +39,7 @@ typedef struct ts_ComponentDef {
     ts_Response      (*unserialize)(ts_Component* component, lua_State* L, ts_Board* board);
 
     void*            extra;
+    bool             custom;  // not native
 
 } ts_ComponentDef;
 

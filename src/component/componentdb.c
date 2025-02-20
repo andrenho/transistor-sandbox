@@ -1,18 +1,33 @@
 #include "componentdb.h"
 
-void ts_component_db_init(ts_ComponentDB* db)
-{
+#include <string.h>
 
+#include <stb_ds.h>
+
+#include "defaultcomponents.h"
+
+ts_Response ts_component_db_init(ts_ComponentDB* db)
+{
+    memset(db, 0, sizeof(ts_ComponentDB));
+    ts_add_default_components(db);
+    return TS_OK;
 }
 
-void ts_component_db_finalize(ts_ComponentDB* db)
+ts_Response ts_component_db_finalize(ts_ComponentDB* db)
 {
+    shfree(db->items);
+    return TS_OK;
+}
 
+ts_Response ts_component_db_add_def(ts_ComponentDB* db, ts_ComponentDef const* def)
+{
+    shput(db->items, def->name, *def);
+    return TS_OK;
 }
 
 int ts_component_db_serialize(ts_ComponentDB const* db, int vspace, char* buf, size_t buf_sz)
 {
-    // TODO
+    // TODO - free non-native components
     return TS_OK;
 }
 
