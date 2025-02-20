@@ -1,5 +1,9 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
+
+#include <cstdio>
+
+#include "stb_ds.h"
+
 
 extern "C" {
 #include "transistor-sandbox.h"
@@ -29,6 +33,8 @@ TEST_SUITE("Serialization") {
 
         CHECK(ts_board_wire(&sb.boards[0], { 1, 1, TS_S })->layer == TS_TOP);
         CHECK(ts_board_wire(&sb.boards[0], { 1, 2, TS_S }) == NULL);
+
+        CHECK(shlen(sb.component_db.items) == shlen(sb2.component_db.items));
 
         ts_sandbox_finalize(&sb2);
         ts_sandbox_finalize(&sb);

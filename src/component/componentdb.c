@@ -9,7 +9,6 @@
 ts_Response ts_component_db_init(ts_ComponentDB* db)
 {
     memset(db, 0, sizeof(ts_ComponentDB));
-    ts_add_default_components(db);
     return TS_OK;
 }
 
