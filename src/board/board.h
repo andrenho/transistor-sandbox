@@ -2,7 +2,7 @@
 #define BOARD_H
 
 #include "sandbox/sandbox.h"
-#include "position.h"
+#include "basic/position.h"
 #include "wire.h"
 #include "component/component.h"
 

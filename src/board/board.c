@@ -90,14 +90,16 @@ int ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_
     SR_CONT("  h = %d,", board->h);
     SR_CONT("  wires = {");
     for (int i = 0; i < hmlen(board->wires); ++i) {
-        SR_CONT_INLINE("    [%u] = ", board->wires[i].key);
+        char key[30]; ts_pos_serialize(ts_pos_unhash(board->wires[i].key), key, sizeof key);
+        SR_CONT_INLINE("    [%s] = ", key);
         SR_CALL_INLINE(ts_wire_serialize, &board->wires[i].value);
         SR_ADD_INLINE(",\n");
     }
     SR_CONT("  },");
     SR_CONT("  components = {");
     for (int i = 0; i < hmlen(board->components); ++i) {
-        SR_CONT_INLINE("    [%u] = ", board->components[i].key);
+        char key[30]; ts_pos_serialize(ts_pos_unhash(board->components[i].key), key, sizeof key);
+        SR_CONT_INLINE("    [%s] = ", key);
         SR_CALL(ts_component_serialize, &board->components[i].value, 4);
         SR_ADD_INLINE(",\n");
     }

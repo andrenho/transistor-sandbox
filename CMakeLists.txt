@@ -62,8 +62,8 @@ add_library(${PROJECT_NAME} STATIC
         src/util/response.h
         src/util/serialize.h
         src/board/wire.h
-        src/board/position.c
-        src/board/position.h
+        src/basic/position.c
+        src/basic/position.h
         src/transistor-sandbox.h
         src/board/wire.c
         src/util/minmax.h
@@ -74,6 +74,8 @@ add_library(${PROJECT_NAME} STATIC
         src/component/defaultcomponents.c
         src/component/component.h
         src/component/component.c
+        src/basic/direction.c
+        src/basic/direction.h
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})

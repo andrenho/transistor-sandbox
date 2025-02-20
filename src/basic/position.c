@@ -26,6 +26,16 @@ ts_Position ts_pos_unhash(ts_PositionHash hash)
     return pos;
 }
 
+int ts_pos_serialize(ts_Position pos, char* buf, size_t buf_sz)
+{
+    return snprintf(buf, buf_sz, "{ %d, %d, '%s' }", pos.x, pos.y, ts_direction_serialize(pos.dir));
+}
+
+ts_Response ts_pos_unserialize(ts_Position* pos, lua_State* L, ts_Sandbox* sb)
+{
+    // TODO
+}
+
 static size_t ts_pos_a_to_b_horizontal(uint16_t x1, uint16_t x2, uint16_t y, ts_Position* list, size_t list_sz)
 {
     assert(x2 >= x1);
@@ -72,32 +82,4 @@ size_t ts_pos_a_to_b(ts_Position a, ts_Position b, ts_Orientation orientation, t
     return sz;
 }
 
-const char* ts_direction_serialize(ts_Direction dir)
-{
-    switch (dir) {
-        case TS_CENTER: return "center";
-        case TS_N:      return "n";
-        case TS_S:      return "s";
-        case TS_W:      return "w";
-        case TS_E:      return "e";
-    }
-    return "invalid";
-}
 
-ts_Response ts_direction_unserialize(ts_Direction* dir, lua_State* L, ts_Sandbox* sb)
-{
-    const char* s = luaL_checkstring(L, -1);
-    if (strcmp(s, "center") == 0)
-        *dir = TS_CENTER;
-    else if (strcmp(s, "n") == 0)
-        *dir = TS_N;
-    else if (strcmp(s, "s") == 0)
-        *dir = TS_S;
-    else if (strcmp(s, "w") == 0)
-        *dir = TS_W;
-    else if (strcmp(s, "e") == 0)
-        *dir = TS_E;
-    else
-        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Direction invalid: '%s'", s);
-    return TS_OK;
-}

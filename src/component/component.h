@@ -4,7 +4,7 @@
 #include <lua.h>
 #include <stdint.h>
 
-#include "board/position.h"
+#include "basic/position.h"
 #include "util/response.h"
 
 typedef struct ts_ComponentDef ts_ComponentDef;
