@@ -34,6 +34,8 @@ TEST_SUITE("Position & Wires")
 
         CHECK(ts_board_wire(&sb.boards[0], { 1, 1, TS_S })->layer == TS_TOP);
         CHECK(ts_board_wire(&sb.boards[0], { 1, 2, TS_S }) == NULL);
+
+        ts_sandbox_finalize(&sb);
     }
 
     TEST_CASE("A to B: horizontal")
