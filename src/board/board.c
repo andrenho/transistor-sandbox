@@ -5,6 +5,10 @@
 
 #include "util/serialize.h"
 
+//
+// initialization
+//
+
 ts_Response ts_board_init(ts_Board* board, ts_Sandbox* sb, int w, int h)
 {
     board->sandbox = sb;
@@ -20,13 +24,9 @@ ts_Response ts_board_finalize(ts_Board* board)
     return TS_OK;
 }
 
-ts_Response ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
-{
-    if (pos.x >= board->w || pos.y >= board->h)
-        return ts_error(board->sandbox, TS_CANNOT_PLACE, "Wire out of bounds");
-    hmput(board->wires, ts_pos_hash(pos), wire);
-    return TS_OK;
-}
+//
+// wires
+//
 
 ts_Wire* ts_board_wire(ts_Board* board, ts_Position pos)
 {
@@ -35,6 +35,29 @@ ts_Wire* ts_board_wire(ts_Board* board, ts_Position pos)
         return NULL;
     return &board->wires[i].value;
 }
+
+ts_Response ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
+{
+    if (pos.x >= board->w || pos.y >= board->h)
+        return ts_error(board->sandbox, TS_CANNOT_PLACE, "Wire out of bounds");
+    hmput(board->wires, ts_pos_hash(pos), wire);
+    return TS_OK;
+}
+
+ts_Response ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end, ts_Orientation orientation, ts_Wire wire)
+{
+    ts_Position pos[300];
+    size_t sz = ts_pos_a_to_b(start, end, orientation, pos, 300);
+    for (size_t i = 0; i < sz; ++i)
+        ts_board_add_wire(board, pos[i], wire);
+    if (sz == 0)
+        return ts_error(board->sandbox, TS_CANNOT_PLACE, "No wire has been placed");
+    return TS_OK;
+}
+
+//
+// serialization
+//
 
 int ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_sz)
 {

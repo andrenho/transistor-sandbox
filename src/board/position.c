@@ -63,8 +63,8 @@ size_t ts_pos_a_to_b(ts_Position a, ts_Position b, ts_Orientation orientation, t
         sz = ts_pos_a_to_b_horizontal(min(a.x, b.x), max(a.x, b.x), a.y, list, list_sz);
         sz += ts_pos_a_to_b_vertical(b.x, min(a.y, b.y), max(a.y, b.y), &list[sz], list_sz - sz);
     } else if (orientation == TS_VERTICAL) {
-        sz = ts_pos_a_to_b_vertical(b.x, min(a.y, b.y), max(a.y, b.y), list, list_sz);
-        sz += ts_pos_a_to_b_horizontal(min(a.x, b.x), max(a.x, b.x), a.y, &list[sz], list_sz - sz);
+        sz = ts_pos_a_to_b_vertical(a.x, min(a.y, b.y), max(a.y, b.y), list, list_sz);
+        sz += ts_pos_a_to_b_horizontal(min(a.x, b.x), max(a.x, b.x), b.y, &list[sz], list_sz - sz);
     }
     return sz;
 }

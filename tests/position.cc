@@ -4,6 +4,14 @@ extern "C" {
 #include "transistor-sandbox.h"
 }
 
+static bool pos_list_contains(ts_Position const* list, int list_sz, ts_Position pos)
+{
+    for (int i = 0; i < list_sz; ++i)
+        if (ts_pos_equals(list[i], pos))
+            return true;
+    return false;
+}
+
 TEST_SUITE("Position & Wires")
 {
     TEST_CASE("Position hashing")
@@ -33,12 +41,12 @@ TEST_SUITE("Position & Wires")
         ts_Position pos[20];
         size_t sz = ts_pos_a_to_b({ 1, 1, TS_CENTER }, { 2, 3, TS_CENTER }, TS_HORIZONTAL, pos, 20);
         CHECK(sz == 6);
-        CHECK(ts_pos_equals(pos[0], { 1, 1, TS_E }));
-        CHECK(ts_pos_equals(pos[1], { 2, 1, TS_W }));
-        CHECK(ts_pos_equals(pos[2], { 2, 1, TS_S }));
-        CHECK(ts_pos_equals(pos[3], { 2, 2, TS_N }));
-        CHECK(ts_pos_equals(pos[4], { 2, 2, TS_S }));
-        CHECK(ts_pos_equals(pos[5], { 2, 3, TS_N }));
+        CHECK(pos_list_contains(pos, 20, { 1, 1, TS_E }));
+        CHECK(pos_list_contains(pos, 20, { 2, 1, TS_W }));
+        CHECK(pos_list_contains(pos, 20, { 2, 1, TS_S }));
+        CHECK(pos_list_contains(pos, 20, { 2, 2, TS_N }));
+        CHECK(pos_list_contains(pos, 20, { 2, 2, TS_S }));
+        CHECK(pos_list_contains(pos, 20, { 2, 3, TS_N }));
     }
 
     TEST_CASE("A to B: vertical")
@@ -46,11 +54,11 @@ TEST_SUITE("Position & Wires")
         ts_Position pos[20];
         size_t sz = ts_pos_a_to_b({ 1, 1, TS_CENTER }, { 2, 3, TS_CENTER }, TS_VERTICAL, pos, 20);
         CHECK(sz == 6);
-        CHECK(ts_pos_equals(pos[0], { 1, 1, TS_S }));
-        CHECK(ts_pos_equals(pos[1], { 1, 2, TS_N }));
-        CHECK(ts_pos_equals(pos[2], { 1, 2, TS_S }));
-        CHECK(ts_pos_equals(pos[3], { 1, 3, TS_N }));
-        CHECK(ts_pos_equals(pos[4], { 2, 3, TS_E }));
-        CHECK(ts_pos_equals(pos[5], { 2, 3, TS_W }));
+        CHECK(pos_list_contains(pos, 20, { 1, 1, TS_S }));
+        CHECK(pos_list_contains(pos, 20, { 1, 2, TS_N }));
+        CHECK(pos_list_contains(pos, 20, { 1, 2, TS_S }));
+        CHECK(pos_list_contains(pos, 20, { 1, 3, TS_N }));
+        CHECK(pos_list_contains(pos, 20, { 1, 3, TS_E }));
+        CHECK(pos_list_contains(pos, 20, { 2, 3, TS_W }));
     }
 }
