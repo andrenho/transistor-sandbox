@@ -121,3 +121,4 @@ add_custom_command(TARGET ${PROJECT_NAME}-test-leaks
         DEPENDS ${PROJECT_NAME}-tests
         COMMAND valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --suppressions=${CMAKE_SOURCE_DIR}/valgrind.supp ./${PROJECT_NAME}-tests
 )
+add_dependencies(${PROJECT_NAME}-test-leaks ${PROJECT_NAME}-tests)

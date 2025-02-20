@@ -22,6 +22,7 @@ static const ts_ComponentDef vcc = {
 ts_Response ts_add_default_components(ts_ComponentDB* db)
 {
     ts_ComponentDef const* defs[] = { &vcc, NULL };
+
     for (size_t i = 0; defs[i]; ++i) {
         ts_Response r = ts_component_db_add_def(db, defs[i]);
         if (r != TS_OK)
