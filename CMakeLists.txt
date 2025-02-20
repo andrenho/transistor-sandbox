@@ -67,6 +67,9 @@ add_library(${PROJECT_NAME} STATIC
         src/transistor-sandbox.h
         src/board/wire.c
         src/util/minmax.h
+        src/component/componentdb.c
+        src/component/componentdb.h
+        src/component/componentdef.h
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})

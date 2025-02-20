@@ -17,6 +17,8 @@ ts_Response ts_sandbox_init(ts_Sandbox* sb)
 {
     memset(sb, 0, sizeof(ts_Sandbox));
 
+    ts_component_db_init(&sb->component_db);
+
     arrpush(sb->boards, (ts_Board) {});
     ts_board_init(&sb->boards[0], sb, 10, 10);
 
@@ -25,13 +27,13 @@ ts_Response ts_sandbox_init(ts_Sandbox* sb)
     return TS_OK;
 }
 
-ts_Response ts_sandbox_finalize(ts_Sandbox** sb)
+ts_Response ts_sandbox_finalize(ts_Sandbox* sb)
 {
-    for (int i = 0; i < arrlen((*sb)->boards); ++i)
-        ts_board_finalize(&(*sb)->boards[i]);
-    arrfree((*sb)->boards);
+    for (int i = 0; i < arrlen(sb->boards); ++i)
+        ts_board_finalize(&sb->boards[i]);
+    arrfree(sb->boards);
 
-    *sb = NULL;
+    ts_component_db_finalize(&sb->component_db);
 
     return TS_OK;
 }
@@ -42,6 +44,9 @@ int ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, char* buf, size_t buf
     SR_CONT("  boards = {");
     for (int i = 0; i < arrlen(sb->boards); ++i)
         SR_CALL(ts_board_serialize, &sb->boards[i], 4);
+    SR_CONT("  },");
+    SR_CONT("  component_db = {");
+    SR_CALL(ts_component_db_serialize, &sb->component_db, 4);
     SR_CONT("  },");
     SR_FINI("}");
 }
@@ -64,6 +69,14 @@ ts_Response ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L)
             return r;
         lua_pop(L, 1);
     }
+    lua_pop(L, 1);
+
+    lua_getfield(L, -1, "component_db");
+    if (!lua_istable(L, -1))
+        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'component_db'");
+    ts_Response r = ts_component_db_unserialize(&sb->component_db, L, sb);
+    if (r != TS_OK)
+        return r;
     lua_pop(L, 1);
 
     return TS_OK;
