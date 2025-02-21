@@ -114,20 +114,26 @@ ts_Response ts_board_unserialize(ts_Board* board, lua_State* L, ts_Sandbox* sb)
 
     ts_board_init(board, sb, w, h);
 
-    lua_getfield(L, -1, "wires");
-    if (!lua_istable(L, -1))
-        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'wires'");
-    lua_pushnil(L);
-    while (lua_next(L, -2)) {
-        ts_PositionHash pos_hash = luaL_checkinteger(L, -2);
-        ts_Wire wire;
-        ts_Response r = ts_wire_unserialize(&wire, L, sb);
-        if (r != TS_OK)
-            return r;
-        hmput(board->wires, pos_hash, wire);
+    // wires
+    {
+        lua_getfield(L, -1, "wires");
+        if (!lua_istable(L, -1))
+            return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'wires'");
+        lua_pushnil(L);
+        while (lua_next(L, -2)) {
+            ts_Position pos;
+            ts_Wire wire;
+            ts_Response r;
+
+            if ((r = ts_pos_unserialize(&pos, L, sb)) != TS_OK)
+                return r;
+            if ((r = ts_wire_unserialize(&wire, L, sb) != TS_OK))
+                return r;
+            hmput(board->wires, ts_pos_hash(pos), wire);
+            lua_pop(L, 1);
+        }
         lua_pop(L, 1);
     }
-    lua_pop(L, 1);
 
     return TS_OK;
 }
