@@ -78,6 +78,7 @@ size_t ts_component_def_pin_positions_ic_dip(ts_ComponentDef const* def, ts_Posi
     int h = def->n_pins / 2;
     int j = 0;
     uint8_t pin_no = 0;
+
     switch (direction) {
         case TS_N:
             for (int i = 0; i < h; ++i)
