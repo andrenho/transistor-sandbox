@@ -65,6 +65,19 @@ ts_Response ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L)
 
     ts_sandbox_init_common(sb);
 
+    // component db
+
+    lua_getfield(L, -1, "component_db");
+    if (!lua_istable(L, -1))
+        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'component_db'");
+    ts_Response r = ts_component_db_unserialize(&sb->component_db, L, sb);
+    ts_add_default_components(&sb->component_db);
+    if (r != TS_OK)
+        return r;
+    lua_pop(L, 1);
+
+    // boards
+
     lua_getfield(L, -1, "boards");
     if (!lua_istable(L, -1))
         return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'boards'");
@@ -76,15 +89,6 @@ ts_Response ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L)
             return r;
         lua_pop(L, 1);
     }
-    lua_pop(L, 1);
-
-    lua_getfield(L, -1, "component_db");
-    if (!lua_istable(L, -1))
-        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'component_db'");
-    ts_Response r = ts_component_db_unserialize(&sb->component_db, L, sb);
-    ts_add_default_components(&sb->component_db);
-    if (r != TS_OK)
-        return r;
     lua_pop(L, 1);
 
     return TS_OK;

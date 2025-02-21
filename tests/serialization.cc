@@ -17,7 +17,7 @@ TEST_SUITE("Serialization") {
         ts_sandbox_init(&sb);
 
         ts_board_add_wire(&sb.boards[0], { 1, 1, TS_S }, { TS_W1, TS_TOP });
-        // ts_board_add_component(&sb.boards[0], "vcc", { 2, 2, TS_CENTER }, TS_E);
+        ts_board_add_component(&sb.boards[0], "vcc", { 2, 2, TS_CENTER }, TS_E);
 
         char serialized[4096] = "return ";
         ts_sandbox_serialize(&sb, 0, &serialized[7], sizeof serialized - 7);
