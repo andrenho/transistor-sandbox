@@ -4,10 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "board/board.h"
 #include "board/wire.h"
 
 typedef struct ts_Component ts_Component;
-typedef struct ts_Board ts_Board;
 
 typedef enum { TS_SINGLE_TILE, TS_IC_DIP, TS_IC_QUAD } ts_ComponentType;
 

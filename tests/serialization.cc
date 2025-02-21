@@ -34,15 +34,14 @@ TEST_SUITE("Serialization") {
         CHECK(sb.boards[0].w == sb2.boards[0].w);
         CHECK(sb.boards[0].h == sb2.boards[0].h);
 
-        /*
-        CHECK(ts_board_wire(&sb2.boards[0], { 1, 1, TS_S })->layer == TS_TOP);
+        CHECK(hmlen(sb2.boards[0].wires) == 1);
         CHECK(ts_board_wire(&sb2.boards[0], { 1, 2, TS_S }) == NULL);
+        CHECK(ts_board_wire(&sb2.boards[0], { 1, 1, TS_S })->layer == TS_TOP);
 
         ts_Component* component = ts_board_component(&sb2.boards[0], { 2, 2, TS_CENTER });
         CHECK(component != nullptr);
         CHECK(component->def->key == "vcc");
         CHECK(component->direction == TS_E);
-        */
 
         ts_sandbox_finalize(&sb2);
         ts_sandbox_finalize(&sb);

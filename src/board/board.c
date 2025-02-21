@@ -5,6 +5,7 @@
 
 #include "util/serialize.h"
 #include "component/componentdb.h"
+#include "sandbox/sandbox.h"
 
 //
 // initialization

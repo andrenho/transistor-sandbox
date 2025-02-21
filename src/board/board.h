@@ -1,10 +1,11 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include "sandbox/sandbox.h"
 #include "basic/position.h"
 #include "wire.h"
 #include "component/component.h"
+
+typedef struct ts_Sandbox ts_Sandbox;
 
 typedef struct ts_Board {
     ts_Sandbox* sandbox;

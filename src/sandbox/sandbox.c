@@ -19,9 +19,6 @@ static ts_Response ts_sandbox_init_common(ts_Sandbox* sb)
     memset(sb, 0, sizeof(ts_Sandbox));
     ts_component_db_init(&sb->component_db, sb);
 
-    arrpush(sb->boards, (ts_Board) {});
-    ts_board_init(&sb->boards[0], sb, 10, 10);
-
     sb->last_error = TS_OK;
     sb->last_error_message[0] = '\0';
     return TS_OK;
@@ -30,6 +27,10 @@ static ts_Response ts_sandbox_init_common(ts_Sandbox* sb)
 ts_Response ts_sandbox_init(ts_Sandbox* sb)
 {
     ts_sandbox_init_common(sb);
+
+    arrpush(sb->boards, (ts_Board) {});
+    ts_board_init(&sb->boards[0], sb, 10, 10);
+
     ts_add_default_components(&sb->component_db);
     return TS_OK;
 }
@@ -84,8 +85,7 @@ ts_Response ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L)
     lua_pushnil(L);
     while (lua_next(L, -2)) {
         arrpush(sb->boards, (ts_Board) {});
-        ts_Response r = ts_board_unserialize(&arrlast(sb->boards), L, sb);
-        if (r != TS_OK)
+        if ((r = ts_board_unserialize(&arrlast(sb->boards), L, sb)) != TS_OK)
             return r;
         lua_pop(L, 1);
     }
