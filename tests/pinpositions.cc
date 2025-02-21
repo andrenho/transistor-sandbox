@@ -11,10 +11,11 @@ static ts_PinPos pins[20];
 
 struct Fixture {
 
-    Fixture(ts_ComponentType type, uint8_t n_pins)
+    Fixture(ts_ComponentType type, uint8_t n_pins, int width=1)
     {
         def.type = type;
         def.n_pins = n_pins;
+        def.ic_width = width;
 
         ts_component_init(&component, &def);
     }
@@ -211,6 +212,92 @@ TEST_SUITE("Pin positions")
             CHECK(ts_pos_equals(pins[4].pos, { 2, 2, TS_CENTER }));
             CHECK(ts_pos_equals(pins[5].pos, { 3, 2, TS_CENTER }));
         }
+    }
 
+    TEST_CASE("DIP component - 6 pins, width 2")
+    {
+        Fixture f(TS_IC_DIP, 6, 2);
+
+        SUBCASE("Direction N")
+        {
+            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(rect.bottom_right, { 3, 4, TS_CENTER }));
+
+            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+
+            CHECK(sz == 6);
+            for (int i = 0; i < 6; ++ i)
+                CHECK(pins[i].pin_no == i);
+            CHECK(ts_pos_equals(pins[0].pos, { 0, 1, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[1].pos, { 0, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[2].pos, { 0, 3, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[3].pos, { 3, 3, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[4].pos, { 3, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[5].pos, { 3, 1, TS_CENTER }));
+        }
+
+        SUBCASE("Direction E")
+        {
+            f.component.direction = TS_E;
+
+            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(rect.bottom_right, { 4, 3, TS_CENTER }));
+
+            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+
+            CHECK(sz == 6);
+            for (int i = 0; i < 6; ++ i)
+                CHECK(pins[i].pin_no == i);
+            CHECK(ts_pos_equals(pins[0].pos, { 1, 3, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[1].pos, { 2, 3, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[2].pos, { 3, 3, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[3].pos, { 3, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[4].pos, { 2, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[5].pos, { 1, 0, TS_CENTER }));
+        }
+
+        SUBCASE("Direction S")
+        {
+            f.component.direction = TS_S;
+
+            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_S });
+            CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(rect.bottom_right, { 3, 4, TS_CENTER }));
+
+            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+
+            CHECK(sz == 6);
+            for (int i = 0; i < 6; ++ i)
+                CHECK(pins[i].pin_no == i);
+            CHECK(ts_pos_equals(pins[0].pos, { 3, 3, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[1].pos, { 3, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[2].pos, { 3, 1, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[3].pos, { 0, 1, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[4].pos, { 0, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[5].pos, { 0, 3, TS_CENTER }));
+        }
+
+        SUBCASE("Direction W")
+        {
+            f.component.direction = TS_W;
+
+            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(rect.bottom_right, { 4, 3, TS_CENTER }));
+
+            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+
+            CHECK(sz == 6);
+            for (int i = 0; i < 6; ++ i)
+                CHECK(pins[i].pin_no == i);
+            CHECK(ts_pos_equals(pins[0].pos, { 3, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[1].pos, { 2, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[2].pos, { 1, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[3].pos, { 1, 3, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[4].pos, { 2, 3, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[5].pos, { 3, 3, TS_CENTER }));
+        }
     }
 }
