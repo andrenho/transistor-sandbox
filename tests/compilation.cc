@@ -31,6 +31,14 @@ TEST_SUITE("Compilation")
         SUBCASE("Board elements")
         {
             CHECK(hmlen(board->components) == 2);
+            CHECK(ts_board_component(board, { 1, 1 })->def->key == "__button");
+            CHECK(ts_board_component(board, { 3, 1 })->def->key == "__led");
+
+            CHECK(hmlen(board->wires) == 4);
+            CHECK(ts_board_wire(board, { 1, 1, TS_E }));
+            CHECK(ts_board_wire(board, { 2, 1, TS_W }));
+            CHECK(ts_board_wire(board, { 2, 1, TS_E }));
+            CHECK(ts_board_wire(board, { 3, 1, TS_W }));
         }
     }
 }

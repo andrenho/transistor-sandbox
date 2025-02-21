@@ -47,7 +47,10 @@ ts_Response ts_pos_unserialize(ts_Position* pos, lua_State* L, ts_Sandbox* sb)
 
 static size_t ts_pos_a_to_b_horizontal(uint16_t x1, uint16_t x2, uint16_t y, ts_Position* list, size_t list_sz)
 {
-    assert(x2 >= x1);
+    if (x1 == x2)
+        return 0;
+
+    assert(x2 > x1);
 
     int i = 0;
     list[i++] = (ts_Position) { x1, y, TS_E };
@@ -61,7 +64,10 @@ static size_t ts_pos_a_to_b_horizontal(uint16_t x1, uint16_t x2, uint16_t y, ts_
 
 static size_t ts_pos_a_to_b_vertical(uint16_t x, uint16_t y1, uint16_t y2, ts_Position* list, size_t list_sz)
 {
-    assert(y2 >= y1);
+    if (y1 == y2)
+        return 0;
+
+    assert(y2 > y1);
 
     int i = 0;
     list[i++] = (ts_Position) { x, y1, TS_S };
