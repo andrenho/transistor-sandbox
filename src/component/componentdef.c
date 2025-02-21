@@ -73,9 +73,42 @@ size_t ts_component_def_pin_positions_single_tile(ts_ComponentDef const* def, ts
     }
 }
 
-size_t ts_component_def_pin_positions_ic_dip(ts_ComponentDef const* def, ts_Position component_pos, ts_Direction direction, ts_PinPos* pin_pos, size_t max_pin_pos)
+size_t ts_component_def_pin_positions_ic_dip(ts_ComponentDef const* def, ts_Position pos, ts_Direction direction, ts_PinPos* pin_pos, size_t max_pin_pos)
 {
-    return 0; // TODO
+    int h = def->n_pins / 2;
+    int j = 0;
+    uint8_t pin_no = 0;
+    switch (direction) {
+        case TS_N:
+            for (int i = 0; i < h; ++i)
+                pin_pos[j++] = (ts_PinPos) { .pos = { pos.x - 1, pos.y + i }, .pin_no = pin_no++ };
+            for (int i = (h-1); i >= 0; --i)
+                pin_pos[j++] = (ts_PinPos) { .pos = { pos.x + def->ic_width, pos.y + i }, .pin_no = pin_no++ };
+            break;
+        case TS_E:
+            for (int i = 0; i < h; ++i)
+                pin_pos[j++] = (ts_PinPos) { .pos = { pos.x + i, pos.y + def->ic_width }, .pin_no = pin_no++ };
+            for (int i = (h-1); i >= 0; --i)
+                pin_pos[j++] = (ts_PinPos) { .pos = { pos.x + i, pos.y - 1 }, .pin_no = pin_no++ };
+            break;
+        case TS_S:
+            for (int i = (h-1); i >= 0; --i)
+                pin_pos[j++] = (ts_PinPos) { .pos = { pos.x + def->ic_width, pos.y + i }, .pin_no = pin_no++ };
+            for (int i = 0; i < h; ++i)
+                pin_pos[j++] = (ts_PinPos) { .pos = { pos.x - 1, pos.y + i }, .pin_no = pin_no++ };
+            break;
+        case TS_W:
+            for (int i = (h-1); i >= 0; --i)
+                pin_pos[j++] = (ts_PinPos) { .pos = { pos.x + i, pos.y - 1 }, .pin_no = pin_no++ };
+            for (int i = 0; i < h; ++i)
+                pin_pos[j++] = (ts_PinPos) { .pos = { pos.x + i, pos.y + def->ic_width }, .pin_no = pin_no++ };
+            break;
+        case TS_CENTER:
+        default:
+            abort();
+    }
+
+    return def->n_pins;
 }
 
 size_t ts_component_def_pin_positions_ic_quad(ts_ComponentDef const* def, ts_Position component_pos, ts_Direction direction, ts_PinPos* pin_pos, size_t max_pin_pos)
