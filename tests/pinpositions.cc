@@ -28,16 +28,17 @@ struct Fixture {
 
     ts_ComponentDef def = {
         .can_rotate = true,
+        .ic_width = 1,
         .pins = (ts_PinDef[]) {
-                { "", TS_INPUT, TS_W1 },
-                { "", TS_INPUT, TS_W1 },
-                { "", TS_INPUT, TS_W1 },
-                { "", TS_INPUT, TS_W1 },
-                { "", TS_INPUT, TS_W1 },
-                { "", TS_INPUT, TS_W1 },
-                { "", TS_INPUT, TS_W1 },
-                { "", TS_INPUT, TS_W1 },
-            },
+            { "", TS_INPUT, TS_W1 },
+            { "", TS_INPUT, TS_W1 },
+            { "", TS_INPUT, TS_W1 },
+            { "", TS_INPUT, TS_W1 },
+            { "", TS_INPUT, TS_W1 },
+            { "", TS_INPUT, TS_W1 },
+            { "", TS_INPUT, TS_W1 },
+            { "", TS_INPUT, TS_W1 },
+        },
     };
 
 };
@@ -168,5 +169,48 @@ TEST_SUITE("Pin positions")
             CHECK(ts_pos_equals(pins[4].pos, { 2, 0, TS_CENTER }));
             CHECK(ts_pos_equals(pins[5].pos, { 1, 0, TS_CENTER }));
         }
+
+        SUBCASE("Direction S")
+        {
+            f.component.direction = TS_S;
+
+            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_S });
+            CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(rect.bottom_right, { 2, 4, TS_CENTER }));
+
+            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+
+            CHECK(sz == 6);
+            for (int i = 0; i < 6; ++ i)
+                CHECK(pins[i].pin_no == i);
+            CHECK(ts_pos_equals(pins[0].pos, { 2, 3, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[1].pos, { 2, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[2].pos, { 2, 1, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[3].pos, { 0, 1, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[4].pos, { 0, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[5].pos, { 0, 3, TS_CENTER }));
+        }
+
+        SUBCASE("Direction W")
+        {
+            f.component.direction = TS_W;
+
+            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(rect.bottom_right, { 4, 2, TS_CENTER }));
+
+            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+
+            CHECK(sz == 6);
+            for (int i = 0; i < 6; ++ i)
+                CHECK(pins[i].pin_no == i);
+            CHECK(ts_pos_equals(pins[0].pos, { 3, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[1].pos, { 2, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[2].pos, { 1, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[3].pos, { 1, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[4].pos, { 2, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[5].pos, { 3, 2, TS_CENTER }));
+        }
+
     }
 }
