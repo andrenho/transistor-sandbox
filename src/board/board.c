@@ -125,8 +125,10 @@ ts_Response ts_board_unserialize(ts_Board* board, lua_State* L, ts_Sandbox* sb)
             ts_Wire wire;
             ts_Response r;
 
+            lua_pushvalue(L, -2);
             if ((r = ts_pos_unserialize(&pos, L, sb)) != TS_OK)
                 return r;
+            lua_pop(L, 1);
             if ((r = ts_wire_unserialize(&wire, L, sb) != TS_OK))
                 return r;
             hmput(board->wires, ts_pos_hash(pos), wire);
