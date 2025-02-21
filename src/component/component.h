@@ -14,7 +14,7 @@ typedef struct ts_Component {
     ts_ComponentDef const* def;
     ts_Direction           direction;
     uint8_t*               data;
-    uint8_t*               pin_values;
+    uint8_t*               pins;
 } ts_Component;
 
 // initialization

@@ -15,7 +15,7 @@ TEST_SUITE("Serialization") {
         ts_sandbox_init(&sb);
 
         ts_board_add_wire(&sb.boards[0], { 1, 1, TS_S }, { TS_W1, TS_TOP });
-        ts_board_add_component(&sb.boards[0], "vcc", { 2, 2, TS_CENTER }, TS_E);
+        ts_board_add_component(&sb.boards[0], "__vcc", { 2, 2, TS_CENTER }, TS_E);
 
         char serialized[4096] = "return ";
         ts_sandbox_serialize(&sb, 0, &serialized[7], sizeof serialized - 7);
@@ -36,9 +36,10 @@ TEST_SUITE("Serialization") {
         CHECK(ts_board_wire(&sb2.boards[0], { 1, 2, TS_S }) == NULL);
         CHECK(ts_board_wire(&sb2.boards[0], { 1, 1, TS_S })->layer == TS_TOP);
 
+        CHECK(hmlen(sb2.boards[0].components) == 1);
         ts_Component* component = ts_board_component(&sb2.boards[0], { 2, 2, TS_CENTER });
         CHECK(component != nullptr);
-        CHECK(component->def->key == "vcc");
+        CHECK(component->def->key == "__vcc");
         CHECK(component->direction == TS_E);
 
         ts_sandbox_finalize(&sb2);

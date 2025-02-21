@@ -35,7 +35,7 @@ ts_Response ts_pos_unserialize(ts_Position* pos, lua_State* L, ts_Sandbox* sb)
 {
     if (!lua_istable(L, -1))
         return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected position table");
-    if (!lua_objlen(L, -1) == 3)
+    if (lua_objlen(L, -1) != 3)
         return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected 3-item position table");
 
     lua_rawgeti(L, -1, 1); pos->x = luaL_checkinteger(L, -1); lua_pop(L, 1);
