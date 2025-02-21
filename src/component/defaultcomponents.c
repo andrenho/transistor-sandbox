@@ -1,9 +1,9 @@
 #include "defaultcomponents.h"
 
-static void vcc_sim(ts_Component* component)
+static void vcc_sim(ts_Component* vcc)
 {
-    // TODO - vcc.pins[0] = vcc.pins[1] = vcc.pins[2] = vcc.pins[3] = 1;
-};
+    vcc->pin_values[0] = vcc->pin_values[1] = vcc->pin_values[2] = vcc->pin_values[3] = 1;
+}
 
 static const ts_ComponentDef vcc = {
     .key        = "vcc",

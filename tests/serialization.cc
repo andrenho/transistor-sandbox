@@ -1,9 +1,7 @@
 #include "doctest.h"
 
 #include <cstdio>
-
-#include "stb_ds.h"
-
+#include <stb_ds.h>
 
 extern "C" {
 #include "transistor-sandbox.h"
