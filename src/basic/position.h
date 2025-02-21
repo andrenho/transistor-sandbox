@@ -21,6 +21,11 @@ typedef struct ts_Position {
     ts_Direction dir;
 } ts_Position;
 
+typedef struct ts_Rect {
+    ts_Position top_left;
+    ts_Position bottom_right;
+} ts_Rect;
+
 typedef enum { TS_VERTICAL, TS_HORIZONTAL } ts_Orientation;
 
 bool            ts_pos_equals(ts_Position a, ts_Position b);

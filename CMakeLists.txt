@@ -76,6 +76,8 @@ add_library(${PROJECT_NAME} STATIC
         src/component/component.c
         src/basic/direction.c
         src/basic/direction.h
+        src/component/pinpos.h
+        src/component/componentdef.c
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})
@@ -104,6 +106,7 @@ add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL
         tests/main.cc
         tests/serialization.cc
         tests/position.cc
+        tests/pinpositions.cc
 )
 target_compile_options(${PROJECT_NAME}-tests PRIVATE ${warnings} )
 target_link_directories(${PROJECT_NAME}-tests PRIVATE ${LUA_LIBRARY_DIRS})

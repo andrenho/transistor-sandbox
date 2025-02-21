@@ -6,6 +6,7 @@
 
 #include "basic/position.h"
 #include "util/response.h"
+#include "pinpos.h"
 
 typedef struct ts_ComponentDef ts_ComponentDef;
 typedef struct ts_Sandbox ts_Sandbox;
@@ -20,6 +21,11 @@ typedef struct ts_Component {
 // initialization
 ts_Response ts_component_init(ts_Component* component, ts_ComponentDef const* def);
 ts_Response ts_component_finalize(ts_Component* component);
+
+// positioning
+ts_Rect ts_component_rect(ts_Component const* component, ts_Position component_pos);
+size_t  ts_component_pin_positions(ts_Component const* component, ts_Position component_pos,
+                                   ts_PinPos* pin_pos, size_t max_pin_pos);
 
 // serialization
 int         ts_component_serialize(ts_Component const* component, int vspace, char* buf, size_t buf_sz);
