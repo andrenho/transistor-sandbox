@@ -112,9 +112,44 @@ size_t ts_component_def_pin_positions_ic_dip(ts_ComponentDef const* def, ts_Posi
     return def->n_pins;
 }
 
-size_t ts_component_def_pin_positions_ic_quad(ts_ComponentDef const* def, ts_Position component_pos, ts_Direction direction, ts_PinPos* pin_pos, size_t max_pin_pos)
+size_t ts_component_def_pin_positions_ic_quad(ts_ComponentDef const* def, ts_Position pos, ts_Direction direction, ts_PinPos* pin_pos, size_t max_pin_pos)
 {
-    return 0;  // TODO
+    int h = def->n_pins / 4;
+    int j = 0;
+    uint8_t pin_no = 0;
+
+    ts_Direction dir[4];
+    switch (direction) {
+        case TS_N: dir[0] = TS_W; dir[1] = TS_S; dir[2] = TS_E; dir[3] = TS_N; break;
+        case TS_E: dir[0] = TS_N; dir[1] = TS_W; dir[2] = TS_S; dir[3] = TS_E; break;
+        case TS_S: dir[0] = TS_E; dir[1] = TS_N; dir[2] = TS_W; dir[3] = TS_S; break;
+        case TS_W: dir[0] = TS_S; dir[1] = TS_E; dir[2] = TS_N; dir[3] = TS_W; break;
+        default: abort();
+    }
+
+    for (size_t k = 0; k < 4; ++k) {
+        switch (dir[k]) {
+            case TS_W:
+                for (int i = 0; i < h; ++i)
+                    pin_pos[j++] = (ts_PinPos) { .pos = { pos.x - 1, pos.y + i }, .pin_no = pin_no++ };
+                break;
+            case TS_S:
+                for (int i = 0; i < h; ++i)
+                    pin_pos[j++] = (ts_PinPos) { .pos = { pos.x + i, pos.y + h }, .pin_no = pin_no++ };
+                break;
+            case TS_E:
+                for (int i = (h-1); i >= 0; --i)
+                    pin_pos[j++] = (ts_PinPos) { .pos = { pos.x + h, pos.y + i }, .pin_no = pin_no++ };
+                break;
+            case TS_N:
+                for (int i = (h-1); i >= 0; --i)
+                    pin_pos[j++] = (ts_PinPos) { .pos = { pos.x + i, pos.y - 1 }, .pin_no = pin_no++ };
+                break;
+            default: abort();
+        }
+    }
+
+    return def->n_pins;
 }
 
 size_t ts_component_def_pin_positions(ts_ComponentDef const* def, ts_Position component_pos, ts_Direction direction, ts_PinPos* pin_pos, size_t max_pin_pos)
