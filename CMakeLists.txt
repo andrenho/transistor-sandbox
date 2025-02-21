@@ -103,10 +103,10 @@ target_link_libraries(${PROJECT_NAME}-cli PRIVATE ${PROJECT_NAME} ${LUA_LIBRARIE
 
 add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL
         contrib/doctest/doctest.h
-        tests/main.cc
         tests/serialization.cc
         tests/position.cc
         tests/pinpositions.cc
+        tests/compilation.cc
 )
 target_compile_options(${PROJECT_NAME}-tests PRIVATE ${warnings} )
 target_link_directories(${PROJECT_NAME}-tests PRIVATE ${LUA_LIBRARY_DIRS})
