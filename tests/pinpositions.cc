@@ -7,6 +7,8 @@ extern "C" {
 #include "transistor-sandbox.h"
 }
 
+static ts_PinPos pins[20];
+
 struct Fixture {
 
     Fixture(ts_ComponentType type, uint8_t n_pins)
@@ -40,10 +42,9 @@ struct Fixture {
 
 };
 
+
 TEST_SUITE("Pin positions")
 {
-    ts_PinPos pins[20];
-
     TEST_CASE("Single-tile 1 pin")
     {
         Fixture f(TS_SINGLE_TILE, 1);
@@ -121,6 +122,51 @@ TEST_SUITE("Pin positions")
             CHECK(pins[1].pos.dir == TS_N);
             CHECK(pins[2].pos.dir == TS_W);
             CHECK(pins[3].pos.dir == TS_S);
+        }
+    }
+
+    TEST_CASE("DIP component - 6 pins")
+    {
+        Fixture f(TS_IC_DIP, 6);
+
+        SUBCASE("Direction N")
+        {
+            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(rect.bottom_right, { 2, 4, TS_CENTER }));
+
+            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+
+            CHECK(sz == 6);
+            for (int i = 0; i < 6; ++ i)
+                CHECK(pins[i].pin_no == i);
+            CHECK(ts_pos_equals(pins[0].pos, { 0, 1, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[1].pos, { 0, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[2].pos, { 0, 3, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[3].pos, { 2, 3, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[4].pos, { 2, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[5].pos, { 2, 1, TS_CENTER }));
+        }
+
+        SUBCASE("Direction E")
+        {
+            f.component.direction = TS_E;
+
+            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(rect.bottom_right, { 4, 2, TS_CENTER }));
+
+            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+
+            CHECK(sz == 6);
+            for (int i = 0; i < 6; ++ i)
+                CHECK(pins[i].pin_no == i);
+            CHECK(ts_pos_equals(pins[0].pos, { 1, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[1].pos, { 2, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[2].pos, { 3, 2, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[3].pos, { 3, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[4].pos, { 2, 0, TS_CENTER }));
+            CHECK(ts_pos_equals(pins[5].pos, { 1, 0, TS_CENTER }));
         }
     }
 }
