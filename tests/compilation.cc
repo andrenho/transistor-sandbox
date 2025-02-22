@@ -1,49 +1,126 @@
 #include "doctest.h"
 
-#include <cstdio>
 #include <stb_ds.h>
+#include <string>
+
 
 extern "C" {
 #include "transistor-sandbox.h"
+#include "compiler/compiler.h"
+extern ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb);
 }
 
-TEST_SUITE("Serialization") {
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
-    TEST_CASE("Serialization / unserialization")
+TEST_SUITE("Compilation")
+{
+    auto has_wire = [](ts_Connection* conn, ts_Position pos) {
+        for (int i = 0; i < arrlen(conn->wires); ++i)
+            if (ts_pos_equals(conn->wires[i], pos))
+                return true;
+        return false;
+    };
+
+    auto has_pin = [](ts_Connection* conn, uint8_t pin_no, std::string const& comp) {
+        for (int i = 0; i < arrlen(conn->pins); ++i)
+            if (pin_no == conn->pins[i].pin_no && comp == conn->pins[i].component->def->key)
+                return true;
+        return false;
+    };
+
+    TEST_CASE("Basic circuit")
     {
-        ts_Sandbox sb;
-        ts_sandbox_init(&sb);
+        struct Fixture {
+            ts_Sandbox sb {};
 
-        ts_board_add_wire(&sb.boards[0], { 1, 1, TS_S }, { TS_W1, TS_TOP });
-        ts_board_add_component(&sb.boards[0], "__vcc", { 2, 2, TS_CENTER }, TS_E);
+            Fixture() {
+                ts_sandbox_init(&sb);
+                ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
+                ts_board_add_component(&sb.boards[0], "__led", { 3, 1 }, TS_N);
+                ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_W1, TS_TOP });
+            }
 
-        char serialized[4096] = "return ";
-        ts_sandbox_serialize(&sb, 0, &serialized[7], sizeof serialized - 7);
-        printf("%s\n", serialized);
+            ~Fixture() {
+                ts_sandbox_finalize(&sb);
+            }
+        };
 
-        ts_Sandbox sb2;
-        ts_Result response = ts_sandbox_unserialize_from_string(&sb2, serialized);
-        if (response != TS_OK)
-            printf("%s\n", ts_last_error(&sb2, nullptr));
-        CHECK(response == TS_OK);
+        SUBCASE("Board elements")
+        {
+            Fixture f;
+            ts_Board* board = &f.sb.boards[0];
 
-        CHECK(shlen(sb.component_db.items) == shlen(sb2.component_db.items));
+            CHECK(hmlen(board->components) == 2);
+            CHECK(ts_board_component(board, { 1, 1 })->def->key == "__button");
+            CHECK(ts_board_component(board, { 3, 1 })->def->key == "__led");
 
-        CHECK(sb.boards[0].w == sb2.boards[0].w);
-        CHECK(sb.boards[0].h == sb2.boards[0].h);
+            CHECK(hmlen(board->wires) == 4);
+            CHECK(ts_board_wire(board, { 1, 1, TS_E }));
+            CHECK(ts_board_wire(board, { 2, 1, TS_W }));
+            CHECK(ts_board_wire(board, { 2, 1, TS_E }));
+            CHECK(ts_board_wire(board, { 3, 1, TS_W }));
+        }
 
-        CHECK(hmlen(sb2.boards[0].wires) == 1);
-        CHECK(ts_board_wire(&sb2.boards[0], { 1, 2, TS_S }) == NULL);
-        CHECK(ts_board_wire(&sb2.boards[0], { 1, 1, TS_S })->layer == TS_TOP);
+        SUBCASE("Find all pins")
+        {
+            Fixture f;
 
-        CHECK(hmlen(sb2.boards[0].components) == 1);
-        ts_Component* component = ts_board_component(&sb2.boards[0], { 2, 2, TS_CENTER });
-        CHECK(component != nullptr);
-        CHECK(component->def->key == "__vcc");
-        CHECK(component->direction == TS_E);
+            ts_Pin* pins = ts_compiler_find_all_pins(&f.sb);
 
-        ts_sandbox_finalize(&sb2);
-        ts_sandbox_finalize(&sb);
+            auto get = [&](ts_Position pos, uint8_t pin_no) -> ts_Component* {
+                for (int i = 0; i < arrlen(pins); ++i)
+                    if (ts_pos_equals(pins[i].pos, pos) && pins[i].pin_no == pin_no)
+                        return pins[i].component;
+                return nullptr;
+            };
+
+            CHECK(arrlen(pins) == 8);
+            CHECK(get({ 1, 1, TS_N }, 0)->def->key == "__button");
+            CHECK(get({ 1, 1, TS_W }, 1)->def->key == "__button");
+            CHECK(get({ 1, 1, TS_S }, 2)->def->key == "__button");
+            CHECK(get({ 1, 1, TS_E }, 3)->def->key == "__button");
+            CHECK(get({ 3, 1, TS_N }, 0)->def->key == "__led");
+            CHECK(get({ 3, 1, TS_W }, 1)->def->key == "__led");
+            CHECK(get({ 3, 1, TS_S }, 2)->def->key == "__led");
+            CHECK(get({ 3, 1, TS_E }, 3)->def->key == "__led");
+
+            arrfree(pins);
+        }
+
+        SUBCASE("Compile")
+        {
+            Fixture f;
+
+            ts_Connection* connections = ts_compiler_compile(&f.sb);
+
+            CHECK(arrlen(connections) == 1);
+            CHECK(arrlen(connections[0].pins) == 2);
+            CHECK(arrlen(connections[0].wires) == 4);
+
+            CHECK(has_wire(&connections[0], { 1, 1, TS_E }));
+            CHECK(has_wire(&connections[0], { 2, 1, TS_W }));
+            CHECK(has_wire(&connections[0], { 2, 1, TS_E }));
+            CHECK(has_wire(&connections[0], { 3, 1, TS_W }));
+
+            CHECK(has_pin(&connections[0], 3, "__button"));
+            CHECK(has_pin(&connections[0], 1, "__led"));
+
+            for (int i = 0; i < arrlen(connections); ++i)
+                ts_connection_finalize(&connections[i]);
+            arrfree(connections);
+        }
+
+        SUBCASE("Multiple connections to the same component")
+        {
+            Fixture f;
+            ts_board_add_wires(&f.sb.boards[0], { 1, 0 }, { 1, 1 }, TS_VERTICAL, { TS_W1, TS_TOP });
+
+            ts_Connection* connections = ts_compiler_compile(&f.sb);
+            CHECK(arrlen(connections) == 2);
+
+            for (int i = 0; i < arrlen(connections); ++i)
+                ts_connection_finalize(&connections[i]);
+            arrfree(connections);
+        }
     }
-
 }
