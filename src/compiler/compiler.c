@@ -41,9 +41,12 @@ ts_Connection* ts_compiler_compile(ts_Sandbox const* sb)
 
     // find single-tile component pins
     ts_Position* single_tile_component_pins = NULL;
-    for (int i = 0; i < arrlen(pins); ++i)
-        if (pins[i].component->def->type == TS_SINGLE_TILE)
-            arrpush(single_tile_component_pins, pins[i].pos);
+    for (int i = 0; i < arrlen(pins); ++i) {
+        if (pins[i].component->def->type == TS_SINGLE_TILE) {
+            ts_Position p = { pins[i].pos.x, pins[i].pos.y, TS_CENTER };
+            arrpush(single_tile_component_pins, p);
+        }
+    }
 
     // create set of wires
     ts_PosSet* wire_set = NULL;
