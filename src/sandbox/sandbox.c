@@ -14,6 +14,10 @@
 #include "component/defaultcomponents.h"
 #include "util/serialize.h"
 
+//
+// initialization
+//
+
 static ts_Response ts_sandbox_init_common(ts_Sandbox* sb)
 {
     memset(sb, 0, sizeof(ts_Sandbox));
@@ -45,6 +49,24 @@ ts_Response ts_sandbox_finalize(ts_Sandbox* sb)
 
     return TS_OK;
 }
+
+//
+// simulation
+//
+
+ts_Response ts_sandbox_stop_simulation(ts_Sandbox* sb)
+{
+    return TS_OK;
+}
+
+ts_Response ts_sandbox_start_simulation(ts_Sandbox* sb)
+{
+    return TS_OK;
+}
+
+//
+// serialization
+//
 
 int ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, char* buf, size_t buf_sz)
 {
@@ -118,6 +140,10 @@ end:
     lua_close(L);
     return response;
 }
+
+//
+// error handling
+//
 
 ts_Response ts_error(ts_Sandbox* sb, ts_Response response, const char* fmt, ...)
 {

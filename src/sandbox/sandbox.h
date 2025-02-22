@@ -6,12 +6,14 @@
 
 #include "util/response.h"
 #include "component/componentdb.h"
+#include "simulation/simulation.h"
 
 typedef struct ts_Board ts_Board;
 
 typedef struct ts_Sandbox {
     ts_Board*      boards;
     ts_ComponentDB component_db;
+    ts_Simulation  simulation;
     ts_Response    last_error;
     char           last_error_message[2048];
 } ts_Sandbox;
@@ -19,6 +21,10 @@ typedef struct ts_Sandbox {
 // initialization
 ts_Response ts_sandbox_init(ts_Sandbox* sb);
 ts_Response ts_sandbox_finalize(ts_Sandbox* sb);
+
+// simulation
+ts_Response ts_sandbox_stop_simulation(ts_Sandbox* sb);
+ts_Response ts_sandbox_start_simulation(ts_Sandbox* sb);
 
 // serialization
 int         ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, char* buf, size_t buf_sz);

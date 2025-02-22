@@ -22,6 +22,8 @@ ts_Response ts_board_init(ts_Board* board, ts_Sandbox* sb, int w, int h)
 
 ts_Response ts_board_finalize(ts_Board* board)
 {
+    ts_sandbox_stop_simulation(board->sandbox);
+
     for (int i = 0; i < hmlen(board->components); ++i)
         ts_component_finalize(&board->components[i].value);
     hmfree(board->components);
@@ -44,20 +46,30 @@ ts_Wire* ts_board_wire(ts_Board const* board, ts_Position pos)
 
 ts_Response ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 {
-    if (pos.x >= board->w || pos.y >= board->h)
-        return ts_error(board->sandbox, TS_CANNOT_PLACE, "Wire out of bounds");
-    hmput(board->wires, ts_pos_hash(pos), wire);
-    return TS_OK;
+    ts_Response r = TS_OK;
+    ts_sandbox_stop_simulation(board->sandbox);
+
+    if (pos.x < board->w && pos.y < board->h)
+        hmput(board->wires, ts_pos_hash(pos), wire);
+    else
+        r = ts_error(board->sandbox, TS_CANNOT_PLACE, "Wire out of bounds");
+
+    ts_sandbox_start_simulation(board->sandbox);
+    return r;
 }
 
 ts_Response ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end, ts_Orientation orientation, ts_Wire wire)
 {
+    ts_sandbox_stop_simulation(board->sandbox);
+
     ts_Position pos[300];
     size_t sz = ts_pos_a_to_b(start, end, orientation, pos, 300);
-    for (size_t i = 0; i < sz; ++i)
-        ts_board_add_wire(board, pos[i], wire);
-    if (sz == 0)
-        return ts_error(board->sandbox, TS_CANNOT_PLACE, "No wire has been placed");
+    for (size_t i = 0; i < sz; ++i) {
+        if (pos[i].x < board->w && pos[i].y < board->h)
+            hmput(board->wires, ts_pos_hash(pos[i]), wire);
+    }
+
+    ts_sandbox_start_simulation(board->sandbox);
     return TS_OK;
 }
 
@@ -67,13 +79,16 @@ ts_Response ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position e
 
 ts_Response ts_board_add_component(ts_Board* board, const char* name, ts_Position pos, ts_Direction direction)
 {
+    ts_sandbox_stop_simulation(board->sandbox);
+
     ts_Component component = {};
     ts_Response r = ts_component_db_init_component(&board->sandbox->component_db, name, &component);
     component.direction = direction;
-    if (r != TS_OK)
-        return r;
-    hmput(board->components, ts_pos_hash(pos), component);
-    return TS_OK;
+    if (r == TS_OK)
+        hmput(board->components, ts_pos_hash(pos), component);
+
+    ts_sandbox_start_simulation(board->sandbox);
+    return r;
 }
 
 ts_Component* ts_board_component(ts_Board const* board, ts_Position pos)
@@ -164,6 +179,8 @@ static ts_Response ts_board_unserialize_components(ts_Board* board, lua_State* L
 
 ts_Response ts_board_unserialize(ts_Board* board, lua_State* L, ts_Sandbox* sb)
 {
+    ts_sandbox_stop_simulation(board->sandbox);
+
     ts_Response r;
 
     lua_getfield(L, -1, "w"); int w = luaL_checkinteger(L, -1); lua_pop(L, 1);
@@ -171,10 +188,10 @@ ts_Response ts_board_unserialize(ts_Board* board, lua_State* L, ts_Sandbox* sb)
 
     ts_board_init(board, sb, w, h);
 
-    if ((r = ts_board_unserialize_wires(board, L, sb)) != TS_OK)
-        return r;
-    if ((r = ts_board_unserialize_components(board, L, sb)) != TS_OK)
-        return r;
+    r = ts_board_unserialize_wires(board, L, sb);
+    if (r == TS_OK)
+        r = ts_board_unserialize_components(board, L, sb);
 
-    return TS_OK;
+    ts_sandbox_start_simulation(board->sandbox);
+    return r;
 }

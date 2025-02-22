@@ -78,6 +78,8 @@ add_library(${PROJECT_NAME} STATIC
         src/basic/direction.h
         src/component/pinpos.h
         src/component/componentdef.c
+        src/simulation/simulation.c
+        src/simulation/simulation.h
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})
