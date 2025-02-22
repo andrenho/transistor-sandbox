@@ -86,6 +86,7 @@ add_library(${PROJECT_NAME} STATIC
         src/basic/pos_ds.h
         src/compiler/connectedwires.c
         src/compiler/connectedwires.h
+        src/basic/pos_ds.c
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})

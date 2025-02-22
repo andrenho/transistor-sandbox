@@ -38,6 +38,11 @@ TEST_SUITE("Connected wires")
         CHECK(contains(ps, { 2, 1, TS_W }));
         CHECK(contains(ps, { 2, 1, TS_E }));
         CHECK(contains(ps, { 3, 1, TS_W }));
+
+        for (int i = 0; i < arrlen(groups); ++i)
+            arrfree(groups[i]);
+        arrfree(groups);
+        psetfree(positions);
     }
 
     TEST_CASE("Two separate wires")
@@ -71,6 +76,11 @@ TEST_SUITE("Connected wires")
         CHECK(contains(ps, { 2, 2, TS_W }));
         CHECK(contains(ps, { 2, 2, TS_E }));
         CHECK(contains(ps, { 3, 2, TS_W }));
+
+        for (int i = 0; i < arrlen(groups); ++i)
+            arrfree(groups[i]);
+        arrfree(groups);
+        psetfree(positions);
     }
 
     TEST_CASE("Crossing wires")
@@ -102,6 +112,11 @@ TEST_SUITE("Connected wires")
         CHECK(contains(ps, { 2, 1, TS_E }));
         CHECK(contains(ps, { 2, 1, TS_N }));
         CHECK(contains(ps, { 2, 1, TS_S }));
+
+        for (int i = 0; i < arrlen(groups); ++i)
+            arrfree(groups[i]);
+        arrfree(groups);
+        psetfree(positions);
     }
 
     TEST_CASE("Single-tile component in middle of connection")
@@ -124,6 +139,11 @@ TEST_SUITE("Connected wires")
 
         ps = groups[1];
         CHECK(arrlen(ps) == 1);
-        CHECK(contains(ps, { 3, 2, TS_S }));
+        CHECK(contains(ps, { 1, 1, TS_S }));
+
+        for (int i = 0; i < arrlen(groups); ++i)
+            arrfree(groups[i]);
+        arrfree(groups);
+        psetfree(positions);
     }
 }

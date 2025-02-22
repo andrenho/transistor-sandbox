@@ -68,7 +68,7 @@ static ts_Position* ts_compiler_find_connected_group(ts_Position start, ts_PosSe
             psetdel(wires, visiting);
 
             // find if we have a single tile component pin here
-            bool has_single_tile_component_pin = false; // TODO - check single tile component
+            bool has_single_tile_component_pin = arrcontains(single_tile_component_pins, (ts_Position) { visiting.x, visiting.y, TS_CENTER });
 
             // add neighbours
             ts_Position* neighbours = ts_tile_neighbours(visiting, has_single_tile_component_pin);
