@@ -31,7 +31,7 @@ int ts_pos_serialize(ts_Position pos, char* buf, size_t buf_sz)
     return snprintf(buf, buf_sz, "{ %d, %d, '%s' }", pos.x, pos.y, ts_direction_serialize(pos.dir));
 }
 
-ts_Response ts_pos_unserialize(ts_Position* pos, lua_State* L, ts_Sandbox* sb)
+ts_Result ts_pos_unserialize(ts_Position* pos, lua_State* L, ts_Sandbox* sb)
 {
     if (!lua_istable(L, -1))
         return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected position table");

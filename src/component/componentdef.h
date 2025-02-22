@@ -36,7 +36,7 @@ typedef struct ts_ComponentDef {
     void             (*simulate)(ts_Component* component);
 
     int              (*serialize)(ts_Component* component, int vspace, char* buf, size_t buf_sz);
-    ts_Response      (*unserialize)(ts_Component* component, lua_State* L, ts_Board* board);
+    ts_Result      (*unserialize)(ts_Component* component, lua_State* L, ts_Board* board);
 
     void*            extra;
     bool             custom;  // not native

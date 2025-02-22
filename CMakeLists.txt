@@ -59,7 +59,7 @@ add_library(${PROJECT_NAME} STATIC
         src/sandbox/sandbox.c
         src/board/board.c
         src/board/board.h
-        src/util/response.h
+        src/util/result.h
         src/util/serialize.h
         src/board/wire.h
         src/basic/position.c
@@ -80,6 +80,8 @@ add_library(${PROJECT_NAME} STATIC
         src/component/componentdef.c
         src/simulation/simulation.c
         src/simulation/simulation.h
+        src/simulation/compiler.c
+        src/simulation/compiler.h
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})
@@ -108,7 +110,7 @@ add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL
         tests/serialization.cc
         tests/position.cc
         tests/pinpositions.cc
-        tests/compilation.cc
+        tests/simulation.cc
 )
 target_compile_options(${PROJECT_NAME}-tests PRIVATE ${warnings} )
 target_link_directories(${PROJECT_NAME}-tests PRIVATE ${LUA_LIBRARY_DIRS})

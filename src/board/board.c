@@ -11,7 +11,7 @@
 // initialization
 //
 
-ts_Response ts_board_init(ts_Board* board, ts_Sandbox* sb, int w, int h)
+ts_Result ts_board_init(ts_Board* board, ts_Sandbox* sb, int w, int h)
 {
     board->sandbox = sb;
     board->w = w;
@@ -20,10 +20,8 @@ ts_Response ts_board_init(ts_Board* board, ts_Sandbox* sb, int w, int h)
     return TS_OK;
 }
 
-ts_Response ts_board_finalize(ts_Board* board)
+ts_Result ts_board_finalize(ts_Board* board)
 {
-    ts_sandbox_stop_simulation(board->sandbox);
-
     for (int i = 0; i < hmlen(board->components); ++i)
         ts_component_finalize(&board->components[i].value);
     hmfree(board->components);
@@ -44,9 +42,9 @@ ts_Wire* ts_board_wire(ts_Board const* board, ts_Position pos)
     return &board->wires[i].value;
 }
 
-ts_Response ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
+ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 {
-    ts_Response r = TS_OK;
+    ts_Result r = TS_OK;
     ts_sandbox_stop_simulation(board->sandbox);
 
     if (pos.x < board->w && pos.y < board->h)
@@ -58,7 +56,7 @@ ts_Response ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
     return r;
 }
 
-ts_Response ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end, ts_Orientation orientation, ts_Wire wire)
+ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end, ts_Orientation orientation, ts_Wire wire)
 {
     ts_sandbox_stop_simulation(board->sandbox);
 
@@ -77,12 +75,12 @@ ts_Response ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position e
 // components
 //
 
-ts_Response ts_board_add_component(ts_Board* board, const char* name, ts_Position pos, ts_Direction direction)
+ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position pos, ts_Direction direction)
 {
     ts_sandbox_stop_simulation(board->sandbox);
 
     ts_Component component = {};
-    ts_Response r = ts_component_db_init_component(&board->sandbox->component_db, name, &component);
+    ts_Result r = ts_component_db_init_component(&board->sandbox->component_db, name, &component);
     component.direction = direction;
     if (r == TS_OK)
         hmput(board->components, ts_pos_hash(pos), component);
@@ -127,7 +125,7 @@ int ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_
     SR_FINI("},");
 }
 
-static ts_Response ts_board_unserialize_wires(ts_Board* board, lua_State* L, ts_Sandbox* sb)
+static ts_Result ts_board_unserialize_wires(ts_Board* board, lua_State* L, ts_Sandbox* sb)
 {
     lua_getfield(L, -1, "wires");
     if (!lua_istable(L, -1))
@@ -136,7 +134,7 @@ static ts_Response ts_board_unserialize_wires(ts_Board* board, lua_State* L, ts_
     while (lua_next(L, -2)) {
         ts_Position pos;
         ts_Wire wire;
-        ts_Response r;
+        ts_Result r;
 
         lua_pushvalue(L, -2);
         if ((r = ts_pos_unserialize(&pos, L, sb)) != TS_OK)
@@ -152,7 +150,7 @@ static ts_Response ts_board_unserialize_wires(ts_Board* board, lua_State* L, ts_
     return TS_OK;
 }
 
-static ts_Response ts_board_unserialize_components(ts_Board* board, lua_State* L, ts_Sandbox* sb)
+static ts_Result ts_board_unserialize_components(ts_Board* board, lua_State* L, ts_Sandbox* sb)
 {
     lua_getfield(L, -1, "components");
     if (!lua_istable(L, -1))
@@ -161,7 +159,7 @@ static ts_Response ts_board_unserialize_components(ts_Board* board, lua_State* L
     while (lua_next(L, -2)) {
         ts_Position  pos;
         ts_Component component;
-        ts_Response  r;
+        ts_Result  r;
 
         lua_pushvalue(L, -2);
         if ((r = ts_pos_unserialize(&pos, L, sb)) != TS_OK)
@@ -177,11 +175,9 @@ static ts_Response ts_board_unserialize_components(ts_Board* board, lua_State* L
     return TS_OK;
 }
 
-ts_Response ts_board_unserialize(ts_Board* board, lua_State* L, ts_Sandbox* sb)
+ts_Result ts_board_unserialize(ts_Board* board, lua_State* L, ts_Sandbox* sb)
 {
-    ts_sandbox_stop_simulation(board->sandbox);
-
-    ts_Response r;
+    ts_Result r;
 
     lua_getfield(L, -1, "w"); int w = luaL_checkinteger(L, -1); lua_pop(L, 1);
     lua_getfield(L, -1, "h"); int h = luaL_checkinteger(L, -1); lua_pop(L, 1);

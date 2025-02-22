@@ -17,7 +17,7 @@ const char* ts_direction_serialize(ts_Direction dir)
     return "invalid";
 }
 
-ts_Response ts_direction_unserialize(ts_Direction* dir, lua_State* L, ts_Sandbox* sb)
+ts_Result ts_direction_unserialize(ts_Direction* dir, lua_State* L, ts_Sandbox* sb)
 {
     const char* s = luaL_checkstring(L, -1);
     if (strcmp(s, "center") == 0)

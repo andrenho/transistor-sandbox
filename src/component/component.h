@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #include "basic/position.h"
-#include "util/response.h"
+#include "util/result.h"
 #include "pinpos.h"
 
 typedef struct ts_ComponentDef ts_ComponentDef;
@@ -19,8 +19,8 @@ typedef struct ts_Component {
 } ts_Component;
 
 // initialization
-ts_Response ts_component_init(ts_Component* component, ts_ComponentDef const* def);
-ts_Response ts_component_finalize(ts_Component* component);
+ts_Result ts_component_init(ts_Component* component, ts_ComponentDef const* def);
+ts_Result ts_component_finalize(ts_Component* component);
 
 // positioning
 ts_Rect ts_component_rect(ts_Component const* component, ts_Position component_pos);
@@ -29,6 +29,6 @@ size_t  ts_component_pin_positions(ts_Component const* component, ts_Position co
 
 // serialization
 int         ts_component_serialize(ts_Component const* component, int vspace, char* buf, size_t buf_sz);
-ts_Response ts_component_unserialize(ts_Component* component, lua_State* L, ts_Sandbox* sb);
+ts_Result ts_component_unserialize(ts_Component* component, lua_State* L, ts_Sandbox* sb);
 
 #endif //COMPONENT_H

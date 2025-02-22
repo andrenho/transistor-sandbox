@@ -45,7 +45,9 @@ static ts_Direction single_tile_next_pin(ts_Direction dir)
         case TS_W: return TS_S;
         case TS_S: return TS_E;
         case TS_E: return TS_N;
-        default: return TS_CENTER;
+        case TS_CENTER:
+        default:
+            return TS_CENTER;
     }
 }
 
