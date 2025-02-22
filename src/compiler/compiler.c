@@ -3,48 +3,9 @@
 #include <stb_ds.h>
 
 #include "sandbox/sandbox.h"
-#include "simulation.h"
 #include "component/component.h"
 #include "component/pinpos.h"
 #include "basic/pos_ds.h"
-
-static ts_Position* ts_compiler_find_connected_group(ts_Position start, ts_PosSet* wires, ts_Position* single_tile_component_pins)
-{
-    ts_Position* result = NULL;
-    ts_PosSet* to_visit = NULL;  // hashset
-
-    psetput(to_visit, start);
-
-    while (setlen(to_visit) > 0) {
-        ts_Position visiting = psetfirst(to_visit);
-
-        if (psetcontains(wires, visiting)) {
-
-            // add to result list, and remove from visited
-            arrpush(result, visiting);
-            psetdel(wires, visiting);
-
-            // add neighbours
-            // TODO
-        }
-
-        psetdel(to_visit, visiting);
-    }
-
-    return result;
-}
-
-PositionArray* ts_compiler_find_connected_wires(ts_PosSet* wires, ts_Position* single_tile_component_pins)
-{
-    if (setlen(wires) == 0)
-        return NULL;
-
-    ts_Position** groups = NULL;
-    while (setlen(wires) > 0)
-        arrpush(groups, ts_compiler_find_connected_group(psetfirst(wires), wires, single_tile_component_pins));
-
-    return groups;
-}
 
 ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb)
 {

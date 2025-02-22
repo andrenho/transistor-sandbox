@@ -80,10 +80,12 @@ add_library(${PROJECT_NAME} STATIC
         src/component/componentdef.c
         src/simulation/simulation.c
         src/simulation/simulation.h
-        src/simulation/compiler.c
-        src/simulation/compiler.h
+        src/compiler/compiler.c
+        src/compiler/compiler.h
         src/util/set.h
         src/basic/pos_ds.h
+        src/compiler/connectedwires.c
+        src/compiler/connectedwires.h
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})

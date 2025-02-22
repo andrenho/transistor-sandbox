@@ -2,7 +2,7 @@
 
 #include <stb_ds.h>
 
-#include "compiler.h"
+#include "compiler/compiler.h"
 #include "sandbox/sandbox.h"
 
 static void ts_simulation_finalize(ts_Simulation* sim)

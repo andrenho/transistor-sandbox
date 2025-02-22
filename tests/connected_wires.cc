@@ -6,10 +6,7 @@
 
 extern "C" {
 #include "transistor-sandbox.h"
-#include "simulation/compiler.h"
-#include "basic/pos_ds.h"
-
-PositionArray* ts_compiler_find_connected_wires(ts_PosSet* wires, ts_Position* single_tile_component_pins);
+#include "compiler/connectedwires.h"
 }
 
 std::string to_string(ts_Position const& p)

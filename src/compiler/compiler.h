@@ -2,9 +2,7 @@
 #define COMPILER_H
 
 #include "util/set.h"
-#include "simulation.h"
-
-typedef ts_Position*     PositionArray;
+#include "simulation/simulation.h"
 
 ts_Connection* ts_compiler_compile(ts_Sandbox const* sb);
 
