@@ -22,5 +22,6 @@ typedef struct ts_Connection {
 } ts_Connection;
 
 ts_Connection* ts_compiler_compile(ts_Sandbox const* sb);
+ts_Result      ts_connection_finalize(ts_Connection* connection);
 
 #endif //COMPILER_H

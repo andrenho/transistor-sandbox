@@ -94,3 +94,10 @@ ts_Connection* ts_compiler_compile(ts_Sandbox const* sb)
 
     return connections;
 }
+
+ts_Result ts_connection_finalize(ts_Connection* connection)
+{
+    arrfree(connection->pins);
+    arrfree(connection->wires);
+    return TS_OK;
+}

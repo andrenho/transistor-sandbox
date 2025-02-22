@@ -7,10 +7,8 @@
 
 static void ts_simulation_finalize(ts_Simulation* sim)
 {
-    for (int i = 0; i < arrlen(sim->connections); ++i) {
-        arrfree(sim->connections[i].pins);
-        arrfree(sim->connections[i].wires);
-    }
+    for (int i = 0; i < arrlen(sim->connections); ++i)
+        ts_connection_finalize(&sim->connections[i]);
     arrfree(sim->connections);
 }
 

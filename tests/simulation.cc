@@ -79,6 +79,8 @@ TEST_SUITE("Compilation & Simulation")
 
             // TODO - check individual pins, wires
 
+            for (int i = 0; i < arrlen(connections); ++i)
+                ts_connection_finalize(&connections[i]);
             arrfree(connections);
         }
     }
