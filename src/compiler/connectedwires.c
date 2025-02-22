@@ -1,8 +1,54 @@
 #include "connectedwires.h"
 
-static ts_Position* ts_tile_neighbours(ts_Position visiting, bool has_single_tile_component_pin)
+static ts_Position* ts_tile_neighbours(ts_Position p, bool has_single_tile_component_pin)
 {
-    return NULL;
+    ts_Position* positions = NULL;
+    ts_Position pp;
+
+    if (has_single_tile_component_pin) {
+
+        switch (p.dir) {
+            case TS_W: pp = (ts_Position) { p.x - 1, p.y, TS_E }; arrpush(positions, pp); break;
+            case TS_E: pp = (ts_Position) { p.x + 1, p.y, TS_W }; arrpush(positions, pp); break;
+            case TS_N: pp = (ts_Position) { p.x, p.y - 1, TS_S }; arrpush(positions, pp); break;
+            case TS_S: pp = (ts_Position) { p.x, p.y + 1, TS_N }; arrpush(positions, pp); break;
+            case TS_CENTER: abort();
+        }
+
+    } else {
+
+        switch (p.dir) {
+            case TS_W:
+                pp = (ts_Position) { p.x - 1, p.y, TS_E }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_E }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_N }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_S }; arrpush(positions, pp);
+                break;
+            case TS_E:
+                pp = (ts_Position) { p.x + 1, p.y, TS_W }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_W }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_N }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_S }; arrpush(positions, pp);
+                break;
+            case TS_N:
+                pp = (ts_Position) { p.x, p.y - 1, TS_S }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_S }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_W }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_E }; arrpush(positions, pp);
+                break;
+            case TS_S:
+                pp = (ts_Position) { p.x, p.y + 1, TS_N }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_N }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_W }; arrpush(positions, pp);
+                pp = (ts_Position) { p.x, p.y, TS_E }; arrpush(positions, pp);
+                break;
+            case TS_CENTER:
+                abort();
+        }
+
+    }
+
+    return positions;
 }
 
 static ts_Position* ts_compiler_find_connected_group(ts_Position start, ts_PosSet* wires, ts_Position* single_tile_component_pins)
