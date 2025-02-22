@@ -31,7 +31,7 @@ ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end
 
 // components
 ts_Result     ts_board_add_component(ts_Board* board, const char* name, ts_Position pos, ts_Direction direction);
-ts_Component* ts_board_component(ts_Board const* board, ts_Position pos);
+ts_Component* ts_board_component(ts_Board const* board, ts_Position pos);     // NULL if not present
 ts_Result     ts_board_rotate_tile(ts_Board const* board, ts_Position pos);
 
 // clearing

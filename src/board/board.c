@@ -77,20 +77,34 @@ ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end
 
 ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position pos, ts_Direction direction)
 {
+    if (pos.dir != TS_CENTER)
+        abort();
+
     ts_sandbox_stop_simulation(board->sandbox);
 
     ts_Component component = {};
     ts_Result r = ts_component_db_init_component(&board->sandbox->component_db, name, &component);
     component.direction = direction;
-    if (r == TS_OK)
-        hmput(board->components, ts_pos_hash(pos), component);
 
+    if (r != TS_OK)
+        goto skip;
+    if (pos.x >= board->w || pos.y >= board->h)
+        goto skip;
+    if (ts_board_component(board, pos) != NULL)
+        goto skip;
+
+    hmput(board->components, ts_pos_hash(pos), component);
+
+skip:
     ts_sandbox_start_simulation(board->sandbox);
     return r;
 }
 
 ts_Component* ts_board_component(ts_Board const* board, ts_Position pos)
 {
+    if (pos.dir != TS_CENTER)
+        abort();
+
     int i = hmgeti(((ts_Board *) board)->components, ts_pos_hash(pos));
     if (i == -1)
         return NULL;

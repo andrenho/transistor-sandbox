@@ -141,4 +141,24 @@ TEST_SUITE("Compilation")
             arrfree(connections);
         }
     }
+
+    /*
+    TEST_CASE("IC")
+    {
+        struct Fixture {
+            ts_Sandbox sb {};
+
+            Fixture() {
+                ts_sandbox_init(&sb);
+                ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
+                ts_board_add_component(&sb.boards[0], "__or_2i", { 3, 1 }, TS_N);
+                ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_W1, TS_TOP });
+            }
+
+            ~Fixture() {
+                ts_sandbox_finalize(&sb);
+            }
+        };
+    }
+    */
 }
