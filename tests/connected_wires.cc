@@ -9,9 +9,12 @@ extern "C" {
 #include "compiler/connectedwires.h"
 }
 
-std::string to_string(ts_Position const& p)
+static bool contains(PositionArray array, ts_Position pos)
 {
-    return std::to_string(p.x) + ", " + std::to_string(p.y) + ", " + std::to_string(p.dir);
+    for (int i = 0; i < arrlen(array); ++i)
+        if (ts_pos_equals(array[i], pos))
+            return true;
+    return false;
 }
 
 TEST_SUITE("Connected wires")
@@ -19,13 +22,85 @@ TEST_SUITE("Connected wires")
     TEST_CASE("Simple wire")
     {
         ts_PosSet* positions = nullptr;
+        ts_Position p;
 
-        ts_Position p0 { 1, 1, TS_E }; psetput(positions, p0);
-        ts_Position p1 { 2, 1, TS_W }; psetput(positions, p1);
-        ts_Position p2 { 2, 1, TS_E }; psetput(positions, p2);
-        ts_Position p3 { 3, 1, TS_W }; psetput(positions, p3);
+        p = { 1, 1, TS_E }; psetput(positions, p);
+        p = { 2, 1, TS_W }; psetput(positions, p);
+        p = { 2, 1, TS_E }; psetput(positions, p);
+        p = { 3, 1, TS_W }; psetput(positions, p);
 
         PositionArray* groups = ts_compiler_find_connected_wires(positions, nullptr);
         CHECK(arrlen(groups) == 1);
+
+        PositionArray ps = groups[0];
+        CHECK(arrlen(ps) == 4);
+        CHECK(contains(ps, { 1, 1, TS_E }));
+        CHECK(contains(ps, { 2, 1, TS_W }));
+        CHECK(contains(ps, { 2, 1, TS_E }));
+        CHECK(contains(ps, { 3, 1, TS_W }));
+    }
+
+    TEST_CASE("Two separate wires")
+    {
+        ts_PosSet* positions = nullptr;
+        ts_Position p;
+
+        p = { 1, 1, TS_E }; psetput(positions, p);
+        p = { 2, 1, TS_W }; psetput(positions, p);
+        p = { 2, 1, TS_E }; psetput(positions, p);
+        p = { 3, 1, TS_W }; psetput(positions, p);
+
+        p = { 1, 2, TS_E }; psetput(positions, p);
+        p = { 2, 2, TS_W }; psetput(positions, p);
+        p = { 2, 2, TS_E }; psetput(positions, p);
+        p = { 3, 2, TS_W }; psetput(positions, p);
+
+        PositionArray* groups = ts_compiler_find_connected_wires(positions, nullptr);
+        CHECK(arrlen(groups) == 2);
+
+        PositionArray ps = groups[0];
+        CHECK(arrlen(ps) == 4);
+        CHECK(contains(ps, { 1, 1, TS_E }));
+        CHECK(contains(ps, { 2, 1, TS_W }));
+        CHECK(contains(ps, { 2, 1, TS_E }));
+        CHECK(contains(ps, { 3, 1, TS_W }));
+
+        ps = groups[1];
+        CHECK(arrlen(ps) == 4);
+        CHECK(contains(ps, { 1, 2, TS_E }));
+        CHECK(contains(ps, { 2, 2, TS_W }));
+        CHECK(contains(ps, { 2, 2, TS_E }));
+        CHECK(contains(ps, { 3, 2, TS_W }));
+    }
+
+    TEST_CASE("Crossing wires")
+    {
+        ts_PosSet* positions = nullptr;
+        ts_Position p;
+
+        p = { 1, 1, TS_E }; psetput(positions, p);
+        p = { 2, 1, TS_W }; psetput(positions, p);
+        p = { 2, 1, TS_E }; psetput(positions, p);
+        p = { 3, 1, TS_W }; psetput(positions, p);
+
+        p = { 2, 1, TS_N }; psetput(positions, p);
+        p = { 2, 0, TS_S }; psetput(positions, p);
+        p = { 2, 0, TS_E }; psetput(positions, p);
+        p = { 3, 0, TS_W }; psetput(positions, p);
+
+        p = { 2, 1, TS_S }; psetput(positions, p);
+        p = { 2, 2, TS_N }; psetput(positions, p);
+        p = { 2, 2, TS_E }; psetput(positions, p);
+        p = { 3, 2, TS_W }; psetput(positions, p);
+
+        PositionArray* groups = ts_compiler_find_connected_wires(positions, nullptr);
+        CHECK(arrlen(groups) == 1);
+
+        PositionArray ps = groups[0];
+        CHECK(arrlen(ps) == 12);
+        CHECK(contains(ps, { 2, 1, TS_W }));
+        CHECK(contains(ps, { 2, 1, TS_E }));
+        CHECK(contains(ps, { 2, 1, TS_N }));
+        CHECK(contains(ps, { 2, 1, TS_S }));
     }
 }
