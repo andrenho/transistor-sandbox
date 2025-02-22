@@ -141,6 +141,7 @@ TEST_SUITE("Connected wires")
         CHECK(arrlen(ps) == 1);
         CHECK(contains(ps, { 1, 1, TS_S }));
 
+        arrfree(single_tile_pins);
         for (int i = 0; i < arrlen(groups); ++i)
             arrfree(groups[i]);
         arrfree(groups);

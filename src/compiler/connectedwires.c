@@ -80,6 +80,7 @@ static ts_Position* ts_compiler_find_connected_group(ts_Position start, ts_PosSe
         psetdel(to_visit, visiting);
     }
 
+    psetfree(to_visit);
     return result;
 }
 
