@@ -97,6 +97,14 @@ ts_Component* ts_board_component(ts_Board const* board, ts_Position pos)
     return &board->components[i].value;
 }
 
+ts_Result ts_board_rotate_tile(ts_Board const* board, ts_Position pos)
+{
+    ts_Component* component = ts_board_component(board, pos);
+    if (component != NULL && component->def->type == TS_SINGLE_TILE)
+        component->direction = ts_direction_rotate_component(component->direction);
+    return TS_OK;
+}
+
 //
 // serialization
 //

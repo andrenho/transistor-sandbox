@@ -1,9 +1,23 @@
 #include "direction.h"
 
-#include <lauxlib.h>
 #include <string.h>
+#include <stdlib.h>
+
+#include <lauxlib.h>
 
 #include "sandbox/sandbox.h"
+
+ts_Direction ts_direction_rotate_component(ts_Direction dir)
+{
+    switch (dir) {
+        case TS_N: return TS_E;
+        case TS_E: return TS_S;
+        case TS_S: return TS_W;
+        case TS_W: return TS_N;
+        case TS_CENTER: return TS_CENTER;
+    }
+    abort();
+}
 
 const char* ts_direction_serialize(ts_Direction dir)
 {

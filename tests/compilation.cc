@@ -122,5 +122,23 @@ TEST_SUITE("Compilation")
                 ts_connection_finalize(&connections[i]);
             arrfree(connections);
         }
+
+        SUBCASE("Single-tile component rotation")
+        {
+            Fixture f;
+            ts_board_rotate_tile(&f.sb.boards[0], { 1, 1 });
+
+            ts_Connection* connections = ts_compiler_compile(&f.sb);
+
+            CHECK(arrlen(connections) == 1);
+            CHECK(arrlen(connections[0].pins) == 2);
+
+            CHECK(has_pin(&connections[0], 0, "__button"));
+            CHECK(has_pin(&connections[0], 1, "__led"));
+
+            for (int i = 0; i < arrlen(connections); ++i)
+                ts_connection_finalize(&connections[i]);
+            arrfree(connections);
+        }
     }
 }

@@ -10,7 +10,9 @@ typedef enum ts_Direction {
     TS_CENTER, TS_N, TS_S, TS_W, TS_E,
 } ts_Direction;
 
-const char*     ts_direction_serialize(ts_Direction dir);
-ts_Result     ts_direction_unserialize(ts_Direction* dir, lua_State* L, ts_Sandbox* sb);
+ts_Direction ts_direction_rotate_component(ts_Direction dir);
+
+const char*  ts_direction_serialize(ts_Direction dir);
+ts_Result    ts_direction_unserialize(ts_Direction* dir, lua_State* L, ts_Sandbox* sb);
 
 #endif //DIRECTION_H
