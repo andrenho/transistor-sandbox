@@ -6,43 +6,42 @@
 #include "simulation.h"
 #include "component/component.h"
 #include "component/pinpos.h"
+#include "basic/pos_ds.h"
 
-#define hmcontains(a, b) (hmgeti(a, b) > 0)
-
-static ts_Position* ts_compiler_find_connected_group(ts_Position start, PositionSet* wires, ts_Position* single_tile_component_pins)
+static ts_Position* ts_compiler_find_connected_group(ts_Position start, ts_PosSet* wires, ts_Position* single_tile_component_pins)
 {
     ts_Position* result = NULL;
-    PositionSet* to_visit = NULL;  // hashset
+    ts_PosSet* to_visit = NULL;  // hashset
 
-    hmput(to_visit, start, true);
+    psetput(to_visit, start);
 
-    while (hmlen(to_visit) > 0) {
-        ts_Position visiting = to_visit[0].key;
+    while (setlen(to_visit) > 0) {
+        ts_Position visiting = psetfirst(to_visit);
 
-        if (hmcontains(wires, visiting)) {
+        if (psetcontains(wires, visiting)) {
 
             // add to result list, and remove from visited
             arrpush(result, visiting);
-            hmdel(wires, visiting);
+            psetdel(wires, visiting);
 
             // add neighbours
             // TODO
         }
 
-        hmdel(to_visit, visiting);
+        psetdel(to_visit, visiting);
     }
 
     return result;
 }
 
-ts_Position** ts_compiler_find_connected_wires(PositionSet* wires, ts_Position* single_tile_component_pins)
+PositionArray* ts_compiler_find_connected_wires(ts_PosSet* wires, ts_Position* single_tile_component_pins)
 {
-    if (arrlen(wires) == 0)
+    if (setlen(wires) == 0)
         return NULL;
 
     ts_Position** groups = NULL;
-    while (arrlen(wires) > 0)
-        arrpush(groups, ts_compiler_find_connected_group(wires[0].key, wires, single_tile_component_pins));
+    while (setlen(wires) > 0)
+        arrpush(groups, ts_compiler_find_connected_group(psetfirst(wires), wires, single_tile_component_pins));
 
     return groups;
 }

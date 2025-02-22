@@ -1,9 +1,10 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
+#include "util/set.h"
 #include "simulation.h"
 
-typedef struct { ts_Position key; bool value; } PositionSet;
+typedef ts_Position*     PositionArray;
 
 ts_Connection* ts_compiler_compile(ts_Sandbox const* sb);
 

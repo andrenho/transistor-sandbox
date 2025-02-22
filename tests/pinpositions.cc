@@ -7,6 +7,8 @@ extern "C" {
 #include "transistor-sandbox.h"
 }
 
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+
 static ts_PinPos pins[20];
 
 struct Fixture {
@@ -28,6 +30,7 @@ struct Fixture {
     ts_Component component {};
 
     ts_ComponentDef def = {
+        .key = "",
         .can_rotate = true,
         .ic_width = 1,
         .pins = (ts_PinDef[]) {

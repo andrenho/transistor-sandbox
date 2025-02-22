@@ -126,7 +126,9 @@ size_t ts_component_def_pin_positions_ic_quad(ts_ComponentDef const* def, ts_Pos
         case TS_E: dir[0] = TS_N; dir[1] = TS_W; dir[2] = TS_S; dir[3] = TS_E; break;
         case TS_S: dir[0] = TS_E; dir[1] = TS_N; dir[2] = TS_W; dir[3] = TS_S; break;
         case TS_W: dir[0] = TS_S; dir[1] = TS_E; dir[2] = TS_N; dir[3] = TS_W; break;
-        default: abort();
+        case TS_CENTER:
+        default:
+            abort();
     }
 
     for (size_t k = 0; k < 4; ++k) {
@@ -147,7 +149,9 @@ size_t ts_component_def_pin_positions_ic_quad(ts_ComponentDef const* def, ts_Pos
                 for (int i = (h-1); i >= 0; --i)
                     pin_pos[j++] = (ts_PinPos) { .pos = { pos.x + i, pos.y - 1 }, .pin_no = pin_no++ };
                 break;
-            default: abort();
+            case TS_CENTER:
+            default:
+                abort();
         }
     }
 

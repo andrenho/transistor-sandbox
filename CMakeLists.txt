@@ -82,6 +82,8 @@ add_library(${PROJECT_NAME} STATIC
         src/simulation/simulation.h
         src/simulation/compiler.c
         src/simulation/compiler.h
+        src/util/set.h
+        src/basic/pos_ds.h
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})
@@ -111,6 +113,7 @@ add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL
         tests/position.cc
         tests/pinpositions.cc
         tests/simulation.cc
+        tests/connected_wires.cc
 )
 target_compile_options(${PROJECT_NAME}-tests PRIVATE ${warnings} )
 target_link_directories(${PROJECT_NAME}-tests PRIVATE ${LUA_LIBRARY_DIRS})

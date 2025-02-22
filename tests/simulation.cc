@@ -1,20 +1,20 @@
 #include "doctest.h"
-#include "stb_ds.h"
-#include "simulation/compiler.h"
 
+#include <stb_ds.h>
 
 extern "C" {
 #include "transistor-sandbox.h"
-extern ts_Position**  ts_compiler_find_connected_wires(PositionSet* wires, ts_Position* single_tile_component_pins);
 extern ts_Pin*        ts_compiler_find_all_pins(ts_Sandbox const* sb);
 }
+
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
 TEST_SUITE("Simulation")
 {
     TEST_CASE("Basic circuit")
     {
         struct Fixture {
-            ts_Sandbox sb;
+            ts_Sandbox sb {};
 
             Fixture() {
                 ts_sandbox_init(&sb);
