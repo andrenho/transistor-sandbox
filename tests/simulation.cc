@@ -10,7 +10,7 @@ extern ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb);
 
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
-TEST_SUITE("Compilation & Simulation")
+TEST_SUITE("Compilation")
 {
     TEST_CASE("Basic circuit")
     {
