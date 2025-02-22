@@ -1,6 +1,8 @@
 #include "doctest.h"
 
 #include <stb_ds.h>
+#include <string>
+
 
 extern "C" {
 #include "transistor-sandbox.h"
@@ -12,6 +14,20 @@ extern ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb);
 
 TEST_SUITE("Compilation")
 {
+    auto has_wire = [](ts_Connection* conn, ts_Position pos) {
+        for (int i = 0; i < arrlen(conn->wires); ++i)
+            if (ts_pos_equals(conn->wires[i], pos))
+                return true;
+        return false;
+    };
+
+    auto has_pin = [](ts_Connection* conn, uint8_t pin_no, std::string const& comp) {
+        for (int i = 0; i < arrlen(conn->pins); ++i)
+            if (pin_no == conn->pins[i].pin_no && comp == conn->pins[i].component->def->key)
+                return true;
+        return false;
+    };
+
     TEST_CASE("Basic circuit")
     {
         struct Fixture {
@@ -77,7 +93,13 @@ TEST_SUITE("Compilation")
             CHECK(arrlen(connections[0].pins) == 2);
             CHECK(arrlen(connections[0].wires) == 4);
 
-            // TODO - check individual pins, wires
+            CHECK(has_wire(&connections[0], { 1, 1, TS_E }));
+            CHECK(has_wire(&connections[0], { 2, 1, TS_W }));
+            CHECK(has_wire(&connections[0], { 2, 1, TS_E }));
+            CHECK(has_wire(&connections[0], { 3, 1, TS_W }));
+
+            CHECK(has_pin(&connections[0], 3, "__button"));
+            CHECK(has_pin(&connections[0], 1, "__led"));
 
             for (int i = 0; i < arrlen(connections); ++i)
                 ts_connection_finalize(&connections[i]);
