@@ -4,12 +4,13 @@
 
 extern "C" {
 #include "transistor-sandbox.h"
-extern ts_Pin*        ts_compiler_find_all_pins(ts_Sandbox const* sb);
+#include "compiler/compiler.h"
+extern ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb);
 }
 
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
-TEST_SUITE("Simulation")
+TEST_SUITE("Compilation & Simulation")
 {
     TEST_CASE("Basic circuit")
     {
@@ -66,6 +67,19 @@ TEST_SUITE("Simulation")
             CHECK(get({ 3, 1, TS_E }, 3)->def->key == "__led");
 
             arrfree(pins);
+        }
+
+        SUBCASE("Compile")
+        {
+            ts_Connection* connections = ts_compiler_compile(&f.sb);
+
+            CHECK(arrlen(connections) == 1);
+            CHECK(arrlen(connections[0].pins) == 2);
+            CHECK(arrlen(connections[0].wires) == 4);
+
+            // TODO - check individual pins, wires
+
+            arrfree(connections);
         }
     }
 }

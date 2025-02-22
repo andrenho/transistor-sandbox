@@ -6,6 +6,7 @@
 #include "component/component.h"
 #include "component/pinpos.h"
 #include "basic/pos_ds.h"
+#include "connectedwires.h"
 
 ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb)
 {
@@ -31,21 +32,65 @@ ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb)
     return pins;
 }
 
-ts_Connection* ts_find_connections(ts_Sandbox const* sb, ts_Pin const* pins)
+ts_Connection* ts_compiler_compile(ts_Sandbox const* sb)
 {
     ts_Connection* connections = NULL;
 
-    // TODO - create set of pin positions
-
-    // TODO - for each pin, create a connection, and remove connecting pins from the list
-
-    return connections;
-}
-
-ts_Connection* ts_compiler_compile(ts_Sandbox const* sb)
-{
+    // create set of pin positions
     ts_Pin* pins = ts_compiler_find_all_pins(sb);
-    ts_Connection* connections = ts_find_connections(sb, pins);
+
+    // find single-tile component pins
+    ts_Position* single_tile_component_pins = NULL;
+    for (int i = 0; i < arrlen(pins); ++i)
+        if (pins[i].component->def->type == TS_SINGLE_TILE)
+            arrpush(single_tile_component_pins, pins[i].pos);
+
+    // create set of wires
+    ts_PosSet* wire_set = NULL;
+    for (int i = 0; i < arrlen(sb->boards); ++i)
+        for (int j = 0; j < hmlen(sb->boards[i].wires); ++j)
+            psetput(wire_set, ts_pos_unhash(sb->boards[i].wires[j].key));  // TODO - separate by width and layer
+
+    // find groups, and create connections
+    PositionArray* groups = ts_compiler_find_connected_wires(wire_set, single_tile_component_pins);
+    for (int i = 0; i < arrlen(groups); ++i) {
+
+        ts_Connection connection = {};
+
+        // add wires to connection, and add to the list of central pins
+        ts_PosSet* central_pins = NULL;
+        for (int j = 0; j < arrlen(groups[i]); ++j) {
+
+            // add to central_pins
+            ts_Position p = { groups[i][j].x, groups[i][j].y, TS_CENTER }; psetput(central_pins, p);
+
+            // add wire to connection
+            arrpush(connection.wires, groups[i][j]);
+
+            // add pin (single-tile components) to connection
+            for (int k = 0; k < arrlen(pins); ++k)
+                if (ts_pos_equals(groups[i][j], pins[k].pos))
+                    arrpush(connection.pins, pins[k]);
+        }
+
+        // add pins (IC)
+        for (int j = 0; j < psetlen(central_pins); ++j)
+            for (int k = 0; k < arrlen(pins); ++k)
+                if (ts_pos_equals(psetget(central_pins, j), pins[k].pos))
+                    arrpush(connection.pins, pins[k]);
+
+        psetfree(central_pins);
+
+        arrpush(connections, connection);
+    }
+
+    // free stuff
+    for (int i = 0; i < arrlen(groups); ++i)
+        arrfree(groups[i]);
+    arrfree(groups);
+    psetfree(wire_set);
+    arrfree(single_tile_component_pins);
     arrfree(pins);
+
     return connections;
 }

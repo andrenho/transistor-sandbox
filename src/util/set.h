@@ -1,8 +1,6 @@
 #ifndef SET_H
 #define SET_H
 
-#include <stb_ds.h>
-
 #define SET(Type) struct { Type key; bool value; }
 
 #define setlen hmlen

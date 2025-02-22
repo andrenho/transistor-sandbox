@@ -1,5 +1,7 @@
 #include "connectedwires.h"
 
+#include <stb_ds.h>
+
 static ts_Position* ts_tile_neighbours(ts_Position p, bool has_single_tile_component_pin)
 {
     ts_Position* positions = NULL;
@@ -58,7 +60,7 @@ static ts_Position* ts_compiler_find_connected_group(ts_Position start, ts_PosSe
 
     psetput(to_visit, start);
 
-    while (setlen(to_visit) > 0) {
+    while (psetlen(to_visit) > 0) {
         ts_Position visiting = psetfirst(to_visit);
 
         if (psetcontains(wires, visiting)) {
@@ -86,11 +88,11 @@ static ts_Position* ts_compiler_find_connected_group(ts_Position start, ts_PosSe
 
 PositionArray* ts_compiler_find_connected_wires(ts_PosSet* wires, ts_Position* single_tile_component_pins)
 {
-    if (setlen(wires) == 0)
+    if (psetlen(wires) == 0)
         return NULL;
 
     ts_Position** groups = NULL;
-    while (setlen(wires) > 0)
+    while (psetlen(wires) > 0)
         arrpush(groups, ts_compiler_find_connected_group(psetfirst(wires), wires, single_tile_component_pins));
 
     return groups;

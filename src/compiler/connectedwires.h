@@ -1,7 +1,6 @@
 #ifndef CONNECTEDWIRES_H
 #define CONNECTEDWIRES_H
 
-#include "compiler.h"
 #include "basic/pos_ds.h"
 
 typedef ts_Position* PositionArray;
