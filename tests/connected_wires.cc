@@ -103,4 +103,27 @@ TEST_SUITE("Connected wires")
         CHECK(contains(ps, { 2, 1, TS_N }));
         CHECK(contains(ps, { 2, 1, TS_S }));
     }
+
+    TEST_CASE("Single-tile component in middle of connection")
+    {
+        ts_PosSet* positions = nullptr;
+        ts_Position p;
+
+        p = { 1, 1, TS_W }; psetput(positions, p);
+        p = { 1, 1, TS_S }; psetput(positions, p);
+
+        ts_Position* single_tile_pins = nullptr;
+        p = { 1, 1, TS_CENTER }; arrpush(single_tile_pins, p);
+
+        PositionArray* groups = ts_compiler_find_connected_wires(positions, single_tile_pins);
+        CHECK(arrlen(groups) == 2);
+
+        PositionArray ps = groups[0];
+        CHECK(arrlen(ps) == 1);
+        CHECK(contains(ps, { 1, 1, TS_W }));
+
+        ps = groups[1];
+        CHECK(arrlen(ps) == 1);
+        CHECK(contains(ps, { 3, 2, TS_S }));
+    }
 }
