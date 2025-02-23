@@ -174,9 +174,3 @@ size_t ts_component_def_pin_positions(ts_ComponentDef const* def, ts_Position co
             abort();
     }
 }
-
-size_t ts_component_def_wire_free_area(ts_ComponentDef const* def, ts_Position component_pos, ts_Direction dir,
-                                        ts_Position* positions, size_t max_pos)
-{
-    return 0;
-}

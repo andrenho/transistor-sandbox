@@ -17,7 +17,7 @@ TEST_SUITE("Placement")
 {
     TEST_CASE("Wire placement")
     {
-        SUBCASE("Don't place outside of circuit bounds")
+        SUBCASE("Don't place wire outside of circuit bounds")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
             ts_board_add_wire(&sb.boards[0], { 10, 1, TS_E }, { TS_WIRE_1, TS_LAYER_TOP });
@@ -25,7 +25,7 @@ TEST_SUITE("Placement")
             ts_sandbox_finalize(&sb);
         }
 
-        SUBCASE("Don't place on top of ICs")
+        SUBCASE("Don't wire place on top of ICs")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 1 }, TS_N);

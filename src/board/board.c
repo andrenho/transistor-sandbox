@@ -40,6 +40,49 @@ ts_Result ts_board_finalize(ts_Board* board)
 // wires
 //
 
+static ts_Result ts_board_remove_wires_for_ic(ts_Board* board, ts_Rect rect)
+{
+    // remove sides
+    for (int y = rect.top_left.y; y <= rect.bottom_right.y; ++y) {  // left
+        ts_board_remove_wire(board, (ts_Position) { rect.top_left.x, y, TS_N });
+        ts_board_remove_wire(board, (ts_Position) { rect.top_left.x, y, TS_S });
+        ts_board_remove_wire(board, (ts_Position) { rect.top_left.x, y, TS_E });
+    }
+    for (int y = rect.top_left.y; y <= rect.bottom_right.y; ++y) {  // right
+        ts_board_remove_wire(board, (ts_Position) { rect.bottom_right.x, y, TS_N });
+        ts_board_remove_wire(board, (ts_Position) { rect.bottom_right.x, y, TS_S });
+        ts_board_remove_wire(board, (ts_Position) { rect.bottom_right.x, y, TS_W });
+    }
+    for (int x = rect.top_left.x; x <= rect.bottom_right.x; ++x) {  // top
+        ts_board_remove_wire(board, (ts_Position) { x, rect.top_left.y, TS_S });
+        ts_board_remove_wire(board, (ts_Position) { x, rect.top_left.y, TS_W });
+        ts_board_remove_wire(board, (ts_Position) { x, rect.top_left.y, TS_E });
+    }
+    for (int x = rect.top_left.x; x <= rect.bottom_right.x; ++x) {  // bottom
+        ts_board_remove_wire(board, (ts_Position) { x, rect.bottom_right.y, TS_N });
+        ts_board_remove_wire(board, (ts_Position) { x, rect.bottom_right.y, TS_W });
+        ts_board_remove_wire(board, (ts_Position) { x, rect.bottom_right.y, TS_E });
+    }
+
+    // remove center
+    for (int x = rect.top_left.x + 1; x < rect.bottom_right.x; ++x) {
+        for (int y = rect.top_left.y + 1; y < rect.bottom_right.y; ++y) {
+            ts_board_remove_wire(board, (ts_Position) { x, y, TS_N });
+            ts_board_remove_wire(board, (ts_Position) { x, y, TS_S });
+            ts_board_remove_wire(board, (ts_Position) { x, y, TS_W });
+            ts_board_remove_wire(board, (ts_Position) { x, y, TS_E });
+        }
+    }
+
+    return TS_OK;
+}
+
+ts_Result ts_board_remove_wire(ts_Board* board, ts_Position position)
+{
+    hmdel(board->wires, ts_pos_hash(position));
+    return TS_OK;
+}
+
 ts_Wire* ts_board_wire(ts_Board const* board, ts_Position pos)
 {
     int i = hmgeti(((ts_Board *) board)->wires, ts_pos_hash(pos));
@@ -53,10 +96,16 @@ ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
     ts_Result r = TS_OK;
     ts_sandbox_stop_simulation(board->sandbox);
 
+    // add wire
     if (pos.x < board->w && pos.y < board->h)
         hmput(board->wires, ts_pos_hash(pos), wire);
     else
         r = ts_error(board->sandbox, TS_CANNOT_PLACE, "Wire out of bounds");
+
+    // remove wires under ICs
+    for (int i = 0; i < hmlen(board->components); ++i)
+        if (board->components[i].value->def->type == TS_SINGLE_TILE)
+            ts_board_remove_wires_for_ic(board, ts_component_rect(board->components[i].value));
 
     ts_sandbox_start_simulation(board->sandbox);
     return r;
@@ -124,6 +173,9 @@ ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position 
     // place component
     hmput(board->components, ts_pos_hash(pos), component);  // pointer owns the object
     ts_component_update_pos(component, board, pos);
+
+    // remove wires underneath
+    ts_board_remove_wires_for_ic(board, component_rect);
 
 skip:
     ts_sandbox_start_simulation(board->sandbox);
