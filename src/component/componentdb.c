@@ -26,13 +26,17 @@ ts_Result ts_component_db_add_def(ts_ComponentDB* db, ts_ComponentDef const* def
     return TS_OK;
 }
 
+ts_ComponentDef const* ts_component_db_def(ts_ComponentDB const* db, const char* name)
+{
+    return shgetp_null(((ts_ComponentDB *) db)->items, name);
+}
+
 ts_Result ts_component_db_init_component(ts_ComponentDB const* db, const char* name, ts_Component* component)
 {
-    ts_ComponentDef* def;
-    def = shgetp_null(((ts_ComponentDB *) db)->items, name);
+    ts_ComponentDef const* def = ts_component_db_def(db, name);
     if (def == NULL)
         return ts_error(db->sandbox, TS_COMPONENT_NOT_FOUND, "Component '%s' not found in database.", name);
-    return ts_component_init(component, def);
+    return ts_component_init(component, def, TS_N);
 }
 
 int ts_component_db_serialize(ts_ComponentDB const* db, int vspace, char* buf, size_t buf_sz)

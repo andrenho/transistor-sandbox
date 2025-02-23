@@ -7,4 +7,6 @@ typedef struct ts_Rect {
     ts_Position bottom_right;
 } ts_Rect;
 
+bool tb_rect_a_inside_b(ts_Rect a, ts_Rect b);
+
 #endif //RECT_H

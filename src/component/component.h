@@ -20,7 +20,7 @@ typedef struct ts_Component {
 } ts_Component;
 
 // initialization
-ts_Result ts_component_init(ts_Component* component, ts_ComponentDef const* def);
+ts_Result ts_component_init(ts_Component* component, ts_ComponentDef const* def, ts_Direction direction);
 ts_Result ts_component_finalize(ts_Component* component);
 
 // positioning

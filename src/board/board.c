@@ -82,12 +82,16 @@ ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position 
 
     ts_sandbox_stop_simulation(board->sandbox);
 
+    ts_ComponentDef const* def = ts_component_db_def(&board->sandbox->component_db, name);
+    if (def == NULL)
+        return ts_error(board->sandbox, TS_COMPONENT_NOT_FOUND, "Component '%s' not found in database.", name);
+
     ts_Component component = {};
-    ts_Result r = ts_component_db_init_component(&board->sandbox->component_db, name, &component);
-    component.direction = direction;
+    ts_Result r = ts_component_init(&component, def, direction);
 
     if (r != TS_OK)
         goto skip;
+
     if (pos.x >= board->w || pos.y >= board->h)
         goto skip;
     if (ts_board_component(board, pos) != NULL)

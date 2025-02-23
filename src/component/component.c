@@ -9,11 +9,11 @@
 #include "sandbox/sandbox.h"
 #include "util/serialize.h"
 
-ts_Result ts_component_init(ts_Component* component, ts_ComponentDef const* def)
+ts_Result ts_component_init(ts_Component* component, ts_ComponentDef const* def, ts_Direction direction)
 {
     memset(component, 0, sizeof(ts_Component));
     component->def = def;
-    component->direction = TS_N;
+    component->direction = direction;
     component->data = calloc(1, def->data_size);
     component->pins = calloc(def->n_pins, sizeof component->pins[0]);
     if (def->init)
@@ -54,16 +54,19 @@ int ts_component_serialize(ts_Component const* component, int vspace, char* buf,
 
 ts_Result ts_component_unserialize(ts_Component* component, lua_State* L, ts_Sandbox* sb)
 {
+    // direction
+    ts_Direction dir;
+    lua_getfield(L, -1, "direction"); ts_direction_unserialize(&dir, L, sb); lua_pop(L, 1);
+
     // setup component
     lua_getfield(L, -1, "name");
     const char* name = luaL_checkstring(L, -1);
-    ts_Result r = ts_component_db_init_component(&sb->component_db, name, component);
+    ts_Result r = ts_component_init(component, ts_component_db_def(&sb->component_db, name), dir);
     lua_pop(L, 1);
     if (r != TS_OK)
         return r;
 
     // update fields
-    lua_getfield(L, -1, "direction"); ts_direction_unserialize(&component->direction, L, sb); lua_pop(L, 1);
 
     // update data
     lua_getfield(L, -1, "data");

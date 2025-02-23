@@ -17,13 +17,14 @@ ts_Result ts_component_db_init(ts_ComponentDB* db, ts_Sandbox* sb);
 ts_Result ts_component_db_finalize(ts_ComponentDB* db);
 
 // db management
-ts_Result ts_component_db_add_def(ts_ComponentDB* db, ts_ComponentDef const* def);
+ts_Result              ts_component_db_add_def(ts_ComponentDB* db, ts_ComponentDef const* def);
+ts_ComponentDef const* ts_component_db_def(ts_ComponentDB const* db, const char* name);
 
-// components
-ts_Result ts_component_db_init_component(ts_ComponentDB const* db, const char* name, ts_Component* component);
+// init component
+// ts_Result ts_component_db_init_component(ts_ComponentDB const* db, const char* name, ts_Component* component);
 
 // serialization
-int         ts_component_db_serialize(ts_ComponentDB const* db, int vspace, char* buf, size_t buf_sz);
+int       ts_component_db_serialize(ts_ComponentDB const* db, int vspace, char* buf, size_t buf_sz);
 ts_Result ts_component_db_unserialize(ts_ComponentDB* db, lua_State* L, ts_Sandbox* sb);
 
 #endif //COMPONENTDB_HH

@@ -19,7 +19,7 @@ struct Fixture {
         def.n_pins = n_pins;
         def.ic_width = width;
 
-        ts_component_init(&component, &def);
+        ts_component_init(&component, &def, TS_N);
     }
 
     ~Fixture()

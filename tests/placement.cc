@@ -13,8 +13,8 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place outside of circuit bounds")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
-            ts_board_add_wire(&sb.boards[0], { 11, 1, TS_E }, { TS_W1, TS_TOP });
-            CHECK(ts_board_wire(&sb.boards[0], { 11, 1, TS_E }) == NULL);
+            ts_board_add_wire(&sb.boards[0], { 10, 1, TS_E }, { TS_W1, TS_TOP });
+            CHECK(ts_board_wire(&sb.boards[0], { 10, 1, TS_E }) == NULL);
             ts_sandbox_finalize(&sb);
         }
 
@@ -41,8 +41,8 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place outside of circuit bounds")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
-            ts_board_add_component(&sb.boards[0], "__button", { 11, 1 }, TS_N);
-            CHECK(ts_board_component(&sb.boards[0], { 11, 1 }) == NULL);
+            ts_board_add_component(&sb.boards[0], "__button", { 10, 1 }, TS_N);
+            CHECK(ts_board_component(&sb.boards[0], { 10, 1 }) == NULL);
             ts_sandbox_finalize(&sb);
         }
 
