@@ -8,25 +8,17 @@
 #include <lua.h>
 
 #include "direction.h"
+#include "orientation.h"
 #include "util/result.h"
 
 typedef struct ts_Sandbox ts_Sandbox;
 
-// max position is 16384 (0x3FFF, 14 bits)
-
-typedef uint32_t ts_PositionHash;
+typedef uint32_t ts_PositionHash;   // max position is 16384 (0x3FFF, 14 bits)
 
 typedef struct ts_Position {
     uint16_t     x, y;
     ts_Direction dir;
 } ts_Position;
-
-typedef struct ts_Rect {
-    ts_Position top_left;
-    ts_Position bottom_right;
-} ts_Rect;
-
-typedef enum { TS_VERTICAL, TS_HORIZONTAL } ts_Orientation;
 
 bool            ts_pos_equals(ts_Position a, ts_Position b);
 

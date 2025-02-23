@@ -7,6 +7,7 @@
 #include "basic/position.h"
 #include "util/result.h"
 #include "pinpos.h"
+#include "basic/rect.h"
 
 typedef struct ts_ComponentDef ts_ComponentDef;
 typedef struct ts_Sandbox ts_Sandbox;

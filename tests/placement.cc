@@ -74,6 +74,20 @@ TEST_SUITE("Placement")
     {
         SUBCASE("Don't place outside of circuit bounds")
         {
+            ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_board_add_component(&sb.boards[0], "__or_2i", { 11, 1 }, TS_N);
+            CHECK(ts_board_component(&sb.boards[0], { 11, 1 }) == NULL);
+            ts_sandbox_finalize(&sb);
+        }
+
+        SUBCASE("Don't place any part of IC outside of circuit bounds")
+        {
+            ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_board_add_component(&sb.boards[0], "__or_2i", { 9, 1 }, TS_N);
+            CHECK(ts_board_component(&sb.boards[0], { 9, 1 }) == NULL);
+            ts_board_add_component(&sb.boards[0], "__or_2i", { 0, 1 }, TS_N);
+            CHECK(ts_board_component(&sb.boards[0], { 0, 1 }) == NULL);
+            ts_sandbox_finalize(&sb);
         }
 
         SUBCASE("Don't place IC over single-tile component")

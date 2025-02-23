@@ -22,6 +22,7 @@ Version 0.1.0
   - [ ] Serialize in database
 - [ ] Component configurability
 - [ ] Cursor (?)
+- [ ] Architecture document
 
 Version 0.2.0
 
