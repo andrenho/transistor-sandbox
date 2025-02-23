@@ -62,7 +62,11 @@ TEST_SUITE("Placement")
 
         SUBCASE("Remove component")
         {
-            // TODO
+            ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
+            ts_board_clear_tile(&sb.boards[0], { 1, 1 });
+            CHECK(ts_board_component(&sb.boards[0], { 1, 1 }) == NULL);
+            ts_sandbox_finalize(&sb);
         }
     }
 
