@@ -145,6 +145,7 @@ ts_Component* ts_board_component(ts_Board const* board, ts_Position pos)
         int j = hmgeti(comps, ts_pos_hash(pos));
         if (j >= 0)
             ret = comps[j].value;
+        hmfree(comps);
     }
 
     return ret;
@@ -173,6 +174,7 @@ ts_Result ts_board_clear_tile(ts_Board const* board, ts_Position pos)
     // clear component
     ts_Component* component = ts_board_component(board, pos);
     if (component) {
+        ts_component_finalize(component);
         hmdel(((ts_Board *) board)->components, ts_pos_hash(component->position));
         free(component);
     }
