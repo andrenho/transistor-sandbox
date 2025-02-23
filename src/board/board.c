@@ -3,9 +3,12 @@
 #include <lauxlib.h>
 #include <stb_ds.h>
 
+#include "basic/pos_ds.h"
 #include "util/serialize.h"
 #include "component/componentdb.h"
 #include "sandbox/sandbox.h"
+
+ts_PosSet* ts_board_occupied_tiles(ts_Board const* board);
 
 //
 // initialization
@@ -82,21 +85,40 @@ ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position 
 
     ts_sandbox_stop_simulation(board->sandbox);
 
+    // find component
     ts_ComponentDef const* def = ts_component_db_def(&board->sandbox->component_db, name);
     if (def == NULL)
         return ts_error(board->sandbox, TS_COMPONENT_NOT_FOUND, "Component '%s' not found in database.", name);
 
-    ts_Component component = {};
-    ts_Result r = ts_component_init(&component, def, direction);
-
-    if (r != TS_OK)
+    // is it inside the board?
+    ts_Rect component_rect = ts_component_def_rect(def, pos, direction);
+    ts_Rect board_rect = { (ts_Position) { 0, 0, TS_CENTER }, (ts_Position) { board->w - 1, board->h - 1, TS_CENTER } };
+    if (!ts_rect_a_inside_b(component_rect, board_rect))
         goto skip;
 
-    if (pos.x >= board->w || pos.y >= board->h)
-        goto skip;
+    // is there another component here? (TODO)
+    ts_PosSet* occupied = ts_board_occupied_tiles(board);
+    for (int x = component_rect.top_left.x; x <= component_rect.bottom_right.x; ++x) {
+        for (int y = component_rect.top_left.y; y <= component_rect.bottom_right.y; ++y) {
+            ts_Position p = { x, y };
+            if (psetcontains(occupied, p)) {
+                psetfree(occupied);
+                goto skip;
+            }
+        }
+    }
+    psetfree(occupied);
+
     if (ts_board_component(board, pos) != NULL)
         goto skip;
 
+    // init component
+    ts_Component component = {};
+    ts_Result r = ts_component_init(&component, def, direction);
+    if (r != TS_OK)
+        goto skip;
+
+    // place component
     hmput(board->components, ts_pos_hash(pos), component);
 
 skip:
@@ -145,6 +167,21 @@ ts_Result ts_board_clear_tile(ts_Board const* board, ts_Position pos)
     // TODO - ic
 
     return TS_OK;
+}
+
+ts_PosSet* ts_board_occupied_tiles(ts_Board const* board)
+{
+    ts_PosSet* set = NULL;
+    for (int i = 0; i < hmlen(board->components); ++i) {
+        ts_Rect rect = ts_component_rect(&board->components[i].value, ts_pos_unhash(board->components[i].key));
+        for (int x = rect.top_left.x; x <= rect.bottom_right.x; ++x) {
+            for (int y = rect.top_left.y; y <= rect.bottom_right.y; ++y) {
+                ts_Position p = { x, y, TS_CENTER };
+                psetput(set, p);
+            }
+        }
+    }
+    return set;
 }
 
 //

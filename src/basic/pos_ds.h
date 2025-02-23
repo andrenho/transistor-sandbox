@@ -14,6 +14,8 @@ typedef struct { ts_PositionHash key; bool value; } ts_PosSet;
 #define psetfirst(collection)         (psetget(collection, 0))
 #define psetfree                      hmfree
 
+bool psetcontains_f(ts_PosSet* collection, ts_Position pos);  // allow calling from C++
+
 // non-hashed
 bool arrcontains(ts_Position* haystack, ts_Position needle);
 

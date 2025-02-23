@@ -66,8 +66,6 @@ ts_Result ts_component_unserialize(ts_Component* component, lua_State* L, ts_San
     if (r != TS_OK)
         return r;
 
-    // update fields
-
     // update data
     lua_getfield(L, -1, "data");
     if (!lua_isnil(L, -1)) {

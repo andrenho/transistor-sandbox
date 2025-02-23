@@ -16,7 +16,7 @@ typedef struct ts_Sandbox ts_Sandbox;
 typedef uint32_t ts_PositionHash;   // max position is 16384 (0x3FFF, 14 bits)
 
 typedef struct ts_Position {
-    uint16_t     x, y;
+    int16_t      x, y;
     ts_Direction dir;
 } ts_Position;
 

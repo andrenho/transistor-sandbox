@@ -10,14 +10,8 @@ typedef struct ts_Sandbox ts_Sandbox;
 typedef struct ts_Board {
     ts_Sandbox* sandbox;
     int         w, h;
-    struct {
-        ts_PositionHash key;
-        ts_Wire         value;
-    }* wires;
-    struct {
-        ts_PositionHash key;
-        ts_Component    value;
-    }* components;
+    struct { ts_PositionHash key; ts_Wire value;       }* wires;
+    struct { ts_PositionHash key; ts_Component value;  }* components;
 } ts_Board;
 
 // initialization
