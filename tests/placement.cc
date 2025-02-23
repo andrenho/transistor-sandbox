@@ -25,7 +25,14 @@ TEST_SUITE("Placement")
 
         SUBCASE("Remove wire")
         {
-            // TODO
+            ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_W1, TS_TOP });
+            ts_board_clear_tile(&sb.boards[0], { 2, 1 });
+            CHECK(ts_board_wire(&sb.boards[0], { 1, 1, TS_E }) != NULL);
+            CHECK(ts_board_wire(&sb.boards[0], { 2, 1, TS_W }) == NULL);
+            CHECK(ts_board_wire(&sb.boards[0], { 2, 1, TS_E }) == NULL);
+            CHECK(ts_board_wire(&sb.boards[0], { 3, 1, TS_W }) != NULL);
+            ts_sandbox_finalize(&sb);
         }
     }
 

@@ -111,11 +111,35 @@ ts_Component* ts_board_component(ts_Board const* board, ts_Position pos)
     return &board->components[i].value;
 }
 
+//
+// tile
+//
+
 ts_Result ts_board_rotate_tile(ts_Board const* board, ts_Position pos)
 {
+    if (pos.dir != TS_CENTER)
+        abort();
+
     ts_Component* component = ts_board_component(board, pos);
     if (component != NULL && component->def->type == TS_SINGLE_TILE)
         component->direction = ts_direction_rotate_component(component->direction);
+    return TS_OK;
+}
+
+ts_Result ts_board_clear_tile(ts_Board const* board, ts_Position pos)
+{
+    if (pos.dir != TS_CENTER)
+        abort();
+
+    hmdel(((ts_Board *) board)->components, ts_pos_hash(pos));
+
+    hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_N }));
+    hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_E }));
+    hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_S }));
+    hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_W }));
+
+    // TODO - ic
+
     return TS_OK;
 }
 
