@@ -194,7 +194,7 @@ ts_HashPosComponentPtr ts_board_component_tiles(ts_Board const* board)
 
     for (int i = 0; i < hmlen(board->components); ++i) {
         ts_Component* component = board->components[i].value;
-        ts_Rect rect = ts_component_rect(component, ts_pos_unhash(board->components[i].key));
+        ts_Rect rect = ts_component_rect(component);
         for (int x = rect.top_left.x; x <= rect.bottom_right.x; ++x) {
             for (int y = rect.top_left.y; y <= rect.bottom_right.y; ++y) {
                 ts_Position pos = { x, y, TS_CENTER };

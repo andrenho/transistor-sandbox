@@ -56,7 +56,8 @@ TEST_SUITE("Pin positions")
 
         SUBCASE("Direction N")
         {
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            f.component.position = { 1, 1, TS_N };
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 1);
             CHECK(pins[0].pin_no == 0);
@@ -66,8 +67,9 @@ TEST_SUITE("Pin positions")
         SUBCASE("Direction E")
         {
             f.component.direction = TS_E;
+            f.component.position = { 1, 1, TS_N };
+            ts_component_pin_positions(&f.component, pins, sizeof pins);
 
-            ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
             CHECK(pins[0].pos.dir == TS_E);
         }
     }
@@ -78,7 +80,8 @@ TEST_SUITE("Pin positions")
 
         SUBCASE("Direction N")
         {
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            f.component.position = { 1, 1, TS_N };
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 2);
             CHECK(pins[0].pin_no == 0);
@@ -90,8 +93,9 @@ TEST_SUITE("Pin positions")
         SUBCASE("Direction E")
         {
             f.component.direction = TS_E;
+            f.component.position = { 1, 1, TS_N };
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
             CHECK(sz == 2);
             CHECK(pins[0].pos.dir == TS_E);
             CHECK(pins[1].pos.dir == TS_W);
@@ -104,7 +108,8 @@ TEST_SUITE("Pin positions")
 
         SUBCASE("Direction N")
         {
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            f.component.position = { 1, 1, TS_N };
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 4);
             CHECK(pins[0].pin_no == 0);
@@ -120,8 +125,9 @@ TEST_SUITE("Pin positions")
         SUBCASE("Direction E")
         {
             f.component.direction = TS_E;
+            f.component.position = { 1, 1, TS_N };
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
             CHECK(sz == 4);
             CHECK(pins[0].pos.dir == TS_E);
             CHECK(pins[1].pos.dir == TS_N);
@@ -136,11 +142,12 @@ TEST_SUITE("Pin positions")
 
         SUBCASE("Direction N")
         {
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 2, 4, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 6);
             for (int i = 0; i < 6; ++ i)
@@ -157,11 +164,12 @@ TEST_SUITE("Pin positions")
         {
             f.component.direction = TS_E;
 
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 4, 2, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 6);
             for (int i = 0; i < 6; ++ i)
@@ -178,11 +186,12 @@ TEST_SUITE("Pin positions")
         {
             f.component.direction = TS_S;
 
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_S });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 2, 4, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 6);
             for (int i = 0; i < 6; ++ i)
@@ -199,11 +208,12 @@ TEST_SUITE("Pin positions")
         {
             f.component.direction = TS_W;
 
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 4, 2, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 6);
             for (int i = 0; i < 6; ++ i)
@@ -223,11 +233,12 @@ TEST_SUITE("Pin positions")
 
         SUBCASE("Direction N")
         {
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 3, 4, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 6);
             for (int i = 0; i < 6; ++ i)
@@ -244,11 +255,12 @@ TEST_SUITE("Pin positions")
         {
             f.component.direction = TS_E;
 
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 4, 3, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 6);
             for (int i = 0; i < 6; ++ i)
@@ -265,11 +277,12 @@ TEST_SUITE("Pin positions")
         {
             f.component.direction = TS_S;
 
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_S });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 3, 4, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 6);
             for (int i = 0; i < 6; ++ i)
@@ -286,11 +299,12 @@ TEST_SUITE("Pin positions")
         {
             f.component.direction = TS_W;
 
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 4, 3, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 6);
             for (int i = 0; i < 6; ++ i)
@@ -310,11 +324,12 @@ TEST_SUITE("Pin positions")
 
         SUBCASE("Direction N")
         {
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 3, 3, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 8);
             for (int i = 0; i < 8; ++ i)
@@ -333,11 +348,12 @@ TEST_SUITE("Pin positions")
         {
             f.component.direction = TS_E;
 
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 3, 3, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 8);
             for (int i = 0; i < 8; ++ i)
@@ -356,11 +372,12 @@ TEST_SUITE("Pin positions")
         {
             f.component.direction = TS_S;
 
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 3, 3, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 8);
             for (int i = 0; i < 8; ++ i)
@@ -379,11 +396,12 @@ TEST_SUITE("Pin positions")
         {
             f.component.direction = TS_W;
 
-            ts_Rect rect = ts_component_rect(&f.component, (ts_Position) { 1, 1, TS_N });
+            f.component.position = { 1, 1, TS_N };
+            ts_Rect rect = ts_component_rect(&f.component);
             CHECK(ts_pos_equals(rect.top_left, { 0, 0, TS_CENTER }));
             CHECK(ts_pos_equals(rect.bottom_right, { 3, 3, TS_CENTER }));
 
-            size_t sz = ts_component_pin_positions(&f.component, (ts_Position) { 1, 1, TS_N }, pins, sizeof pins);
+            size_t sz = ts_component_pin_positions(&f.component, pins, sizeof pins);
 
             CHECK(sz == 8);
             for (int i = 0; i < 8; ++ i)

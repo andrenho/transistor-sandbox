@@ -35,14 +35,14 @@ ts_Result ts_component_update_pos(ts_Component* component, ts_Board const* board
     return TS_OK;
 }
 
-ts_Rect ts_component_rect(ts_Component const* component, ts_Position component_pos)
+ts_Rect ts_component_rect(ts_Component const* component)
 {
-    return ts_component_def_rect(component->def, component_pos, component->direction);
+    return ts_component_def_rect(component->def, component->position, component->direction);
 }
 
-size_t ts_component_pin_positions(ts_Component const* component, ts_Position component_pos, ts_PinPos* pin_pos, size_t max_pin_pos)
+size_t ts_component_pin_positions(ts_Component const* component, ts_PinPos* pin_pos, size_t max_pin_pos)
 {
-    return ts_component_def_pin_positions(component->def, component_pos, component->direction, pin_pos, max_pin_pos);
+    return ts_component_def_pin_positions(component->def, component->position, component->direction, pin_pos, max_pin_pos);
 }
 
 int ts_component_serialize(ts_Component const* component, int vspace, char* buf, size_t buf_sz)
