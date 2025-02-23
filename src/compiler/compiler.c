@@ -14,7 +14,7 @@ ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb)
     for (int i = 0; i < arrlen(sb->boards); ++i) {
         for (int j = 0; j < hmlen(sb->boards[i].components); ++j) {
             ts_Position pos = ts_pos_unhash(sb->boards[i].components[j].key);
-            ts_Component* component = &sb->boards[i].components[j].value;
+            ts_Component* component = sb->boards[i].components[j].value;
             ts_PinPos pin_pos[component->def->n_pins];
             ts_component_pin_positions(component, pos, pin_pos, component->def->n_pins);
 

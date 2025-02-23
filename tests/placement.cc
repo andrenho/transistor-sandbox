@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include "doctest.h"
 
 #include <stb_ds.h>
@@ -6,7 +8,7 @@ extern "C" {
 #include "transistor-sandbox.h"
 #include "basic/pos_ds.h"
 
-extern ts_PosSet* ts_board_occupied_tiles(ts_Board const* board);
+extern ts_HashPosComponentPtr ts_board_component_tiles(ts_Board const* board);
 }
 
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
@@ -81,23 +83,28 @@ TEST_SUITE("Placement")
     {
         SUBCASE("Occupied tiles")
         {
+            ts_PositionHash p;
             ts_Sandbox sb; ts_sandbox_init(&sb);
 
             ts_board_add_component(&sb.boards[0], "__button", { 0, 0 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 2, 2 }, TS_N);
 
-            ts_PosSet* tiles = ts_board_occupied_tiles(&sb.boards[0]);
-            CHECK(psetlen(tiles) == 9);
-            psetcontains_f(tiles, { 0, 0 });
-            psetcontains_f(tiles, { 1, 0 });
-            psetcontains_f(tiles, { 1, 1 });
-            psetcontains_f(tiles, { 1, 2 });
-            psetcontains_f(tiles, { 1, 3 });
-            psetcontains_f(tiles, { 2, 0 });
-            psetcontains_f(tiles, { 2, 1 });
-            psetcontains_f(tiles, { 2, 2 });
-            psetcontains_f(tiles, { 2, 3 });
-            psetfree(tiles);
+            ts_HashPosComponentPtr tiles = ts_board_component_tiles(&sb.boards[0]);
+            CHECK(hmlen(tiles) == 13);
+            p = ts_pos_hash({ 0, 0 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 1, 1 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 1, 2 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 1, 3 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 1, 4 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 2, 1 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 2, 2 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 2, 3 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 2, 4 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 3, 1 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 3, 2 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 3, 3 }); CHECK(hmgeti(tiles, p) >= 0);
+            p = ts_pos_hash({ 3, 4 }); CHECK(hmgeti(tiles, p) >= 0);
+            hmfree(tiles);
 
             ts_sandbox_finalize(&sb);
         }
@@ -140,7 +147,7 @@ TEST_SUITE("Placement")
             ts_Sandbox sb; ts_sandbox_init(&sb);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 2, 2 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 1 }, TS_N);
-            CHECK(ts_board_component(&sb.boards[0], { 1, 1 }) == NULL);
+            CHECK(ts_board_component(&sb.boards[0], { 0, 0 }) == NULL);
             ts_sandbox_finalize(&sb);
         }
 
@@ -154,4 +161,6 @@ TEST_SUITE("Placement")
             // TODO
         }
     }
+
+    // TODO - check memory usage
 }

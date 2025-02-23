@@ -8,7 +8,7 @@
 #include "component/componentdb.h"
 #include "sandbox/sandbox.h"
 
-ts_PosSet* ts_board_occupied_tiles(ts_Board const* board);
+ts_HashPosComponentPtr ts_board_component_tiles(ts_Board const* board);
 
 //
 // initialization
@@ -20,13 +20,16 @@ ts_Result ts_board_init(ts_Board* board, ts_Sandbox* sb, int w, int h)
     board->w = w;
     board->h = h;
     board->wires = NULL;
+    board->components = NULL;
     return TS_OK;
 }
 
 ts_Result ts_board_finalize(ts_Board* board)
 {
-    for (int i = 0; i < hmlen(board->components); ++i)
-        ts_component_finalize(&board->components[i].value);
+    for (int i = 0; i < hmlen(board->components); ++i) {
+        ts_component_finalize(board->components[i].value);
+        free(board->components[i].value);
+    }
     hmfree(board->components);
 
     hmfree(board->wires);
@@ -97,29 +100,30 @@ ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position 
         goto skip;
 
     // is there another component here? (TODO)
-    ts_PosSet* occupied = ts_board_occupied_tiles(board);
+    ts_HashPosComponentPtr other_components = ts_board_component_tiles(board);
     for (int x = component_rect.top_left.x; x <= component_rect.bottom_right.x; ++x) {
         for (int y = component_rect.top_left.y; y <= component_rect.bottom_right.y; ++y) {
-            ts_Position p = { x, y };
-            if (psetcontains(occupied, p)) {
-                psetfree(occupied);
+            ts_Position p = { x, y, TS_CENTER };
+            if (hmgeti(other_components, ts_pos_hash(p)) >= 0) {
+                hmfree(other_components);
                 goto skip;
             }
         }
     }
-    psetfree(occupied);
+    hmfree(other_components);
 
     if (ts_board_component(board, pos) != NULL)
         goto skip;
 
     // init component
-    ts_Component component = {};
-    ts_Result r = ts_component_init(&component, def, direction);
+    ts_Component* component = calloc(1, sizeof(ts_Component));
+    ts_Result r = ts_component_init(component, def, direction);
     if (r != TS_OK)
         goto skip;
 
     // place component
-    hmput(board->components, ts_pos_hash(pos), component);
+    hmput(board->components, ts_pos_hash(pos), component);  // pointer owns the object
+    ts_component_update_pos(component, board, pos);
 
 skip:
     ts_sandbox_start_simulation(board->sandbox);
@@ -131,10 +135,19 @@ ts_Component* ts_board_component(ts_Board const* board, ts_Position pos)
     if (pos.dir != TS_CENTER)
         abort();
 
+    ts_Component* ret = NULL;
+
     int i = hmgeti(((ts_Board *) board)->components, ts_pos_hash(pos));
-    if (i == -1)
-        return NULL;
-    return &board->components[i].value;
+    if (i >= 0) {
+        ret = board->components[i].value;
+    } else {
+        ts_HashPosComponentPtr comps = ts_board_component_tiles(board);
+        int j = hmgeti(comps, ts_pos_hash(pos));
+        if (j >= 0)
+            ret = comps[j].value;
+    }
+
+    return ret;
 }
 
 //
@@ -157,31 +170,38 @@ ts_Result ts_board_clear_tile(ts_Board const* board, ts_Position pos)
     if (pos.dir != TS_CENTER)
         abort();
 
-    hmdel(((ts_Board *) board)->components, ts_pos_hash(pos));
+    // clear component
+    ts_Component* component = ts_board_component(board, pos);
+    if (component) {
+        hmdel(((ts_Board *) board)->components, ts_pos_hash(component->position));
+        free(component);
+    }
 
+    // clear wires
     hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_N }));
     hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_E }));
     hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_S }));
     hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_W }));
 
-    // TODO - ic
-
     return TS_OK;
 }
 
-ts_PosSet* ts_board_occupied_tiles(ts_Board const* board)
+ts_HashPosComponentPtr ts_board_component_tiles(ts_Board const* board)
 {
-    ts_PosSet* set = NULL;
+    ts_HashPosComponentPtr list = NULL;
+
     for (int i = 0; i < hmlen(board->components); ++i) {
-        ts_Rect rect = ts_component_rect(&board->components[i].value, ts_pos_unhash(board->components[i].key));
+        ts_Component* component = board->components[i].value;
+        ts_Rect rect = ts_component_rect(component, ts_pos_unhash(board->components[i].key));
         for (int x = rect.top_left.x; x <= rect.bottom_right.x; ++x) {
             for (int y = rect.top_left.y; y <= rect.bottom_right.y; ++y) {
-                ts_Position p = { x, y, TS_CENTER };
-                psetput(set, p);
+                ts_Position pos = { x, y, TS_CENTER };
+                hmput(list, ts_pos_hash(pos), component);
             }
         }
     }
-    return set;
+
+    return list;
 }
 
 //
@@ -205,7 +225,7 @@ int ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_
     for (int i = 0; i < hmlen(board->components); ++i) {
         char key[30]; ts_pos_serialize(ts_pos_unhash(board->components[i].key), key, sizeof key);
         SR_CONT_INLINE("    [%s] = ", key);
-        SR_CALL(ts_component_serialize, &board->components[i].value, 4);
+        SR_CALL(ts_component_serialize, board->components[i].value, 4);
         SR_ADD_INLINE(",\n");
     }
     SR_CONT("  },");
@@ -245,14 +265,14 @@ static ts_Result ts_board_unserialize_components(ts_Board* board, lua_State* L, 
     lua_pushnil(L);
     while (lua_next(L, -2)) {
         ts_Position  pos;
-        ts_Component component;
+        ts_Component* component = calloc(1, sizeof(ts_Component));
         ts_Result  r;
 
         lua_pushvalue(L, -2);
         if ((r = ts_pos_unserialize(&pos, L, sb)) != TS_OK)
             return r;
         lua_pop(L, 1);
-        if ((r = ts_component_unserialize(&component, L, sb) != TS_OK))
+        if ((r = ts_component_unserialize(component, L, sb) != TS_OK))
             return r;
         hmput(board->components, ts_pos_hash(pos), component);
         lua_pop(L, 1);

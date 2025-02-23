@@ -7,11 +7,14 @@
 
 typedef struct ts_Sandbox ts_Sandbox;
 
+typedef struct W__ { ts_PositionHash key; ts_Wire value;       }* ts_HashPosWire;
+typedef struct C__ { ts_PositionHash key; ts_Component* value; }* ts_HashPosComponentPtr;
+
 typedef struct ts_Board {
-    ts_Sandbox* sandbox;
-    int         w, h;
-    struct { ts_PositionHash key; ts_Wire value;       }* wires;
-    struct { ts_PositionHash key; ts_Component value;  }* components;
+    ts_Sandbox*            sandbox;
+    int                    w, h;
+    ts_HashPosWire         wires;
+    ts_HashPosComponentPtr components;
 } ts_Board;
 
 // initialization

@@ -28,6 +28,13 @@ ts_Result ts_component_finalize(ts_Component* component)
     return TS_OK;
 }
 
+ts_Result ts_component_update_pos(ts_Component* component, ts_Board const* board, ts_Position pos)
+{
+    component->board = board;
+    component->position = pos;
+    return TS_OK;
+}
+
 ts_Rect ts_component_rect(ts_Component const* component, ts_Position component_pos)
 {
     return ts_component_def_rect(component->def, component_pos, component->direction);

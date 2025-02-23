@@ -141,6 +141,7 @@ static const ts_ComponentDef or_2i = {
     .type = TS_IC_DIP,
     .can_rotate = true,
     .n_pins = 4,
+    .ic_width = 1,
     .pins = (ts_PinDef[]) {
         { "IN0", TS_INPUT,  TS_W1 },
         { "IN1", TS_INPUT,  TS_W1 },
