@@ -37,7 +37,7 @@ TEST_SUITE("Compilation")
                 ts_sandbox_init(&sb);
                 ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
                 ts_board_add_component(&sb.boards[0], "__led", { 3, 1 }, TS_N);
-                ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_W1, TS_TOP });
+                ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
             }
 
             ~Fixture() {
@@ -113,7 +113,7 @@ TEST_SUITE("Compilation")
         SUBCASE("Multiple connections to the same component")
         {
             Fixture f;
-            ts_board_add_wires(&f.sb.boards[0], { 1, 0 }, { 1, 1 }, TS_VERTICAL, { TS_W1, TS_TOP });
+            ts_board_add_wires(&f.sb.boards[0], { 1, 0 }, { 1, 1 }, TS_VERTICAL, { TS_WIRE_1, TS_LAYER_TOP });
 
             ts_Connection* connections = ts_compiler_compile(&f.sb);
             CHECK(arrlen(connections) == 2);
@@ -152,7 +152,7 @@ TEST_SUITE("Compilation")
                 ts_sandbox_init(&sb);
                 ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
                 ts_board_add_component(&sb.boards[0], "__or_2i", { 3, 1 }, TS_N);
-                ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_W1, TS_TOP });
+                ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
             }
 
             ~Fixture() {

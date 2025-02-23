@@ -34,14 +34,14 @@ struct Fixture {
         .can_rotate = true,
         .ic_width = 1,
         .pins = (ts_PinDef[]) {
-            { "", TS_INPUT, TS_W1 },
-            { "", TS_INPUT, TS_W1 },
-            { "", TS_INPUT, TS_W1 },
-            { "", TS_INPUT, TS_W1 },
-            { "", TS_INPUT, TS_W1 },
-            { "", TS_INPUT, TS_W1 },
-            { "", TS_INPUT, TS_W1 },
-            { "", TS_INPUT, TS_W1 },
+            { "", TS_INPUT, TS_WIRE_1 },
+            { "", TS_INPUT, TS_WIRE_1 },
+            { "", TS_INPUT, TS_WIRE_1 },
+            { "", TS_INPUT, TS_WIRE_1 },
+            { "", TS_INPUT, TS_WIRE_1 },
+            { "", TS_INPUT, TS_WIRE_1 },
+            { "", TS_INPUT, TS_WIRE_1 },
+            { "", TS_INPUT, TS_WIRE_1 },
         },
     };
 

@@ -20,20 +20,24 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place outside of circuit bounds")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
-            ts_board_add_wire(&sb.boards[0], { 10, 1, TS_E }, { TS_W1, TS_TOP });
+            ts_board_add_wire(&sb.boards[0], { 10, 1, TS_E }, { TS_WIRE_1, TS_LAYER_TOP });
             CHECK(ts_board_wire(&sb.boards[0], { 10, 1, TS_E }) == NULL);
             ts_sandbox_finalize(&sb);
         }
 
         SUBCASE("Don't place on top of ICs")
         {
-            // TODO
+            ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 1 }, TS_N);
+            ts_board_add_wire(&sb.boards[0], { 2, 2, TS_N }, { TS_WIRE_1, TS_LAYER_TOP });
+            CHECK(ts_board_wire(&sb.boards[0], { 2, 2, TS_N }) == NULL);
+            ts_sandbox_finalize(&sb);
         }
 
         SUBCASE("Remove wire")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
-            ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_W1, TS_TOP });
+            ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
             ts_board_clear_tile(&sb.boards[0], { 2, 1 });
             CHECK(ts_board_wire(&sb.boards[0], { 1, 1, TS_E }) != NULL);
             CHECK(ts_board_wire(&sb.boards[0], { 2, 1, TS_W }) == NULL);
@@ -66,7 +70,11 @@ TEST_SUITE("Placement")
 
         SUBCASE("Don't place single-tile component on top of IC component")
         {
-            // TODO
+            ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 1 }, TS_N);
+            ts_board_add_component(&sb.boards[0], "__button", { 2, 2 }, TS_N);
+            CHECK(ts_board_component(&sb.boards[0], { 2, 2 })->def->key == "__or_2i");
+            ts_sandbox_finalize(&sb);
         }
 
         SUBCASE("Remove component")

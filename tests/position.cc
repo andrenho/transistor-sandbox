@@ -28,12 +28,12 @@ TEST_SUITE("Position & Wires")
     {
         ts_Sandbox sb;
         ts_sandbox_init(&sb);
-        ts_board_add_wire(&sb.boards[0], { 1, 1, TS_S }, { TS_W1, TS_TOP });
+        ts_board_add_wire(&sb.boards[0], { 1, 1, TS_S }, { TS_WIRE_1, TS_LAYER_TOP });
 
-        ts_Result response = ts_board_add_wire(&sb.boards[0], { 1, 11, TS_S }, { TS_W1, TS_TOP });
+        ts_Result response = ts_board_add_wire(&sb.boards[0], { 1, 11, TS_S }, { TS_WIRE_1, TS_LAYER_TOP });
         CHECK(response == TS_CANNOT_PLACE);
 
-        CHECK(ts_board_wire(&sb.boards[0], { 1, 1, TS_S })->layer == TS_TOP);
+        CHECK(ts_board_wire(&sb.boards[0], { 1, 1, TS_S })->layer == TS_LAYER_TOP);
         CHECK(ts_board_wire(&sb.boards[0], { 1, 2, TS_S }) == NULL);
 
         ts_sandbox_finalize(&sb);
