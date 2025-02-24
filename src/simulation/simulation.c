@@ -125,11 +125,9 @@ ts_Result ts_simulation_finalize(ts_Simulation* sim)
 ts_Result ts_simulation_start(ts_Simulation* sim, ts_Sandbox const* sb)
 {
     ts_simulation_stop(sim);
-    /*
     sim->connections = ts_compiler_compile(sb);
     sim->sandbox = sb;
-    */
-    sim->connections = ts_compiler_compile(sim->sandbox);
+    // sim->connections = ts_compiler_compile(sim->sandbox);
     if (sim->multithreaded) {
         // TODO - start execution thread
     }
