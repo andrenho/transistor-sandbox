@@ -26,7 +26,7 @@ static ts_Result ts_sandbox_init_common(ts_Sandbox* sb, ts_SandboxConfig config)
     sb->last_error = TS_OK;
     sb->last_error_message[0] = '\0';
 
-    ts_simulation_init(&sb->simulation, config.multithreaded, config.heavy);
+    ts_simulation_init(&sb->simulation, config.multithreaded, config.heavy, sb);
 
     return TS_OK;
 }

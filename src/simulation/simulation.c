@@ -1,6 +1,8 @@
 #include "simulation.h"
 
+#include <errno.h>
 #include <stb_ds.h>
+#include <sched.h>
 #include <sys/time.h>
 
 #include "compiler/compiler.h"
@@ -72,23 +74,40 @@ ts_Result ts_simulation_run(ts_Simulation* sim, size_t run_for_us)
     return r;
 }
 
+static void* ts_simulation_run_thread(void* psim)
+{
+    ts_Simulation* sim = psim;
+
+    while (sim->thread_running) {
+        ts_simulation_single_step(sim);
+        if (!sim->heavy)
+            sched_yield();
+    }
+}
+
 //
 // initialize
 //
 
-ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy)
+ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy, ts_Sandbox* sandbox)
 {
     sim->connections = NULL;
     sim->multithreaded = multithreaded;
     sim->heavy = heavy;
-    sim->sandbox = NULL;
+    sim->sandbox = sandbox;
+    if (multithreaded) {
+        sim->thread_running = true;
+        if (pthread_create(&sim->thread, NULL, ts_simulation_run_thread, sim) != 0)
+            return ts_error(sandbox, TS_SYSTEM_ERROR, "Could not create simulation thread: %s", strerror(errno));
+    }
     return TS_OK;
 }
 
 ts_Result ts_simulation_finalize(ts_Simulation* sim)
 {
     if (sim->multithreaded) {
-        // TODO - end simulation, join thread
+        sim->thread_running = false;
+        pthread_join(sim->thread, NULL);
     }
 
     for (int i = 0; i < arrlen(sim->connections); ++i)

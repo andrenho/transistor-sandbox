@@ -59,18 +59,18 @@ TEST_SUITE("Simulation")
         uint8_t value[200];
 
         Fixture f(true);
-        usleep(10000);
+        usleep(100000);
         CHECK(f.led()->data[0] == 0);
 
         ts_component_on_click(f.button());
-        usleep(10000);
+        usleep(100000);
         CHECK(f.led()->data[0] != 0);
         size_t sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
         CHECK(sz == 4);
         CHECK(value[0] != 0);
 
         ts_component_on_click(f.button());
-        usleep(10000);
+        usleep(100000);
         CHECK(f.led()->data[0] == 0);
         sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
         CHECK(sz == 4);

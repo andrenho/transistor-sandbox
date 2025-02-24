@@ -1,6 +1,8 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
 
+#include <pthread.h>
+
 #include "basic/position.h"
 #include "compiler/compiler.h"
 
@@ -11,10 +13,12 @@ typedef struct ts_Simulation {
     bool              multithreaded;
     bool              heavy;
     ts_Sandbox const* sandbox;
+    pthread_t         thread;
+    bool              thread_running;
 } ts_Simulation;
 
 // initialization
-ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy);
+ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy, ts_Sandbox* sandbox);
 ts_Result ts_simulation_finalize(ts_Simulation* sim);
 
 // start/stop
