@@ -103,7 +103,8 @@ static void start_thread(ts_Simulation* sim)
 static void end_thread(ts_Simulation* sim)
 {
     sim->thread_running = false;
-    pthread_join(sim->thread, NULL);
+    if (sim->thread != 0)
+        pthread_join(sim->thread, NULL);
     sim->thread = 0;
 }
 
