@@ -22,11 +22,11 @@ typedef struct ts_Simulation {
 ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy, ts_Sandbox* sandbox);
 ts_Result ts_simulation_finalize(ts_Simulation* sim);
 
-// start/stop
+// start/stop (will recompile and start a new simulation)
 ts_Result ts_simulation_start(ts_Simulation* sim, ts_Sandbox const* sb);
 ts_Result ts_simulation_stop(ts_Simulation* sim);
 
-// pause/unpause
+// pause/unpause (will just stop the simulation and restart it)
 ts_Result ts_simulation_pause(ts_Simulation* sim);
 ts_Result ts_simulation_unpause(ts_Simulation* sim);
 

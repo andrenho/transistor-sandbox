@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <stb_ds.h>
 #include <sched.h>
+#include <stdio.h>
 #include <sys/time.h>
 
 #include "compiler/compiler.h"
@@ -127,7 +128,6 @@ ts_Result ts_simulation_finalize(ts_Simulation* sim)
 
 ts_Result ts_simulation_start(ts_Simulation* sim, ts_Sandbox const* sb)
 {
-    ts_simulation_stop(sim);
     sim->connections = ts_compiler_compile(sb);
     sim->sandbox = sb;
     // sim->connections = ts_compiler_compile(sim->sandbox);
@@ -142,7 +142,7 @@ ts_Result ts_simulation_stop(ts_Simulation* sim)
     if (sim->multithreaded) {
         // TODO - stop execution thread
     }
-    ts_simulation_finalize(sim);
+    // ts_simulation_finalize(sim);
     return TS_OK;
 }
 

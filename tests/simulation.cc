@@ -37,12 +37,10 @@ TEST_SUITE("Simulation")
 
         Fixture f(false);
         ts_simulation_run(&f.sb.simulation, 10000);
-        printf("Single-threaded steps: %zu\n", ts_simulation_steps(&f.sb.simulation));
         CHECK(f.led()->data[0] == 0);
 
         ts_component_on_click(f.button());
         ts_simulation_run(&f.sb.simulation, 10000);
-        printf("Single-threaded steps: %zu\n", ts_simulation_steps(&f.sb.simulation));
         CHECK(f.led()->data[0] != 0);
         size_t sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
         CHECK(sz == 4);
@@ -50,11 +48,13 @@ TEST_SUITE("Simulation")
 
         ts_component_on_click(f.button());
         ts_simulation_run(&f.sb.simulation, 10000);
-        printf("Single-threaded steps: %zu\n", ts_simulation_steps(&f.sb.simulation));
         CHECK(f.led()->data[0] == 0);
         sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
         CHECK(sz == 4);
         CHECK(value[0] == 0);
+
+        size_t steps = ts_simulation_steps(&f.sb.simulation);
+        printf("Single-threaded steps: %zu\n", steps);
     }
 
     TEST_CASE("Multithreaded")
@@ -63,23 +63,24 @@ TEST_SUITE("Simulation")
         uint8_t value[200];
 
         Fixture f(true);
-        usleep(100000);
+        usleep(10000);
         CHECK(f.led()->data[0] == 0);
 
         ts_component_on_click(f.button());
-        usleep(100000);
+        usleep(10000);
         CHECK(f.led()->data[0] != 0);
-        printf("Multithreaded steps: %zu\n", ts_simulation_steps(&f.sb.simulation));
         size_t sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
         CHECK(sz == 4);
         CHECK(value[0] != 0);
 
         ts_component_on_click(f.button());
-        usleep(100000);
+        usleep(10000);
         CHECK(f.led()->data[0] == 0);
-        printf("Multithreaded steps: %zu\n", ts_simulation_steps(&f.sb.simulation));
         sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
         CHECK(sz == 4);
         CHECK(value[0] == 0);
+
+        size_t steps = ts_simulation_steps(&f.sb.simulation);
+        printf("Multithreaded steps: %zu\n", steps);
     }
 }
