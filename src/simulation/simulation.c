@@ -20,7 +20,7 @@ static ts_Result ts_simulation_single_step(ts_Simulation* sim)
         for (int j = 0; j < hmlen(board->components); ++j) {
             ts_Component* component = board->components[j].value;
             if (component->def->simulate)
-                component->def->simulate(component);
+                component->def->simulate(component);       // (note: modify component)
         }
     }
 
@@ -43,7 +43,7 @@ static ts_Result ts_simulation_single_step(ts_Simulation* sim)
         for (int j = 0; j < arrlen(connection->pins); ++j) {
             ts_Pin* pin = &connection->pins[j];
             if (pin->component->def->pins[pin->pin_no].type == TS_INPUT)
-                pin->component->pins[pin->pin_no] = value;
+                pin->component->pins[pin->pin_no] = value;     // (note: modify component)
         }
 
     }
@@ -83,6 +83,8 @@ static void* ts_simulation_run_thread(void* psim)
         if (!sim->heavy)
             sched_yield();
     }
+
+    return NULL;
 }
 
 //
@@ -123,8 +125,11 @@ ts_Result ts_simulation_finalize(ts_Simulation* sim)
 ts_Result ts_simulation_start(ts_Simulation* sim, ts_Sandbox const* sb)
 {
     ts_simulation_stop(sim);
+    /*
     sim->connections = ts_compiler_compile(sb);
     sim->sandbox = sb;
+    */
+    sim->connections = ts_compiler_compile(sim->sandbox);
     if (sim->multithreaded) {
         // TODO - start execution thread
     }

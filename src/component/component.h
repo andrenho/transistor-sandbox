@@ -16,8 +16,8 @@ typedef struct ts_Board ts_Board;
 typedef struct ts_Component {
     ts_ComponentDef const* def;
     ts_Direction           direction;
-    uint8_t*               data;
-    uint8_t*               pins;
+    uint8_t*               data;        // can only be updated by `simulate` (simulation thread)
+    uint8_t*               pins;        // OUTPUT pins can only be updated on `simulate` (simulation thread)
     ts_Board const*        board;
     ts_Position            position;
 } ts_Component;
@@ -35,7 +35,7 @@ ts_Rect ts_component_rect(ts_Component const* component);
 size_t  ts_component_pin_positions(ts_Component const* component, ts_PinPos* pin_pos, size_t max_pin_pos);
 
 // serialization
-int         ts_component_serialize(ts_Component const* component, int vspace, char* buf, size_t buf_sz);
+int       ts_component_serialize(ts_Component const* component, int vspace, char* buf, size_t buf_sz);
 ts_Result ts_component_unserialize(ts_Component* component, lua_State* L, ts_Sandbox* sb);
 
 #endif //COMPONENT_H
