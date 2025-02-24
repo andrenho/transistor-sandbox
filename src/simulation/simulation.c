@@ -15,6 +15,40 @@ static void ts_simulation_finalize(ts_Simulation* sim)
 
 static ts_Result ts_simulation_single_step(ts_Simulation* sim)
 {
+    // execute components
+    for (int i = 0; i < arrlen(sim->sandbox->boards); ++i) {
+        ts_Board* board = &sim->sandbox->boards[i];
+        for (int j = 0; j < hmlen(board->components); ++j) {
+            ts_Component* component = board->components[j].value;
+            if (component->def->simulate)
+                component->def->simulate(component);
+        }
+    }
+
+    // update connection and input pin values
+    for (int i = 0; i < arrlen(sim->connections); ++i) {
+
+        ts_Connection* connection = &sim->connections[i];
+        uint8_t value = 0;
+
+        // calculate value from output pins
+        for (int j = 0; j < arrlen(connection->pins); ++j) {
+            ts_Pin* pin = &connection->pins[j];
+            if (pin->component->def->pins[pin->pin_no].type == TS_OUTPUT)
+                value |= pin->component->pins[pin->pin_no];
+        }
+
+        connection->value = value;
+
+        // set input pins
+        for (int j = 0; j < arrlen(connection->pins); ++j) {
+            ts_Pin* pin = &connection->pins[j];
+            if (pin->component->def->pins[pin->pin_no].type == TS_INPUT)
+                pin->component->pins[pin->pin_no] = value;
+        }
+
+    }
+
     return TS_OK;
 }
 
@@ -22,6 +56,7 @@ ts_Result ts_simulation_start(ts_Simulation* sim, ts_Sandbox const* sb)
 {
     ts_simulation_stop(sim);
     sim->connections = ts_compiler_compile(sb);
+    sim->sandbox = sb;
     if (sim->multithreaded) {
         // TODO - start execution thread
     }
