@@ -22,13 +22,17 @@ ts_Result ts_simulation_start(ts_Simulation* sim, ts_Sandbox const* sb)
 {
     ts_simulation_stop(sim);
     sim->connections = ts_compiler_compile(sb);
-    // TODO - start execution thread
+    if (sim->multithreaded) {
+        // TODO - start execution thread
+    }
     return TS_OK;
 }
 
 ts_Result ts_simulation_stop(ts_Simulation* sim)
 {
-    // TODO - stop execution thread
+    if (sim->multithreaded) {
+        // TODO - stop execution thread
+    }
     ts_simulation_finalize(sim);
     return TS_OK;
 }
