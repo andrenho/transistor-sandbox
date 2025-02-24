@@ -142,16 +142,15 @@ TEST_SUITE("Compilation")
         }
     }
 
-    /*
     TEST_CASE("IC")
     {
         struct Fixture {
             ts_Sandbox sb {};
 
-            Fixture() {
+            Fixture(ts_Direction ic_dir) {
                 ts_sandbox_init(&sb);
                 ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
-                ts_board_add_component(&sb.boards[0], "__or_2i", { 3, 1 }, TS_N);
+                ts_board_add_component(&sb.boards[0], "__or_2i", { 3, 1 }, ic_dir);
                 ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
             }
 
@@ -159,6 +158,47 @@ TEST_SUITE("Compilation")
                 ts_sandbox_finalize(&sb);
             }
         };
+
+        SUBCASE("Compile")
+        {
+            Fixture f(TS_N);
+
+            ts_Connection* connections = ts_compiler_compile(&f.sb);
+
+            CHECK(arrlen(connections) == 1);
+            CHECK(arrlen(connections[0].pins) == 2);
+            CHECK(arrlen(connections[0].wires) == 2);
+
+            CHECK(has_wire(&connections[0], { 1, 1, TS_E }));
+            CHECK(has_wire(&connections[0], { 2, 1, TS_W }));
+
+            CHECK(has_pin(&connections[0], 3, "__button"));
+            CHECK(has_pin(&connections[0], 0, "__or_2i"));
+
+            for (int i = 0; i < arrlen(connections); ++i)
+                ts_connection_finalize(&connections[i]);
+            arrfree(connections);
+        }
+
+        SUBCASE("Compile rotated IC")
+        {
+            Fixture f(TS_S);
+
+            ts_Connection* connections = ts_compiler_compile(&f.sb);
+
+            CHECK(arrlen(connections) == 1);
+            CHECK(arrlen(connections[0].pins) == 2);
+            CHECK(arrlen(connections[0].wires) == 2);
+
+            CHECK(has_wire(&connections[0], { 1, 1, TS_E }));
+            CHECK(has_wire(&connections[0], { 2, 1, TS_W }));
+
+            CHECK(has_pin(&connections[0], 3, "__button"));
+            CHECK(has_pin(&connections[0], 2, "__or_2i"));
+
+            for (int i = 0; i < arrlen(connections); ++i)
+                ts_connection_finalize(&connections[i]);
+            arrfree(connections);
+        }
     }
-    */
 }
