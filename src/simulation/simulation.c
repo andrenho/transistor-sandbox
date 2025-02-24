@@ -144,7 +144,7 @@ ts_Result ts_simulation_stop(ts_Simulation* sim)
     if (sim->multithreaded) {
         // TODO - stop execution thread
     }
-    // ts_simulation_finalize(sim);
+    ts_simulation_finalize(sim);
     return TS_OK;
 }
 
