@@ -6,9 +6,14 @@
 
 typedef struct ts_Simulation {
     ts_Connection* connections;
+    bool           multithreaded;
+    bool           heavy;
 } ts_Simulation;
 
-ts_Result ts_simulation_start(ts_Simulation* simulation, ts_Sandbox const* sb);
-ts_Result ts_simulation_stop(ts_Simulation* simulation);
+ts_Result ts_simulation_start(ts_Simulation* sim, ts_Sandbox const* sb);
+ts_Result ts_simulation_stop(ts_Simulation* sim);
+
+ts_Result ts_simulation_configure(ts_Simulation* sim, bool multithreaded, bool heavy);
+ts_Result ts_simulation_run(ts_Simulation* sim, size_t run_for_us);
 
 #endif //SIMULATION_H
