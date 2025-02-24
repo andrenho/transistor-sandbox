@@ -53,7 +53,6 @@ TEST_SUITE("Simulation")
         CHECK(value[0] == 0);
     }
 
-    /*
     TEST_CASE("Multithreaded")
     {
         ts_Position pos[200];
@@ -77,5 +76,4 @@ TEST_SUITE("Simulation")
         CHECK(sz == 4);
         CHECK(value[0] == 0);
     }
-    */
 }
