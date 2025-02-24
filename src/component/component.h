@@ -26,8 +26,9 @@ typedef struct ts_Component {
 ts_Result ts_component_init(ts_Component* component, ts_ComponentDef const* def, ts_Direction direction);
 ts_Result ts_component_finalize(ts_Component* component);
 
-// update fields
+// updates
 ts_Result ts_component_update_pos(ts_Component* component, ts_Board const* board, ts_Position pos);
+ts_Result ts_component_on_click(ts_Component* component);
 
 // positioning
 ts_Rect ts_component_rect(ts_Component const* component);

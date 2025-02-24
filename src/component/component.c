@@ -35,6 +35,17 @@ ts_Result ts_component_update_pos(ts_Component* component, ts_Board const* board
     return TS_OK;
 }
 
+ts_Result ts_component_on_click(ts_Component* component)
+{
+    ts_simulation_pause(&component->board->sandbox->simulation);
+
+    if (component->def->on_click)
+        component->def->on_click(component);
+
+    ts_simulation_unpause(&component->board->sandbox->simulation);
+    return TS_OK;
+}
+
 ts_Rect ts_component_rect(ts_Component const* component)
 {
     return ts_component_def_rect(component->def, component->position, component->direction);

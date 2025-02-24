@@ -2,7 +2,6 @@
 #define COMPILER_H
 
 #include "basic/position.h"
-#include "board/wire.h"
 
 typedef struct ts_Board ts_Board;
 typedef struct ts_Component ts_Component;

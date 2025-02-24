@@ -26,6 +26,7 @@ ts_Wire*  ts_board_wire(ts_Board const* board, ts_Position pos);  // NULL if not
 ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire);
 ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end, ts_Orientation orientation, ts_Wire wire);
 ts_Result ts_board_remove_wire(ts_Board* board, ts_Position position);
+size_t    ts_board_wires(ts_Board const* board, ts_Position* positions, uint8_t* data, size_t sz);
 
 // components
 ts_Result     ts_board_add_component(ts_Board* board, const char* name, ts_Position pos, ts_Direction direction);

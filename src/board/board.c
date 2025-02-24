@@ -91,6 +91,14 @@ ts_Wire* ts_board_wire(ts_Board const* board, ts_Position pos)
     return &board->wires[i].value;
 }
 
+size_t ts_board_wires(ts_Board const* board, ts_Position* positions, uint8_t* data, size_t sz)
+{
+    ts_simulation_pause(&board->sandbox->simulation);
+    size_t r = ts_simulation_wires(&board->sandbox->simulation, positions, data, sz);
+    ts_simulation_unpause(&board->sandbox->simulation);
+    return r;
+}
+
 static void ts_remove_wires_under_ics(ts_Board* board)
 {
     for (int i = 0; i < hmlen(board->components); ++i)

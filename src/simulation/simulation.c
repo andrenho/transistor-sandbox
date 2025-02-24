@@ -98,3 +98,32 @@ ts_Result ts_simulation_run(ts_Simulation* sim, size_t run_for_us)
 
     return r;
 }
+
+size_t ts_simulation_wires(ts_Simulation* sim, ts_Position* positions, uint8_t* data, size_t sz)
+{
+    size_t count = 0;
+
+    for (int i = 0; i < arrlen(sim->connections); ++i) {
+        for (int j = 0; j < arrlen(sim->connections[i].wires); ++j) {
+            if (count >= sz)
+                return count;
+            positions[count] = sim->connections[i].wires[j];
+            data[count] = sim->connections[i].value;
+            ++count;
+        }
+    }
+
+    return count;
+}
+
+ts_Result ts_simulation_pause(ts_Simulation* sim)
+{
+    // TODO
+    return TS_OK;
+}
+
+ts_Result ts_simulation_unpause(ts_Simulation* sim)
+{
+    // TODO
+    return TS_OK;
+}
