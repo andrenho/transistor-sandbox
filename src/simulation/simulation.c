@@ -48,6 +48,8 @@ static ts_Result ts_simulation_single_step(ts_Simulation* sim)
 
     }
 
+    ++sim->steps;
+
     return TS_OK;
 }
 
@@ -97,6 +99,7 @@ ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy,
     sim->multithreaded = multithreaded;
     sim->heavy = heavy;
     sim->sandbox = sandbox;
+    sim->steps = 0;
     if (multithreaded) {
         sim->thread_running = true;
         if (pthread_create(&sim->thread, NULL, ts_simulation_run_thread, sim) != 0)
@@ -188,3 +191,10 @@ size_t ts_simulation_wires(ts_Simulation* sim, ts_Position* positions, uint8_t* 
     return count;
 }
 
+size_t ts_simulation_steps(ts_Simulation* sim)
+{
+    ts_simulation_pause(sim);
+    size_t steps = sim->steps;
+    ts_simulation_unpause(sim);
+    return steps;
+}
