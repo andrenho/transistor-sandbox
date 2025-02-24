@@ -15,7 +15,7 @@ TEST_SUITE("Simulation")
         ts_Sandbox sb {};
 
         Fixture() {
-            ts_sandbox_init(&sb);
+            ts_sandbox_init(&sb, {});
             ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__led", { 3, 1 }, TS_N);
             ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
@@ -59,7 +59,6 @@ TEST_SUITE("Simulation")
         uint8_t value[200];
 
         Fixture f;
-        ts_simulation_configure(&f.sb.simulation, true, true);
         usleep(10000);
         CHECK(f.led()->data[0] == 0);
 

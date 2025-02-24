@@ -34,7 +34,7 @@ TEST_SUITE("Compilation")
             ts_Sandbox sb {};
 
             Fixture() {
-                ts_sandbox_init(&sb);
+                ts_sandbox_init(&sb, {});
                 ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
                 ts_board_add_component(&sb.boards[0], "__led", { 3, 1 }, TS_N);
                 ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
@@ -148,7 +148,7 @@ TEST_SUITE("Compilation")
             ts_Sandbox sb {};
 
             Fixture(ts_Direction ic_dir) {
-                ts_sandbox_init(&sb);
+                ts_sandbox_init(&sb, {});
                 ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
                 ts_board_add_component(&sb.boards[0], "__or_2i", { 3, 1 }, ic_dir);
                 ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });

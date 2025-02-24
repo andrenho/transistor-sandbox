@@ -18,19 +18,22 @@
 // initialization
 //
 
-static ts_Result ts_sandbox_init_common(ts_Sandbox* sb)
+static ts_Result ts_sandbox_init_common(ts_Sandbox* sb, ts_SandboxConfig config)
 {
     memset(sb, 0, sizeof(ts_Sandbox));
     ts_component_db_init(&sb->component_db, sb);
 
     sb->last_error = TS_OK;
     sb->last_error_message[0] = '\0';
+
+    ts_simulation_init(&sb->simulation, config.multithreaded, config.heavy);
+
     return TS_OK;
 }
 
-ts_Result ts_sandbox_init(ts_Sandbox* sb)
+ts_Result ts_sandbox_init(ts_Sandbox* sb, ts_SandboxConfig config)
 {
-    ts_sandbox_init_common(sb);
+    ts_sandbox_init_common(sb, config);
 
     arrpush(sb->boards, (ts_Board) {});
     ts_board_init(&sb->boards[0], sb, 10, 10);
@@ -86,12 +89,12 @@ int ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, char* buf, size_t buf
     SR_FINI("}");
 }
 
-ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L)
+ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L, ts_SandboxConfig config)
 {
     if (!lua_istable(L, -1))
         return ts_error(sb, TS_DESERIALIZATION_ERROR, "The returned element is not a table");
 
-    ts_sandbox_init_common(sb);
+    ts_sandbox_init_common(sb, config);
 
     // component db
 
@@ -121,7 +124,7 @@ ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L)
     return TS_OK;
 }
 
-ts_Result ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str)
+ts_Result ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str, ts_SandboxConfig config)
 {
     ts_Result response = TS_OK;
 
@@ -138,7 +141,7 @@ ts_Result ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str)
         goto end;
     }
 
-    response = ts_sandbox_unserialize(sb, L);
+    response = ts_sandbox_unserialize(sb, L, config);
     lua_pop(L, 1);
 
 end:

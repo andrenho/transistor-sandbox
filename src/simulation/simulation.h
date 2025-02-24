@@ -13,6 +13,9 @@ typedef struct ts_Simulation {
     ts_Sandbox const* sandbox;
 } ts_Simulation;
 
+ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy);
+ts_Result ts_simulation_finalize(ts_Simulation* sim);
+
 ts_Result ts_simulation_start(ts_Simulation* sim, ts_Sandbox const* sb);
 ts_Result ts_simulation_stop(ts_Simulation* sim);
 
@@ -21,7 +24,6 @@ ts_Result ts_simulation_unpause(ts_Simulation* sim);
 
 size_t    ts_simulation_wires(ts_Simulation* sim, ts_Position* positions, uint8_t* data, size_t sz);
 
-ts_Result ts_simulation_configure(ts_Simulation* sim, bool multithreaded, bool heavy);
 ts_Result ts_simulation_run(ts_Simulation* sim, size_t run_for_us);
 
 #endif //SIMULATION_H

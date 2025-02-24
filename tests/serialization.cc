@@ -12,7 +12,7 @@ TEST_SUITE("Serialization") {
     TEST_CASE("Serialization / unserialization")
     {
         ts_Sandbox sb;
-        ts_sandbox_init(&sb);
+        ts_sandbox_init(&sb, {});
 
         ts_board_add_wire(&sb.boards[0], { 1, 1, TS_S }, { TS_WIRE_1, TS_LAYER_TOP });
         ts_board_add_component(&sb.boards[0], "__vcc", { 2, 2, TS_CENTER }, TS_E);
@@ -22,7 +22,7 @@ TEST_SUITE("Serialization") {
         printf("%s\n", serialized);
 
         ts_Sandbox sb2;
-        ts_Result response = ts_sandbox_unserialize_from_string(&sb2, serialized);
+        ts_Result response = ts_sandbox_unserialize_from_string(&sb2, serialized, {});
         if (response != TS_OK)
             printf("%s\n", ts_last_error(&sb2, nullptr));
         CHECK(response == TS_OK);
