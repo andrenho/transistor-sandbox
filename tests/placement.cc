@@ -161,12 +161,29 @@ TEST_SUITE("Placement")
 
         SUBCASE("Overwrite wire on placement")
         {
-            // TODO
+            ts_Position p;
+
+            ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_board_add_wires(&sb.boards[0], { 0, 1 }, { 4, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
+            ts_board_add_component(&sb.boards[0], "__or_2i", { 2, 1 }, TS_N);
+
+            CHECK(hmlen(sb.boards[0].wires) == 4);
+            p = { 0, 1, TS_E }; CHECK(ts_board_wire(&sb.boards[0], p));
+            p = { 1, 1, TS_W }; CHECK(ts_board_wire(&sb.boards[0], p));
+            p = { 3, 1, TS_E }; CHECK(ts_board_wire(&sb.boards[0], p));
+            p = { 4, 1, TS_W }; CHECK(ts_board_wire(&sb.boards[0], p));
+
+            ts_sandbox_finalize(&sb);
         }
 
         SUBCASE("Remove IC")
         {
-            // TODO
+            ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 1 }, TS_N);
+            ts_board_clear_tile(&sb.boards[0], { 2, 2 });
+            CHECK(ts_board_component(&sb.boards[0], { 1, 1 }) == NULL);
+            CHECK(ts_board_component(&sb.boards[0], { 2, 2 }) == NULL);
+            ts_sandbox_finalize(&sb);
         }
     }
 

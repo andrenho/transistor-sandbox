@@ -91,6 +91,13 @@ ts_Wire* ts_board_wire(ts_Board const* board, ts_Position pos)
     return &board->wires[i].value;
 }
 
+static void ts_remove_wires_under_ics(ts_Board* board)
+{
+    for (int i = 0; i < hmlen(board->components); ++i)
+        if (board->components[i].value->def->type != TS_SINGLE_TILE)
+            ts_board_remove_wires_for_ic(board, ts_component_rect(board->components[i].value));
+}
+
 ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 {
     ts_Result r = TS_OK;
@@ -102,10 +109,7 @@ ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
     else
         r = ts_error(board->sandbox, TS_CANNOT_PLACE, "Wire out of bounds");
 
-    // remove wires under ICs
-    for (int i = 0; i < hmlen(board->components); ++i)
-        if (board->components[i].value->def->type == TS_SINGLE_TILE)
-            ts_board_remove_wires_for_ic(board, ts_component_rect(board->components[i].value));
+    ts_remove_wires_under_ics(board);
 
     ts_sandbox_start_simulation(board->sandbox);
     return r;
@@ -121,6 +125,8 @@ ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end
         if (pos[i].x < board->w && pos[i].y < board->h)
             hmput(board->wires, ts_pos_hash(pos[i]), wire);
     }
+
+    ts_remove_wires_under_ics(board);
 
     ts_sandbox_start_simulation(board->sandbox);
     return TS_OK;

@@ -1,15 +1,15 @@
 Version 0.1.0
 
-- [ ] Board
+- [x] Board
     - [x] Circuit placement
         - [x] Place wires
         - [x] Place single-tile component
         - [x] Delete component
         - [x] Rotate single-tile component
         - [x] Place IC
-          - [ ] Remove wires underneath
+          - [x] Remove wires underneath
 - [ ] Compilation
-  - [ ] Single-tile component
+  - [x] Single-tile component
   - [ ] IC
 - [ ] Simulation
   - [ ] Single-threaded
@@ -22,6 +22,7 @@ Version 0.1.0
 
 Version 0.2.0
 
+- [ ] More ICs
 - [ ] Board
     - [ ] Resize
     - [ ] Selection, Copy/cut/paste
