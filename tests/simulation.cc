@@ -1,6 +1,7 @@
 #include "doctest.h"
 
 #include <stb_ds.h>
+#include <unistd.h>
 
 extern "C" {
 #include "transistor-sandbox.h"
@@ -30,33 +31,50 @@ TEST_SUITE("Simulation")
 
     TEST_CASE("Single-threaded")
     {
-        SUBCASE("Button on and off again")
-        {
-            ts_Position pos[200];
-            uint8_t value[200];
+        ts_Position pos[200];
+        uint8_t value[200];
 
-            Fixture f;
-            ts_simulation_run(&f.sb.simulation, 10000);
-            CHECK(f.led()->data[0] == 0);
+        Fixture f;
+        ts_simulation_run(&f.sb.simulation, 10000);
+        CHECK(f.led()->data[0] == 0);
 
-            ts_component_on_click(f.button());
-            ts_simulation_run(&f.sb.simulation, 10000);
-            CHECK(f.led()->data[0] != 0);
-            size_t sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
-            CHECK(sz == 4);
-            CHECK(value[0] != 0);
+        ts_component_on_click(f.button());
+        ts_simulation_run(&f.sb.simulation, 10000);
+        CHECK(f.led()->data[0] != 0);
+        size_t sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
+        CHECK(sz == 4);
+        CHECK(value[0] != 0);
 
-            ts_component_on_click(f.button());
-            ts_simulation_run(&f.sb.simulation, 10000);
-            CHECK(f.led()->data[0] == 0);
-            sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
-            CHECK(sz == 4);
-            CHECK(value[0] == 0);
-        }
+        ts_component_on_click(f.button());
+        ts_simulation_run(&f.sb.simulation, 10000);
+        CHECK(f.led()->data[0] == 0);
+        sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
+        CHECK(sz == 4);
+        CHECK(value[0] == 0);
     }
 
     TEST_CASE("Multithreaded")
     {
-        // TODO
+        ts_Position pos[200];
+        uint8_t value[200];
+
+        Fixture f;
+        ts_simulation_configure(&f.sb.simulation, true, true);
+        usleep(10000);
+        CHECK(f.led()->data[0] == 0);
+
+        ts_component_on_click(f.button());
+        usleep(10000);
+        CHECK(f.led()->data[0] != 0);
+        size_t sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
+        CHECK(sz == 4);
+        CHECK(value[0] != 0);
+
+        ts_component_on_click(f.button());
+        usleep(10000);
+        CHECK(f.led()->data[0] == 0);
+        sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
+        CHECK(sz == 4);
+        CHECK(value[0] == 0);
     }
 }

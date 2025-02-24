@@ -14,7 +14,7 @@ typedef struct ts_Sandbox {
     ts_Board*      boards;
     ts_ComponentDB component_db;
     ts_Simulation  simulation;
-    ts_Result    last_error;
+    ts_Result      last_error;
     char           last_error_message[2048];
 } ts_Sandbox;
 
