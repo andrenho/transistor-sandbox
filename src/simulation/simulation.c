@@ -65,7 +65,7 @@ ts_Result ts_simulation_run(ts_Simulation* sim, size_t run_for_us)
                 break;
 
             gettimeofday(&t, NULL);
-            long current_time = t.tv_sec * 1000000 + t.tv_usec + run_for_us;
+            long current_time = t.tv_sec * 1000000 + t.tv_usec;
             if (current_time > end_time)
                 break;
         }
