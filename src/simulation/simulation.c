@@ -6,22 +6,9 @@
 #include "compiler/compiler.h"
 #include "sandbox/sandbox.h"
 
-ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy)
-{
-    sim->connections = NULL;
-    sim->multithreaded = multithreaded;
-    sim->heavy = heavy;
-    sim->sandbox = NULL;
-    return TS_OK;
-}
-
-ts_Result ts_simulation_finalize(ts_Simulation* sim)
-{
-    for (int i = 0; i < arrlen(sim->connections); ++i)
-        ts_connection_finalize(&sim->connections[i]);
-    arrfree(sim->connections);
-    return TS_OK;
-}
+//
+// execution
+//
 
 static ts_Result ts_simulation_single_step(ts_Simulation* sim)
 {
@@ -62,6 +49,58 @@ static ts_Result ts_simulation_single_step(ts_Simulation* sim)
     return TS_OK;
 }
 
+ts_Result ts_simulation_run(ts_Simulation* sim, size_t run_for_us)
+{
+    ts_Result r = TS_OK;
+
+    if (!sim->multithreaded) {
+        struct timeval t;
+        gettimeofday(&t, NULL);
+
+        long end_time = t.tv_sec * 1000000 + t.tv_usec + run_for_us;
+        for (;;) {
+            if ((r = ts_simulation_single_step(sim)) != TS_OK)
+                break;
+
+            gettimeofday(&t, NULL);
+            long current_time = t.tv_sec * 1000000 + t.tv_usec + run_for_us;
+            if (current_time > end_time)
+                break;
+        }
+    }
+
+    return r;
+}
+
+//
+// initialize
+//
+
+ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy)
+{
+    sim->connections = NULL;
+    sim->multithreaded = multithreaded;
+    sim->heavy = heavy;
+    sim->sandbox = NULL;
+    return TS_OK;
+}
+
+ts_Result ts_simulation_finalize(ts_Simulation* sim)
+{
+    if (sim->multithreaded) {
+        // TODO - end simulation, join thread
+    }
+
+    for (int i = 0; i < arrlen(sim->connections); ++i)
+        ts_connection_finalize(&sim->connections[i]);
+    arrfree(sim->connections);
+    return TS_OK;
+}
+
+//
+// start/stop
+//
+
 ts_Result ts_simulation_start(ts_Simulation* sim, ts_Sandbox const* sb)
 {
     ts_simulation_stop(sim);
@@ -82,28 +121,34 @@ ts_Result ts_simulation_stop(ts_Simulation* sim)
     return TS_OK;
 }
 
-ts_Result ts_simulation_run(ts_Simulation* sim, size_t run_for_us)
+//
+// pause/unpause
+//
+
+ts_Result ts_simulation_pause(ts_Simulation* sim)
 {
-    ts_Result r;
-    struct timeval t;
-    gettimeofday(&t, NULL);
-
-    long end_time = t.tv_sec * 1000000 + t.tv_usec + run_for_us;
-    for (;;) {
-        if ((r = ts_simulation_single_step(sim)) != TS_OK)
-            break;
-
-        gettimeofday(&t, NULL);
-        long current_time = t.tv_sec * 1000000 + t.tv_usec + run_for_us;
-        if (current_time > end_time)
-            break;
+    if (sim->multithreaded) {
+        // TODO
     }
-
-    return r;
+    return TS_OK;
 }
+
+ts_Result ts_simulation_unpause(ts_Simulation* sim)
+{
+    if (sim->multithreaded) {
+        // TODO
+    }
+    return TS_OK;
+}
+
+//
+// information
+//
 
 size_t ts_simulation_wires(ts_Simulation* sim, ts_Position* positions, uint8_t* data, size_t sz)
 {
+    ts_simulation_pause(sim);
+
     size_t count = 0;
 
     for (int i = 0; i < arrlen(sim->connections); ++i) {
@@ -116,17 +161,8 @@ size_t ts_simulation_wires(ts_Simulation* sim, ts_Position* positions, uint8_t* 
         }
     }
 
+    ts_simulation_unpause(sim);
+
     return count;
 }
 
-ts_Result ts_simulation_pause(ts_Simulation* sim)
-{
-    // TODO
-    return TS_OK;
-}
-
-ts_Result ts_simulation_unpause(ts_Simulation* sim)
-{
-    // TODO
-    return TS_OK;
-}
