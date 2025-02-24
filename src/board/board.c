@@ -106,7 +106,7 @@ static void ts_remove_wires_under_ics(ts_Board* board)
 ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 {
     ts_Result r = TS_OK;
-    ts_sandbox_stop_simulation(board->sandbox);
+    ts_sandbox_end_simulation(board->sandbox);
 
     // add wire
     if (pos.x < board->w && pos.y < board->h)
@@ -122,7 +122,7 @@ ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 
 ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end, ts_Orientation orientation, ts_Wire wire)
 {
-    ts_sandbox_stop_simulation(board->sandbox);
+    ts_sandbox_end_simulation(board->sandbox);
 
     ts_Position pos[300];
     size_t sz = ts_pos_a_to_b(start, end, orientation, pos, 300);
@@ -148,7 +148,7 @@ ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position 
     if (pos.dir != TS_CENTER)
         abort();
 
-    ts_sandbox_stop_simulation(board->sandbox);
+    ts_sandbox_end_simulation(board->sandbox);
 
     // find component
     ts_ComponentDef const* def = ts_component_db_def(&board->sandbox->component_db, name);

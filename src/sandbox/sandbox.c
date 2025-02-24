@@ -46,7 +46,7 @@ ts_Result ts_sandbox_init(ts_Sandbox* sb, ts_SandboxConfig config)
 
 ts_Result ts_sandbox_finalize(ts_Sandbox* sb)
 {
-    ts_sandbox_stop_simulation(sb);
+    ts_sandbox_end_simulation(sb);
 
     for (int i = 0; i < arrlen(sb->boards); ++i)
         ts_board_finalize(&sb->boards[i]);
@@ -61,9 +61,9 @@ ts_Result ts_sandbox_finalize(ts_Sandbox* sb)
 // simulation
 //
 
-ts_Result ts_sandbox_stop_simulation(ts_Sandbox* sb)
+ts_Result ts_sandbox_end_simulation(ts_Sandbox* sb)
 {
-    return ts_simulation_stop(&sb->simulation);
+    return ts_simulation_end(&sb->simulation);
 }
 
 ts_Result ts_sandbox_start_simulation(ts_Sandbox* sb)

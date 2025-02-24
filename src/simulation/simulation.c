@@ -77,6 +77,10 @@ ts_Result ts_simulation_run(ts_Simulation* sim, size_t run_for_us)
     return r;
 }
 
+//
+// thread
+//
+
 static void* ts_simulation_run_thread(void* psim)
 {
     ts_Simulation* sim = psim;
@@ -90,6 +94,19 @@ static void* ts_simulation_run_thread(void* psim)
     return NULL;
 }
 
+static void start_thread(ts_Simulation* sim)
+{
+    sim->thread_running = true;
+    pthread_create(&sim->thread, NULL, ts_simulation_run_thread, sim);
+}
+
+static void end_thread(ts_Simulation* sim)
+{
+    sim->thread_running = false;
+    pthread_join(sim->thread, NULL);
+    sim->thread = 0;
+}
+
 //
 // initialize
 //
@@ -101,20 +118,15 @@ ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy,
     sim->heavy = heavy;
     sim->sandbox = sandbox;
     sim->steps = 0;
-    if (multithreaded) {
-        sim->thread_running = true;
-        if (pthread_create(&sim->thread, NULL, ts_simulation_run_thread, sim) != 0)
-            return ts_error(sandbox, TS_SYSTEM_ERROR, "Could not create simulation thread: %s", strerror(errno));
-    }
+    if (multithreaded)
+        start_thread(sim);
     return TS_OK;
 }
 
 ts_Result ts_simulation_finalize(ts_Simulation* sim)
 {
-    if (sim->multithreaded) {
-        sim->thread_running = false;
-        pthread_join(sim->thread, NULL);
-    }
+    if (sim->multithreaded)
+        end_thread(sim);
 
     for (int i = 0; i < arrlen(sim->connections); ++i)
         ts_connection_finalize(&sim->connections[i]);
@@ -128,22 +140,16 @@ ts_Result ts_simulation_finalize(ts_Simulation* sim)
 
 ts_Result ts_simulation_start(ts_Simulation* sim)
 {
-    /*
-    sim->connections = ts_compiler_compile(sb);
-    sim->sandbox = sb;
-    */
     sim->connections = ts_compiler_compile(sim->sandbox);
-    if (sim->multithreaded) {
-        // TODO - start execution thread
-    }
+    if (sim->multithreaded)
+        start_thread(sim);
     return TS_OK;
 }
 
-ts_Result ts_simulation_stop(ts_Simulation* sim)
+ts_Result ts_simulation_end(ts_Simulation* sim)
 {
-    if (sim->multithreaded) {
-        // TODO - stop execution thread
-    }
+    if (sim->multithreaded)
+        end_thread(sim);
     ts_simulation_finalize(sim);
     return TS_OK;
 }

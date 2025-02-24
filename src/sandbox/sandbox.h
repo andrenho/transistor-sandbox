@@ -28,7 +28,7 @@ ts_Result ts_sandbox_init(ts_Sandbox* sb, ts_SandboxConfig config);
 ts_Result ts_sandbox_finalize(ts_Sandbox* sb);
 
 // simulation
-ts_Result ts_sandbox_stop_simulation(ts_Sandbox* sb);
+ts_Result ts_sandbox_end_simulation(ts_Sandbox* sb);
 ts_Result ts_sandbox_start_simulation(ts_Sandbox* sb);
 
 // serialization

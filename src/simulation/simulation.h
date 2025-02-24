@@ -14,7 +14,7 @@ typedef struct ts_Simulation {
     bool              heavy;
     ts_Sandbox const* sandbox;
     pthread_t         thread;
-    bool              thread_running;
+    volatile bool     thread_running;
     size_t            steps;
 } ts_Simulation;
 
@@ -24,7 +24,7 @@ ts_Result ts_simulation_finalize(ts_Simulation* sim);
 
 // start/stop (will recompile and start a new simulation - used when the board is changed)
 ts_Result ts_simulation_start(ts_Simulation* sim);
-ts_Result ts_simulation_stop(ts_Simulation* sim);
+ts_Result ts_simulation_end(ts_Simulation* sim);
 
 // pause/unpause (will just stop the simulation and restart it - used for reading properties, or for changing IC properties (like onclick))
 ts_Result ts_simulation_pause(ts_Simulation* sim);

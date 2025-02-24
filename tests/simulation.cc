@@ -57,7 +57,6 @@ TEST_SUITE("Simulation")
         printf("Single-threaded steps: %zu\n", steps);
     }
 
-#if 0
     TEST_CASE("Multithreaded")
     {
         ts_Position pos[200];
@@ -84,5 +83,4 @@ TEST_SUITE("Simulation")
         size_t steps = ts_simulation_steps(&f.sb.simulation);
         printf("Multithreaded steps: %zu\n", steps);
     }
-#endif
 }
