@@ -8,9 +8,9 @@ Version 0.1.0
         - [x] Rotate single-tile component
         - [x] Place IC
           - [x] Remove wires underneath
-- [ ] Compilation
+- [x] Compilation
   - [x] Single-tile component
-  - [ ] IC
+  - [x] IC
 - [ ] Simulation
   - [ ] Single-threaded
   - [ ] Multithreaded
