@@ -2,6 +2,7 @@
 
 #include <stb_ds.h>
 #include <unistd.h>
+#include <stdio.h>
 
 extern "C" {
 #include "transistor-sandbox.h"

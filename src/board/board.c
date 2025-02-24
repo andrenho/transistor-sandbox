@@ -143,6 +143,8 @@ ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end
 
 ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position pos, ts_Direction direction)
 {
+    ts_Result r = TS_OK;
+
     if (pos.dir != TS_CENTER)
         abort();
 
@@ -177,7 +179,7 @@ ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position 
 
     // init component
     ts_Component* component = calloc(1, sizeof(ts_Component));
-    ts_Result r = ts_component_init(component, def, direction);
+    r = ts_component_init(component, def, direction);
     if (r != TS_OK)
         goto skip;
 
