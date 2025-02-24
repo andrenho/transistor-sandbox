@@ -3,6 +3,7 @@
 #include "doctest.h"
 
 #include <stb_ds.h>
+#include <string>
 
 extern "C" {
 #include "transistor-sandbox.h"
@@ -64,7 +65,7 @@ TEST_SUITE("Placement")
             ts_Sandbox sb; ts_sandbox_init(&sb, {});
             ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__led", { 1, 1 }, TS_N);
-            CHECK(ts_board_component(&sb.boards[0], { 1, 1 })->def->key == "__button");
+            CHECK(std::string(ts_board_component(&sb.boards[0], { 1, 1 })->def->key) == "__button");
             ts_sandbox_finalize(&sb);
         }
 
@@ -73,7 +74,7 @@ TEST_SUITE("Placement")
             ts_Sandbox sb; ts_sandbox_init(&sb, {});
             ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 1 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__button", { 2, 2 }, TS_N);
-            CHECK(ts_board_component(&sb.boards[0], { 2, 2 })->def->key == "__or_2i");
+            CHECK(std::string(ts_board_component(&sb.boards[0], { 2, 2 })->def->key) == "__or_2i");
             ts_sandbox_finalize(&sb);
         }
 

@@ -51,8 +51,8 @@ TEST_SUITE("Compilation")
             ts_Board* board = &f.sb.boards[0];
 
             CHECK(hmlen(board->components) == 2);
-            CHECK(ts_board_component(board, { 1, 1 })->def->key == "__button");
-            CHECK(ts_board_component(board, { 3, 1 })->def->key == "__led");
+            CHECK(std::string(ts_board_component(board, { 1, 1 })->def->key) == "__button");
+            CHECK(std::string(ts_board_component(board, { 3, 1 })->def->key) == "__led");
 
             CHECK(hmlen(board->wires) == 4);
             CHECK(ts_board_wire(board, { 1, 1, TS_E }));
@@ -75,14 +75,14 @@ TEST_SUITE("Compilation")
             };
 
             CHECK(arrlen(pins) == 8);
-            CHECK(get({ 1, 1, TS_N }, 0)->def->key == "__button");
-            CHECK(get({ 1, 1, TS_W }, 1)->def->key == "__button");
-            CHECK(get({ 1, 1, TS_S }, 2)->def->key == "__button");
-            CHECK(get({ 1, 1, TS_E }, 3)->def->key == "__button");
-            CHECK(get({ 3, 1, TS_N }, 0)->def->key == "__led");
-            CHECK(get({ 3, 1, TS_W }, 1)->def->key == "__led");
-            CHECK(get({ 3, 1, TS_S }, 2)->def->key == "__led");
-            CHECK(get({ 3, 1, TS_E }, 3)->def->key == "__led");
+            CHECK(std::string(get({ 1, 1, TS_N }, 0)->def->key) == "__button");
+            CHECK(std::string(get({ 1, 1, TS_W }, 1)->def->key) == "__button");
+            CHECK(std::string(get({ 1, 1, TS_S }, 2)->def->key) == "__button");
+            CHECK(std::string(get({ 1, 1, TS_E }, 3)->def->key) == "__button");
+            CHECK(std::string(get({ 3, 1, TS_N }, 0)->def->key) == "__led");
+            CHECK(std::string(get({ 3, 1, TS_W }, 1)->def->key) == "__led");
+            CHECK(std::string(get({ 3, 1, TS_S }, 2)->def->key) == "__led");
+            CHECK(std::string(get({ 3, 1, TS_E }, 3)->def->key) == "__led");
 
             arrfree(pins);
         }
