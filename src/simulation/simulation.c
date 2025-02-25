@@ -86,7 +86,19 @@ static void* ts_simulation_run_thread(void* psim)
     ts_Simulation* sim = psim;
 
     while (sim->thread_running) {
+
+        // pause thread
+        pthread_mutex_lock(&sim->thread_lock);
+        while (sim->thread_paused)
+            pthread_cond_wait(&sim->thread_cond, &sim->thread_lock);
+
+        // execute
         ts_simulation_single_step(sim);
+
+        // unpause
+        pthread_mutex_unlock(&sim->thread_lock);
+
+        // give the CPU a break
         if (!sim->heavy)
             sched_yield();
     }
@@ -119,8 +131,14 @@ ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy,
     sim->heavy = heavy;
     sim->sandbox = sandbox;
     sim->steps = 0;
-    if (multithreaded)
+
+    sim->thread_paused = false;
+    if (multithreaded) {
+        pthread_mutex_init(&sim->thread_lock, NULL);
+        pthread_cond_init(&sim->thread_cond, NULL);
         start_thread(sim);
+    }
+
     return TS_OK;
 }
 
@@ -142,6 +160,7 @@ ts_Result ts_simulation_finalize(ts_Simulation* sim)
 ts_Result ts_simulation_start(ts_Simulation* sim)
 {
     sim->connections = ts_compiler_compile(sim->sandbox);
+    sim->thread_paused = false;
     if (sim->multithreaded)
         start_thread(sim);
     return TS_OK;
@@ -162,7 +181,8 @@ ts_Result ts_simulation_end(ts_Simulation* sim)
 ts_Result ts_simulation_pause(ts_Simulation* sim)
 {
     if (sim->multithreaded) {
-        // TODO
+        pthread_mutex_lock(&sim->thread_lock);
+        sim->thread_paused = true;
     }
     return TS_OK;
 }
@@ -170,7 +190,9 @@ ts_Result ts_simulation_pause(ts_Simulation* sim)
 ts_Result ts_simulation_unpause(ts_Simulation* sim)
 {
     if (sim->multithreaded) {
-        // TODO
+        sim->thread_paused = false;
+        pthread_cond_signal(&sim->thread_cond);
+        pthread_mutex_unlock(&sim->thread_lock);
     }
     return TS_OK;
 }

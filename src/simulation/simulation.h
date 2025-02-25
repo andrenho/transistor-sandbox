@@ -12,10 +12,14 @@ typedef struct ts_Simulation {
     ts_Connection*    connections;
     bool              multithreaded;
     bool              heavy;
+    size_t            steps;
     ts_Sandbox const* sandbox;
+
     pthread_t         thread;
     volatile bool     thread_running;
-    size_t            steps;
+    volatile bool     thread_paused;
+    pthread_mutex_t   thread_lock;
+    pthread_cond_t    thread_cond;
 } ts_Simulation;
 
 // initialization
