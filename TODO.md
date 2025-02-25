@@ -13,8 +13,7 @@ Version 0.1.0
   - [x] IC
 - [x] Simulation
   - [x] Single-threaded
-  - [x] Multithreaded
-  - [x] Expose current values (?)
+- [ ] Restructure multi-threading (?)
 - [ ] Rename enums, fields (?)
   - [ ] Review code
 - [ ] Cursor (?)
