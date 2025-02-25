@@ -3,7 +3,6 @@
 #include <lauxlib.h>
 #include <stb_ds.h>
 
-#include "basic/pos_ds.h"
 #include "util/serialize.h"
 #include "component/componentdb.h"
 #include "sandbox/sandbox.h"
@@ -26,13 +25,13 @@ ts_Result ts_board_init(ts_Board* board, ts_Sandbox* sb, int w, int h)
 
 ts_Result ts_board_finalize(ts_Board* board)
 {
-    for (int i = 0; i < hmlen(board->components); ++i) {
+    for (int i = 0; i < phlen(board->components); ++i) {
         ts_component_finalize(board->components[i].value);
         free(board->components[i].value);
     }
-    hmfree(board->components);
+    phfree(board->components);
 
-    hmfree(board->wires);
+    phfree(board->wires);
     return TS_OK;
 }
 
@@ -79,13 +78,13 @@ static ts_Result ts_board_remove_wires_for_ic(ts_Board* board, ts_Rect rect)
 
 ts_Result ts_board_remove_wire(ts_Board* board, ts_Position position)
 {
-    hmdel(board->wires, ts_pos_hash(position));
+    phdel(board->wires, position);
     return TS_OK;
 }
 
 ts_Wire* ts_board_wire(ts_Board const* board, ts_Position pos)
 {
-    int i = hmgeti(((ts_Board *) board)->wires, ts_pos_hash(pos));
+    int i = phgeti(((ts_Board *) board)->wires, pos);
     if (i == -1)
         return NULL;
     return &board->wires[i].value;
@@ -98,7 +97,7 @@ size_t ts_board_wires(ts_Board const* board, ts_Position* positions, uint8_t* da
 
 static void ts_remove_wires_under_ics(ts_Board* board)
 {
-    for (int i = 0; i < hmlen(board->components); ++i)
+    for (int i = 0; i < phlen(board->components); ++i)
         if (board->components[i].value->def->type != TS_SINGLE_TILE)
             ts_board_remove_wires_for_ic(board, ts_component_rect(board->components[i].value));
 }
@@ -110,7 +109,7 @@ ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 
     // add wire
     if (pos.x < board->w && pos.y < board->h)
-        hmput(board->wires, ts_pos_hash(pos), wire);
+        phput(board->wires, pos, wire);
     else
         r = ts_error(board->sandbox, TS_CANNOT_PLACE, "Wire out of bounds");
 
@@ -128,7 +127,7 @@ ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end
     size_t sz = ts_pos_a_to_b(start, end, orientation, pos, 300);
     for (size_t i = 0; i < sz; ++i) {
         if (pos[i].x < board->w && pos[i].y < board->h)
-            hmput(board->wires, ts_pos_hash(pos[i]), wire);
+            phput(board->wires, pos[i], wire);
     }
 
     ts_remove_wires_under_ics(board);
@@ -166,13 +165,13 @@ ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position 
     for (int x = component_rect.top_left.x; x <= component_rect.bottom_right.x; ++x) {
         for (int y = component_rect.top_left.y; y <= component_rect.bottom_right.y; ++y) {
             ts_Position p = { x, y, TS_CENTER };
-            if (hmgeti(other_components, ts_pos_hash(p)) >= 0) {
-                hmfree(other_components);
+            if (phgeti(other_components, p) >= 0) {
+                phfree(other_components);
                 goto skip;
             }
         }
     }
-    hmfree(other_components);
+    phfree(other_components);
 
     if (ts_board_component(board, pos) != NULL)
         goto skip;
@@ -184,7 +183,7 @@ ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position 
         goto skip;
 
     // place component
-    hmput(board->components, ts_pos_hash(pos), component);  // pointer owns the object
+    phput(board->components, pos, component);  // pointer owns the object
     ts_component_update_pos(component, board, pos);
 
     // remove wires underneath
@@ -202,15 +201,15 @@ ts_Component* ts_board_component(ts_Board const* board, ts_Position pos)
 
     ts_Component* ret = NULL;
 
-    int i = hmgeti(((ts_Board *) board)->components, ts_pos_hash(pos));
+    int i = phgeti(((ts_Board *) board)->components, pos);
     if (i >= 0) {
         ret = board->components[i].value;
     } else {
         ts_HashPosComponentPtr comps = ts_board_component_tiles(board);
-        int j = hmgeti(comps, ts_pos_hash(pos));
+        int j = phgeti(comps, pos);
         if (j >= 0)
             ret = comps[j].value;
-        hmfree(comps);
+        phfree(comps);
     }
 
     return ret;
@@ -240,15 +239,16 @@ ts_Result ts_board_clear_tile(ts_Board const* board, ts_Position pos)
     ts_Component* component = ts_board_component(board, pos);
     if (component) {
         ts_component_finalize(component);
-        hmdel(((ts_Board *) board)->components, ts_pos_hash(component->position));
+        phdel(((ts_Board *) board)->components, component->position);
         free(component);
     }
 
     // clear wires
-    hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_N }));
-    hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_E }));
-    hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_S }));
-    hmdel(((ts_Board *) board)->wires, ts_pos_hash((ts_Position) { pos.x, pos.y, TS_W }));
+    ts_Position p;
+    p = (ts_Position) { pos.x, pos.y, TS_N }; phdel(((ts_Board *) board)->wires, p);
+    p = (ts_Position) { pos.x, pos.y, TS_E }; phdel(((ts_Board *) board)->wires, p);
+    p = (ts_Position) { pos.x, pos.y, TS_S }; phdel(((ts_Board *) board)->wires, p);
+    p = (ts_Position) { pos.x, pos.y, TS_W }; phdel(((ts_Board *) board)->wires, p);
 
     return TS_OK;
 }
@@ -257,13 +257,13 @@ ts_HashPosComponentPtr ts_board_component_tiles(ts_Board const* board)
 {
     ts_HashPosComponentPtr list = NULL;
 
-    for (int i = 0; i < hmlen(board->components); ++i) {
+    for (int i = 0; i < phlen(board->components); ++i) {
         ts_Component* component = board->components[i].value;
         ts_Rect rect = ts_component_rect(component);
         for (int x = rect.top_left.x; x <= rect.bottom_right.x; ++x) {
             for (int y = rect.top_left.y; y <= rect.bottom_right.y; ++y) {
                 ts_Position pos = { x, y, TS_CENTER };
-                hmput(list, ts_pos_hash(pos), component);
+                phput(list, pos, component);
             }
         }
     }
@@ -281,7 +281,7 @@ int ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_
     SR_CONT("  w = %d,", board->w);
     SR_CONT("  h = %d,", board->h);
     SR_CONT("  wires = {");
-    for (int i = 0; i < hmlen(board->wires); ++i) {
+    for (int i = 0; i < phlen(board->wires); ++i) {
         char key[30]; ts_pos_serialize(ts_pos_unhash(board->wires[i].key), key, sizeof key);
         SR_CONT_INLINE("    [%s] = ", key);
         SR_CALL_INLINE(ts_wire_serialize, &board->wires[i].value);
@@ -289,7 +289,7 @@ int ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_
     }
     SR_CONT("  },");
     SR_CONT("  components = {");
-    for (int i = 0; i < hmlen(board->components); ++i) {
+    for (int i = 0; i < phlen(board->components); ++i) {
         char key[30]; ts_pos_serialize(ts_pos_unhash(board->components[i].key), key, sizeof key);
         SR_CONT_INLINE("    [%s] = ", key);
         SR_CALL(ts_component_serialize, board->components[i].value, 4);
@@ -316,7 +316,7 @@ static ts_Result ts_board_unserialize_wires(ts_Board* board, lua_State* L, ts_Sa
         lua_pop(L, 1);
         if ((r = ts_wire_unserialize(&wire, L, sb) != TS_OK))
             return r;
-        hmput(board->wires, ts_pos_hash(pos), wire);
+        phput(board->wires, pos, wire);
         lua_pop(L, 1);
     }
     lua_pop(L, 1);
@@ -341,7 +341,7 @@ static ts_Result ts_board_unserialize_components(ts_Board* board, lua_State* L, 
         lua_pop(L, 1);
         if ((r = ts_component_unserialize(component, L, sb) != TS_OK))
             return r;
-        hmput(board->components, ts_pos_hash(pos), component);
+        phput(board->components, pos, component);
         lua_pop(L, 1);
     }
     lua_pop(L, 1);

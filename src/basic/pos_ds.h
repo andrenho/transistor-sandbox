@@ -3,6 +3,10 @@
 
 #include "position.h"
 
+//
+// position set
+//
+
 typedef struct { ts_PositionHash key; bool value; } ts_PosSet;
 
 // hashed
@@ -14,9 +18,19 @@ typedef struct { ts_PositionHash key; bool value; } ts_PosSet;
 #define psetfirst(collection)         (psetget(collection, 0))
 #define psetfree                      hmfree
 
-bool psetcontains_f(ts_PosSet* collection, ts_Position pos);  // allow calling from C++
-
 // non-hashed
 bool arrcontains(ts_Position* haystack, ts_Position needle);
+
+//
+// position hash
+//
+
+#define POS_HASH(TYPE) struct { ts_PositionHash key; TYPE value; }*
+
+#define phfree               hmfree
+#define phlen                hmlen
+#define phput(hsh, pos, obj) hmput(hsh, ts_pos_hash(pos), obj)
+#define phdel(hsh, pos)      hmdel(hsh, ts_pos_hash(pos))
+#define phgeti(hsh, pos)     hmgeti(hsh, ts_pos_hash(pos))
 
 #endif //POS_DS_H

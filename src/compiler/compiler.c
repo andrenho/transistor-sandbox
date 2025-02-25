@@ -12,7 +12,7 @@ ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb)
 {
     ts_Pin* pins = NULL;
     for (int i = 0; i < arrlen(sb->boards); ++i) {
-        for (int j = 0; j < hmlen(sb->boards[i].components); ++j) {
+        for (int j = 0; j < phlen(sb->boards[i].components); ++j) {
             ts_Component* component = sb->boards[i].components[j].value;
             ts_PinPos pin_pos[component->def->n_pins];
             ts_component_pin_positions(component, pin_pos, component->def->n_pins);
@@ -50,7 +50,7 @@ ts_Connection* ts_compiler_compile(ts_Sandbox const* sb)
     // create set of wires
     ts_PosSet* wire_set = NULL;
     for (int i = 0; i < arrlen(sb->boards); ++i)
-        for (int j = 0; j < hmlen(sb->boards[i].wires); ++j)
+        for (int j = 0; j < phlen(sb->boards[i].wires); ++j)
             psetput(wire_set, ts_pos_unhash(sb->boards[i].wires[j].key));  // TODO - separate by width and layer
 
     // find groups, and create connections
