@@ -1,5 +1,6 @@
 #include "transistor-sandbox.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -80,7 +81,8 @@ ts_Result ts_transistor_component_db_add(ts_Transistor* t, ts_ComponentDef const
 ts_Result ts_transistor_run(ts_Transistor* t, size_t run_for_us)
 {
     if (!t->config.multithreaded)
-        ts_simulation_run(&t->sandbox.simulation, run_for_us);
+        return ts_simulation_run(&t->sandbox.simulation, run_for_us);
+    return TS_OK;
 }
 
 //
@@ -162,7 +164,15 @@ ts_Result ts_transistor_cursor_select_component_def(ts_Transistor* t, const char
 // errors
 //
 
-const char* ts_last_error(ts_Transistor const* t, ts_Result* response) {}
+ts_Result ts_transistor_last_error(ts_Transistor* t, char* err_buf, size_t err_buf_sz)
+{
+    ts_transistor_lock(t);
+    ts_Result r;
+    const char* err = ts_last_error(&t->sandbox, &r);
+    snprintf(err_buf, err_buf_sz, "%s", err);
+    ts_transistor_unlock(t);
+    return r;
+}
 
 //
 // snapshots

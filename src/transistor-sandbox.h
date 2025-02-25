@@ -51,7 +51,7 @@ ts_Result ts_transistor_cursor_key_release(ts_Transistor* t, char key);
 ts_Result ts_transistor_cursor_select_component_def(ts_Transistor* t, const char* name);
 
 // errors
-const char* ts_last_error(ts_Transistor const* t, ts_Result* response);
+ts_Result ts_transistor_last_error(ts_Transistor* t, char* err_buf, size_t err_buf_sz);
 
 //
 // take snapshot
