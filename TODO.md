@@ -11,10 +11,10 @@ Version 0.1.0
 - [x] Compilation
   - [x] Single-tile component
   - [x] IC
-- [ ] Simulation
-  - [ ] Single-threaded
-  - [ ] Multithreaded
-  - [ ] Expose current values (?)
+- [x] Simulation
+  - [x] Single-threaded
+  - [x] Multithreaded
+  - [x] Expose current values (?)
 - [ ] Rename enums, fields (?)
   - [ ] Review code
 - [ ] Cursor (?)
