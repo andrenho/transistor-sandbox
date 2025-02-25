@@ -155,7 +155,7 @@ else()
             COMMENT "Check for leaks using valgrind."
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
             DEPENDS ${PROJECT_NAME}-tests
-            COMMAND valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --suppressions=${CMAKE_SOURCE_DIR}/valgrind.supp ./${PROJECT_NAME}-tests
+            COMMAND valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --fair-sched=yes --suppressions=${CMAKE_SOURCE_DIR}/valgrind.supp ./${PROJECT_NAME}-tests
     )
 endif()
 add_dependencies(${PROJECT_NAME}-test-leaks ${PROJECT_NAME}-tests)

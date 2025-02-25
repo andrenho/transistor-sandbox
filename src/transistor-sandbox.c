@@ -86,19 +86,19 @@ ts_Result ts_transistor_finalize(ts_Transistor* t)
 
 ts_Result ts_transistor_lock(ts_Transistor* t)
 {
-    if (t->config.multithreaded) {
-        t->thread_paused = true;
+    if (t->config.multithreaded && !t->thread_paused) {
         pthread_mutex_lock(&t->lock);
+        t->thread_paused = true;
     }
     return TS_OK;
 }
 
 ts_Result ts_transistor_unlock(ts_Transistor* t)
 {
-    if (t->config.multithreaded) {
+    if (t->config.multithreaded && t->thread_paused) {
         t->thread_paused = false;
-        pthread_mutex_unlock(&t->lock);
         pthread_cond_signal(&t->cond);
+        pthread_mutex_unlock(&t->lock);
     }
     return TS_OK;
 }
