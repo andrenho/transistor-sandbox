@@ -11,8 +11,8 @@ Version 0.1.0
 - [x] Compilation
   - [x] Single-tile component
   - [x] IC
-- [ ] Cursor (?)
-  - [ ] Draw wire
+- [x] Cursor (?)
+  - [x] Draw wire
 - [ ] Wrapper
   - [ ] Single-threaded
   - [ ] Multithreaded

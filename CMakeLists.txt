@@ -92,6 +92,7 @@ add_library(${PROJECT_NAME} STATIC
         src/basic/orientation.h
         src/cursor/cursor.c
         src/cursor/cursor.h
+        src/transistor-sandbox.c
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})

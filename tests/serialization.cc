@@ -6,7 +6,7 @@
 #include <stb_ds.h>
 
 extern "C" {
-#include "transistor-sandbox.h"
+#include "sandbox/sandbox.h"
 }
 
 TEST_SUITE("Serialization") {

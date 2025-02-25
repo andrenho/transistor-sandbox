@@ -1,8 +1,9 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+
 #include "doctest.h"
 
 extern "C" {
-#include "transistor-sandbox.h"
+#include "sandbox/sandbox.h"
 }
 
 static bool pos_list_contains(ts_Position const* list, int list_sz, ts_Position pos)

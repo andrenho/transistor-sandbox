@@ -5,7 +5,7 @@
 
 
 extern "C" {
-#include "transistor-sandbox.h"
+#include "sandbox/sandbox.h"
 #include "compiler/compiler.h"
 extern ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb);
 }

@@ -5,8 +5,11 @@
 #include <stb_ds.h>
 #include <string>
 
+
+
 extern "C" {
-#include "transistor-sandbox.h"
+#include "board/board.h"
+#include "sandbox/sandbox.h"
 #include "basic/pos_ds.h"
 
 extern ts_HashPosComponentPtr ts_board_component_tiles(ts_Board const* board);

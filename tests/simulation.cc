@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 extern "C" {
-#include "transistor-sandbox.h"
+#include "sandbox/sandbox.h"
 }
 
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
