@@ -23,7 +23,7 @@ ts_Result ts_simulation_start(ts_Simulation* sim);
 ts_Result ts_simulation_end(ts_Simulation* sim);
 
 // information
-size_t    ts_simulation_wires(ts_Simulation* sim, ts_Position* positions, uint8_t* data, size_t sz);
+size_t    ts_simulation_wires(ts_Simulation const* sim, ts_Position* positions, uint8_t* values, size_t sz);
 size_t    ts_simulation_steps(ts_Simulation* sim);
 
 // execution

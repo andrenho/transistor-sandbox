@@ -178,5 +178,81 @@ ts_Result ts_transistor_last_error(ts_Transistor* t, char* err_buf, size_t err_b
 // snapshots
 //
 
-ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnapshot* snap) {}
-ts_Result ts_snapshot_finalize(ts_TransistorSnapshot* snap) {}
+ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnapshot* snap)
+{
+    snap->boards = calloc(arrlen(t->sandbox.boards), sizeof(ts_BoardSnapshot));
+    snap->n_boards = arrlen(t->sandbox.boards);
+    for (int i = 0; i < arrlen(t->sandbox.boards); ++i) {
+
+        // board
+        ts_Board* board = &t->sandbox.boards[i];
+        snap->boards[i] = (ts_BoardSnapshot) {
+            .w = board->w,
+            .h = board->h,
+            .n_components = arrlen(board->components),
+            .components = calloc(arrlen(board->components), sizeof(ts_ComponentSnapshot)),
+            .n_wires = arrlen(board->wires),
+            .wires = calloc(arrlen(board->wires), sizeof(ts_WireSnapshot)),
+        };
+
+        // components
+        for (int j = 0; j < phlen(board->components); ++j) {
+            ts_Component* component = board->components[j].value;
+            snap->boards[i].components[j] = (ts_ComponentSnapshot) {
+                .key = strdup(component->def->key),
+                .pos = ts_pos_unhash(board->components[j].key),
+                .type = component->def->type,
+                .ic_width = component->def->ic_width,
+                .n_pins = component->def->n_pins,
+                .pins = calloc(component->def->n_pins, sizeof(ts_PinSnapshot)),
+                .extra_data = component->def->extra,
+            };
+
+            // pins
+            for (int k = 0; k < component->def->n_pins; ++k) {
+                ts_PinDef* pin = &component->def->pins[k];
+                snap->boards[i].components[j].pins[k] = (ts_PinSnapshot) {
+                    .name = strdup(pin->name),
+                    .type = pin->type,
+                };
+            }
+        }
+
+        // wires
+        const int max = arrlen(board->wires);
+        ts_Position positions[max];
+        uint8_t values[max];
+        size_t sz = ts_simulation_wires(&t->sandbox.simulation, positions, values, max);
+        int k = 0;
+        for (size_t j = 0; j < sz; ++j) {
+            ts_Wire* wire = ts_board_wire(board, positions[j]);
+            if (wire) {
+                snap->boards[i].wires[k++] = (ts_WireSnapshot) {
+                    .pos = positions[j],
+                    .layer = wire->layer,
+                    .width = wire->width,
+                    .value = values[j],
+                };
+            }
+        }
+        snap->boards[i].n_wires = k;
+    }
+
+    return TS_OK;
+}
+
+ts_Result ts_snapshot_finalize(ts_TransistorSnapshot* snap)
+{
+    for (size_t i = 0; i < snap->n_boards; ++i) {
+        for (size_t j = 0; j < snap->boards[i].n_components; ++j) {
+            for (size_t k = 0; k < snap->boards[i].components[j].n_pins; ++k)
+                free(snap->boards[i].components[j].pins[k].name);
+            free(snap->boards[i].components[j].pins);
+            free(snap->boards[i].components[j].key);
+        }
+        free(snap->boards[i].components);
+        free(snap->boards[i].wires);
+    }
+    free(snap->boards);
+    return TS_OK;
+}

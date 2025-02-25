@@ -115,7 +115,7 @@ ts_Result ts_simulation_end(ts_Simulation* sim)
 // information
 //
 
-size_t ts_simulation_wires(ts_Simulation* sim, ts_Position* positions, uint8_t* data, size_t sz)
+size_t ts_simulation_wires(ts_Simulation const* sim, ts_Position* positions, uint8_t* values, size_t sz)
 {
     size_t count = 0;
 
@@ -124,7 +124,7 @@ size_t ts_simulation_wires(ts_Simulation* sim, ts_Position* positions, uint8_t* 
             if (count >= sz)
                 return count;
             positions[count] = sim->connections[i].wires[j];
-            data[count] = sim->connections[i].value;
+            values[count] = sim->connections[i].value;
             ++count;
         }
     }
