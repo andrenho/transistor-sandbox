@@ -24,6 +24,7 @@ typedef struct ts_Cursor {
         bool                 orientation_defined;
         ts_Orientation       orientation;
     }                      wire;
+    bool                   erasing;
 } ts_Cursor;
 
 typedef enum ts_CursorButton {

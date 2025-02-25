@@ -27,12 +27,12 @@ ts_Result ts_sandbox_end_simulation(ts_Sandbox* sb);
 ts_Result ts_sandbox_start_simulation(ts_Sandbox* sb);
 
 // serialization
-int         ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, char* buf, size_t buf_sz);
+int       ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, char* buf, size_t buf_sz);
 ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L);
 ts_Result ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str);
 
 // error handling
-ts_Result ts_error(ts_Sandbox* sb, ts_Result response, const char* fmt, ...) __attribute__((format(printf, 3, 0)));
+ts_Result   ts_error(ts_Sandbox* sb, ts_Result response, const char* fmt, ...) __attribute__((format(printf, 3, 0)));
 const char* ts_last_error(ts_Sandbox const* sb, ts_Result* response);
 
 #endif //SANDBOX_H

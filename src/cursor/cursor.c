@@ -37,6 +37,9 @@ ts_Result ts_cursor_set_pointer(ts_Cursor* cursor, ts_Position pos)
         }
     }
 
+    if (cursor->erasing)
+        ts_board_clear_tile(cursor->board, cursor->pos);
+
     return TS_OK;
 }
 
@@ -71,9 +74,14 @@ ts_Result ts_cursor_key_press(ts_Cursor* cursor, char key, uint8_t keymod)
     if (cursor->in_bounds) {
         if (keymod == 0) {
             switch (key) {
-                case 'r':
-                    cursor->selected_direction = ts_direction_rotate_component(cursor->selected_direction);
+                case 'r': {
+                    ts_Component* component = ts_board_component(cursor->board, cursor->pos);
+                    if (component && component->def->type == TS_SINGLE_TILE)
+                        ts_board_rotate_tile(cursor->board, cursor->pos);
+                    else
+                        cursor->selected_direction = ts_direction_rotate_component(cursor->selected_direction);
                     break;
+                }
                 case 'v':
                     ts_board_add_component(cursor->board, "__vcc", cursor->pos, cursor->selected_direction);
                     break;
@@ -88,6 +96,9 @@ ts_Result ts_cursor_key_press(ts_Cursor* cursor, char key, uint8_t keymod)
                     break;
                 case 'n':
                     ts_board_add_component(cursor->board, "__npn", cursor->pos, cursor->selected_direction);
+                    break;
+                case 'x':
+                    cursor->erasing = true;
                     break;
                 case 'w':
                     cursor->wire.drawing = true;
@@ -110,6 +121,8 @@ ts_Result ts_cursor_key_release(ts_Cursor* cursor, char key)
         else
             ts_board_add_wires(cursor->board, cursor->wire.starting_pos, cursor->pos, cursor->wire.orientation, cursor->selected_wire);
         cursor->wire.drawing = false;
+    } else if (key == 'x') {
+        cursor->erasing = false;
     }
     return TS_OK;
 }

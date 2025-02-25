@@ -13,7 +13,10 @@ Version 0.1.0
   - [x] IC
 - [x] Cursor (?)
   - [x] Draw wire
+  - [ ] Rotate tile
+  - [ ] Clear tiles
 - [ ] Wrapper
+  - [ ] Manage DB?
   - [ ] Single-threaded
   - [ ] Multithreaded
 - [ ] Rename enums, fields (?)

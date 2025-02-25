@@ -39,9 +39,6 @@ ts_Component* ts_board_component(ts_Board const* board, ts_Position pos);     //
 ts_Result     ts_board_rotate_tile(ts_Board const* board, ts_Position pos);
 ts_Result     ts_board_clear_tile(ts_Board const* board, ts_Position pos);
 
-// clearing
-// TODO
-
 // serialization
 int         ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_sz);
 ts_Result ts_board_unserialize(ts_Board* board, lua_State* L, ts_Sandbox* sb);
