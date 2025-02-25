@@ -3,6 +3,8 @@
 #include "doctest.h"
 
 #include <stb_ds.h>
+#include <unistd.h>
+
 
 extern "C" {
 #include "transistor-sandbox.h"
@@ -67,9 +69,45 @@ TEST_SUITE("Wrapper")
         ts_transistor_run(&f.t, 10000);
         CHECK(button->data[0] != 0);
 
+        ts_TransistorSnapshot snap;
+        ts_transistor_take_snapshot(&f.t, &snap);
+        CHECK(snap.boards[0].wires[0].value != 0);
+        ts_snapshot_finalize(&snap);
+
         ts_transistor_cursor_set_pointer(&f.t, 0, { 1, 1 });
         ts_transistor_cursor_click(&f.t, 0, TS_BUTTON_LEFT);
         ts_transistor_run(&f.t, 10000);
         CHECK(button->data[0] == 0);
     }
+
+    TEST_CASE("Multithreaded")
+    {
+        Fixture f(true);
+
+        ts_transistor_lock(&f.t);
+        ts_Component* button = f.t.sandbox.boards[0].components[0].value;
+        CHECK(std::string(button->def->key) == "__button");
+        CHECK(button->data[0] == 0);
+        ts_transistor_unlock(&f.t);
+
+        ts_transistor_cursor_set_pointer(&f.t, 0, { 1, 1 });
+        ts_transistor_cursor_click(&f.t, 0, TS_BUTTON_LEFT);
+        usleep(10000);
+        ts_transistor_lock(&f.t);
+        CHECK(button->data[0] != 0);
+        ts_transistor_unlock(&f.t);
+
+        ts_TransistorSnapshot snap;
+        ts_transistor_take_snapshot(&f.t, &snap);
+        CHECK(snap.boards[0].wires[0].value != 0);
+        ts_snapshot_finalize(&snap);
+
+        ts_transistor_cursor_set_pointer(&f.t, 0, { 1, 1 });
+        ts_transistor_cursor_click(&f.t, 0, TS_BUTTON_LEFT);
+        usleep(10000);
+        ts_transistor_lock(&f.t);
+        CHECK(button->data[0] == 0);
+        ts_transistor_unlock(&f.t);
+    }
+
 }

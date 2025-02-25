@@ -1,12 +1,9 @@
 #ifndef TRANSISTOR_SANDBOX_H
 #define TRANSISTOR_SANDBOX_H
-#include "util/result.h"
 
+#include <pthread.h>
 #include <stdint.h>
 
-#include "basic/position.h"
-#include "component/componentdef.h"
-#include "cursor/cursor.h"
 #include "sandbox/sandbox.h"
 
 typedef struct ts_Sandbox ts_Sandbox;
@@ -19,6 +16,12 @@ typedef struct ts_TransistorConfig {
 typedef struct ts_Transistor {
     ts_Sandbox          sandbox;
     ts_TransistorConfig config;
+
+    pthread_t           thread;
+    pthread_mutex_t     lock;
+    pthread_cond_t      cond;
+    bool                thread_running;
+    bool                thread_paused;
 } ts_Transistor;
 
 typedef unsigned int ts_BoardIdx;

@@ -3,19 +3,61 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sched.h>
 
 #include "stb_ds.h"
 #include "sandbox/sandbox.h"
 
 //
+// execution thread
+//
+
+static void* thread_run(void* ptr_t)
+{
+    ts_Transistor* t = ptr_t;
+
+    while (t->thread_running) {
+
+        // pause thread
+        pthread_mutex_lock(&t->lock);
+        while (t->thread_paused)
+            pthread_cond_wait(&t->cond, &t->lock);
+
+        // execute
+        ts_simulation_single_step(&t->sandbox.simulation);
+
+        // unpause
+        pthread_mutex_unlock(&t->lock);
+
+        // give the CPU a break
+        if (!t->config.heavy)
+            sched_yield();
+    }
+
+    return NULL;
+}
+
+static void thread_init(ts_Transistor* t)
+{
+    if (t->config.multithreaded) {
+        t->thread_running = true;
+        pthread_mutex_init(&t->lock, NULL);
+        pthread_cond_init(&t->cond, NULL);
+        pthread_create(&t->thread, NULL, thread_run, t);
+    }
+}
+
+//
 // initialization
 //
+
 
 ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config)
 {
     memset(t, 0, sizeof(ts_Transistor));
     ts_sandbox_init(&t->sandbox);
     t->config = config;
+    thread_init(t);
     return TS_OK;
 }
 
@@ -24,11 +66,16 @@ ts_Result ts_transistor_unserialize(ts_Transistor* t, ts_TransistorConfig config
     memset(t, 0, sizeof(ts_Transistor));
     ts_sandbox_unserialize_from_string(&t->sandbox, str);
     t->config = config;
+    thread_init(t);
     return TS_OK;
 }
 
 ts_Result ts_transistor_finalize(ts_Transistor* t)
 {
+    if (t->config.multithreaded) {
+        t->thread_running = false;
+        pthread_join(t->thread, NULL);
+    }
     ts_sandbox_finalize(&t->sandbox);
     return TS_OK;
 }
@@ -40,7 +87,8 @@ ts_Result ts_transistor_finalize(ts_Transistor* t)
 ts_Result ts_transistor_lock(ts_Transistor* t)
 {
     if (t->config.multithreaded) {
-        // TODO
+        t->thread_paused = true;
+        pthread_mutex_lock(&t->lock);
     }
     return TS_OK;
 }
@@ -48,7 +96,9 @@ ts_Result ts_transistor_lock(ts_Transistor* t)
 ts_Result ts_transistor_unlock(ts_Transistor* t)
 {
     if (t->config.multithreaded) {
-        // TODO
+        t->thread_paused = false;
+        pthread_mutex_unlock(&t->lock);
+        pthread_cond_signal(&t->cond);
     }
     return TS_OK;
 }
