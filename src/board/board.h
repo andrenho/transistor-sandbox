@@ -8,14 +8,14 @@
 
 typedef struct ts_Sandbox ts_Sandbox;
 
-typedef struct W__ { ts_PositionHash key; ts_Wire value;       }* ts_HashPosWire;
-typedef struct C__ { ts_PositionHash key; ts_Component* value; }* ts_HashPosComponentPtr;
+typedef POS_HASH(ts_Component*, C__) ts_HashPosComponentPtr;
+typedef POS_HASH(ts_Wire, W__) ts_HashPosWire;
 
 typedef struct ts_Board {
-    ts_Sandbox*             sandbox;
-    int                     w, h;
-    POS_HASH(ts_Wire)       wires;
-    POS_HASH(ts_Component*) components;
+    ts_Sandbox*            sandbox;
+    int                    w, h;
+    ts_HashPosWire         wires;
+    ts_HashPosComponentPtr components;
 } ts_Board;
 
 // initialization

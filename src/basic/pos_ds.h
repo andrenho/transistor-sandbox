@@ -25,7 +25,7 @@ bool arrcontains(ts_Position* haystack, ts_Position needle);
 // position hash
 //
 
-#define POS_HASH(TYPE) struct { ts_PositionHash key; TYPE value; }*
+#define POS_HASH(TYPE, ...) struct __VA_ARGS__ { ts_PositionHash key; TYPE value; }*
 
 #define phfree               hmfree
 #define phlen                hmlen
