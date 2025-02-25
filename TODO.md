@@ -18,8 +18,8 @@ Version 0.1.0
 - [x] Wrapper
   - [x] Manage DB?
   - [x] Single-threaded
+  - [x] Multithreaded
   - [ ] Temporary wire
-  - [ ] Multithreaded
 - [ ] Rename enums, fields (?)
     - [ ] Review code
 - [ ] Architecture document
