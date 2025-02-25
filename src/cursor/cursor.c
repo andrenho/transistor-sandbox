@@ -52,7 +52,7 @@ ts_Result ts_cursor_set_pointer_out_of_bounds(ts_Cursor* cursor)
 ts_Result ts_cursor_click(ts_Cursor* cursor, ts_CursorButton button)
 {
     if (cursor->in_bounds) {
-        if (button == TS_BUT_LEFT) {
+        if (button == TS_BUTTON_LEFT) {
             ts_Component* component = ts_board_component(cursor->board, cursor->pos);
             if (component) {
                 ts_component_on_click(component);

@@ -28,7 +28,7 @@ typedef struct ts_Cursor {
 } ts_Cursor;
 
 typedef enum ts_CursorButton {
-    TS_BUT_LEFT, TS_BUT_MIDDLE, TS_BUT_RIGHT
+    TS_BUTTON_LEFT, TS_BUTTON_MIDDLE, TS_BUTTON_RIGHT
 } ts_CursorButton;
 
 // initialization

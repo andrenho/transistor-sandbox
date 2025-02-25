@@ -189,10 +189,10 @@ ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnaps
         snap->boards[i] = (ts_BoardSnapshot) {
             .w = board->w,
             .h = board->h,
-            .n_components = arrlen(board->components),
-            .components = calloc(arrlen(board->components), sizeof(ts_ComponentSnapshot)),
-            .n_wires = arrlen(board->wires),
-            .wires = calloc(arrlen(board->wires), sizeof(ts_WireSnapshot)),
+            .n_components = phlen(board->components),
+            .components = calloc(phlen(board->components), sizeof(ts_ComponentSnapshot)),
+            .n_wires = phlen(board->wires),
+            .wires = calloc(phlen(board->wires), sizeof(ts_WireSnapshot)),
         };
 
         // components
@@ -219,7 +219,7 @@ ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnaps
         }
 
         // wires
-        const int max = arrlen(board->wires);
+        const int max = phlen(board->wires);
         ts_Position positions[max];
         uint8_t values[max];
         size_t sz = ts_simulation_wires(&t->sandbox.simulation, positions, values, max);
