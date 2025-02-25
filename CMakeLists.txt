@@ -55,18 +55,23 @@ pkg_check_modules(LUA REQUIRED luajit)
 
 add_library(${PROJECT_NAME} STATIC
         contrib/stb/stb_ds.h
-        src/sandbox/sandbox.h
-        src/sandbox/sandbox.c
-        src/board/board.c
-        src/board/board.h
-        src/util/result.h
-        src/util/serialize.h
-        src/board/wire.h
+        src/basic/pos_ds.c
+        src/basic/rect.c
+        src/basic/rect.h
+        src/basic/orientation.h
         src/basic/position.c
         src/basic/position.h
-        src/transistor-sandbox.h
+        src/basic/direction.c
+        src/basic/direction.h
+        src/basic/pos_ds.h
+        src/board/board.c
+        src/board/board.h
+        src/board/wire.h
         src/board/wire.c
-        src/util/minmax.h
+        src/compiler/compiler.c
+        src/compiler/compiler.h
+        src/compiler/connectedwires.c
+        src/compiler/connectedwires.h
         src/component/componentdb.c
         src/component/componentdb.h
         src/component/componentdef.h
@@ -74,25 +79,20 @@ add_library(${PROJECT_NAME} STATIC
         src/component/defaultcomponents.c
         src/component/component.h
         src/component/component.c
-        src/basic/direction.c
-        src/basic/direction.h
         src/component/pinpos.h
         src/component/componentdef.c
-        src/simulation/simulation.c
-        src/simulation/simulation.h
-        src/compiler/compiler.c
-        src/compiler/compiler.h
-        src/util/set.h
-        src/basic/pos_ds.h
-        src/compiler/connectedwires.c
-        src/compiler/connectedwires.h
-        src/basic/pos_ds.c
-        src/basic/rect.c
-        src/basic/rect.h
-        src/basic/orientation.h
         src/cursor/cursor.c
         src/cursor/cursor.h
+        src/sandbox/sandbox.h
+        src/sandbox/sandbox.c
+        src/simulation/simulation.c
+        src/simulation/simulation.h
+        src/util/result.h
+        src/util/serialize.h
+        src/util/minmax.h
+        src/util/set.h
         src/transistor-sandbox.c
+        src/transistor-sandbox.h
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})
