@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "basic/position.h"
+#include "component/componentdef.h"
 #include "cursor/cursor.h"
 
 typedef struct ts_Sandbox {
@@ -26,6 +27,9 @@ typedef unsigned int ts_BoardIdx;
 ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config);
 ts_Result ts_transistor_unserialize(ts_Transistor* t, ts_TransistorConfig config, const char* str);
 ts_Result ts_transistor_finalize(ts_Transistor* t);
+
+// boards
+ts_BoardIdx ts_transistor_add_board(ts_Transistor* t, int w, int h);
 
 // component db
 ts_Result ts_transistor_component_db_add(ts_Transistor* t, ts_ComponentDef const* def);
@@ -49,9 +53,41 @@ const char* ts_last_error(ts_Transistor const* t, ts_Result* response);
 // take snapshot
 //
 
+typedef struct ts_ComponentSnapshot {
+    char*            key;
+    ts_Position      pos;
+    ts_ComponentType type;
+    uint8_t          ic_width;
+    uint8_t          n_pins;
+    ts_PinDef*       pins;
+    uint8_t*         data;
+    size_t           data_size;
+    void*            extra_data;
+} ts_ComponentSnapshot;
+
+typedef struct ts_WireSnapshot {
+    ts_Position  pos;
+    ts_WireWidth width;
+    ts_WireLayer layer;
+    uint8_t      value;
+} ts_WireSnapshot;
+
+typedef struct ts_BoardSnapshot {
+    int                   w;
+    int                   h;
+    ts_ComponentSnapshot  cursor;
+    ts_ComponentSnapshot* components;
+    size_t                n_components;
+    ts_WireSnapshot*      wires;
+    size_t                n_wires;
+} ts_BoardSnapshot;
+
 typedef struct ts_TransistorSnapshot {
+    ts_BoardSnapshot* boards;
+    size_t            n_boards;
 } ts_TransistorSnapshot;
 
 ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnapshot* snap);
+ts_Result ts_snapshot_finalize(ts_TransistorSnapshot* snap);
 
 #endif //TRANSISTOR_SANDBOX_H
