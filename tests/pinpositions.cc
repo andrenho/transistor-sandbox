@@ -18,6 +18,7 @@ struct Fixture {
         def.type = type;
         def.n_pins = n_pins;
         def.ic_width = width;
+        def.data_size = 0;
 
         ts_component_init(&component, &def, TS_N);
     }

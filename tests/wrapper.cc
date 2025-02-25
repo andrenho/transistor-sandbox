@@ -34,9 +34,7 @@ struct Fixture {
 
     ~Fixture()
     {
-        printf("10\n");
         ts_transistor_finalize(&t);
-        printf("11\n");
     }
 
     ts_Transistor t;
@@ -86,14 +84,12 @@ TEST_SUITE("Wrapper")
     {
         Fixture f(true);
 
-        printf("1\n");
         ts_transistor_lock(&f.t);
         ts_Component* button = f.t.sandbox.boards[0].components[0].value;
         CHECK(std::string(button->def->key) == "__button");
         CHECK(button->data[0] == 0);
         ts_transistor_unlock(&f.t);
 
-        printf("2\n");
         ts_transistor_cursor_set_pointer(&f.t, 0, { 1, 1 });
         ts_transistor_cursor_click(&f.t, 0, TS_BUTTON_LEFT);
         usleep(10000);
@@ -101,27 +97,19 @@ TEST_SUITE("Wrapper")
         CHECK(button->data[0] != 0);
         ts_transistor_unlock(&f.t);
 
-        printf("3\n");
         ts_TransistorSnapshot snap;
         ts_transistor_take_snapshot(&f.t, &snap);
         CHECK(snap.boards[0].wires[0].value != 0);
         ts_snapshot_finalize(&snap);
 
-        printf("4\n");
         ts_transistor_cursor_set_pointer(&f.t, 0, { 1, 1 });
-        printf("5\n");
         ts_transistor_cursor_click(&f.t, 0, TS_BUTTON_LEFT);
-        printf("6\n");
         usleep(10000);
-        printf("7\n");
         ts_transistor_lock(&f.t);
-        printf("8\n");
         CHECK(button->data[0] == 0);
         ts_transistor_unlock(&f.t);
-        printf("9\n");
 
         usleep(10000);
-        printf("9a\n");
     }
 
 }

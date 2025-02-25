@@ -16,8 +16,8 @@ typedef struct ts_Board ts_Board;
 typedef struct ts_Component {
     ts_ComponentDef const* def;
     ts_Direction           direction;
-    uint8_t*               data;        // can only be updated by `simulate` (simulation thread)
-    uint8_t*               pins;        // OUTPUT pins can only be updated on `simulate` (simulation thread)
+    uint8_t*               data;
+    uint8_t*               pins;
     ts_Board const*        board;
     ts_Position            position;
 } ts_Component;
