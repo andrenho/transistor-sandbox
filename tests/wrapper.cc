@@ -2,6 +2,8 @@
 
 #include "doctest.h"
 
+#include <stb_ds.h>
+
 extern "C" {
 #include "transistor-sandbox.h"
 }
@@ -52,7 +54,6 @@ TEST_SUITE("Wrapper")
         ts_snapshot_finalize(&snap);
     }
 
-    /*
     TEST_CASE("Single threaded")
     {
         Fixture f(false);
@@ -71,5 +72,4 @@ TEST_SUITE("Wrapper")
         ts_transistor_run(&f.t, 10000);
         CHECK(button->data[0] == 0);
     }
-    */
 }

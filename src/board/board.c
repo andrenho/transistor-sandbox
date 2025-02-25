@@ -190,7 +190,8 @@ ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position 
     ts_component_update_pos(component, board, pos);
 
     // remove wires underneath
-    ts_board_remove_wires_for_ic(board, component_rect);
+    if (component->def->type != TS_SINGLE_TILE)
+        ts_board_remove_wires_for_ic(board, component_rect);
 
 skip:
     ts_sandbox_start_simulation(board->sandbox);
