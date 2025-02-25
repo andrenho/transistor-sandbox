@@ -136,7 +136,6 @@ ts_Result ts_simulation_init(ts_Simulation* sim, bool multithreaded, bool heavy,
     if (multithreaded) {
         pthread_mutex_init(&sim->thread_lock, NULL);
         pthread_cond_init(&sim->thread_cond, NULL);
-        start_thread(sim);
     }
 
     return TS_OK;
