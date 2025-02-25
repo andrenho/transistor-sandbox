@@ -12,6 +12,7 @@ Version 0.1.0
   - [x] Single-tile component
   - [x] IC
 - [ ] Cursor (?)
+  - [ ] Draw wire
 - [ ] Wrapper
   - [ ] Single-threaded
   - [ ] Multithreaded
@@ -33,3 +34,4 @@ Version 0.2.0
 - [ ] Bus
 - [ ] Bus adapter
 - [ ] Subcircuits
+- [ ] Other device types

@@ -20,11 +20,14 @@ ts_Result ts_board_init(ts_Board* board, ts_Sandbox* sb, int w, int h)
     board->h = h;
     board->wires = NULL;
     board->components = NULL;
+    ts_cursor_init(&board->cursor, board);
     return TS_OK;
 }
 
 ts_Result ts_board_finalize(ts_Board* board)
 {
+    ts_cursor_finalize(&board->cursor);
+
     for (int i = 0; i < phlen(board->components); ++i) {
         ts_component_finalize(board->components[i].value);
         free(board->components[i].value);

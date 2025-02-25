@@ -90,6 +90,8 @@ add_library(${PROJECT_NAME} STATIC
         src/basic/rect.c
         src/basic/rect.h
         src/basic/orientation.h
+        src/cursor/cursor.c
+        src/cursor/cursor.h
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})
