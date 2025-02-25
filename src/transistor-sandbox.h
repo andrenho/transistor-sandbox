@@ -7,9 +7,9 @@
 #include "basic/position.h"
 #include "component/componentdef.h"
 #include "cursor/cursor.h"
+#include "sandbox/sandbox.h"
 
-typedef struct ts_Sandbox {
-} ts_Sandbox;
+typedef struct ts_Sandbox ts_Sandbox;
 
 typedef struct ts_TransistorConfig {
     bool multithreaded;
@@ -17,7 +17,7 @@ typedef struct ts_TransistorConfig {
 } ts_TransistorConfig;
 
 typedef struct ts_Transistor {
-    ts_Sandbox*         sandbox;
+    ts_Sandbox          sandbox;
     ts_TransistorConfig config;
 } ts_Transistor;
 
@@ -27,6 +27,10 @@ typedef unsigned int ts_BoardIdx;
 ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config);
 ts_Result ts_transistor_unserialize(ts_Transistor* t, ts_TransistorConfig config, const char* str);
 ts_Result ts_transistor_finalize(ts_Transistor* t);
+
+// locks (generally not needed)
+ts_Result ts_transistor_lock(ts_Transistor* t);
+ts_Result ts_transistor_unlock(ts_Transistor* t);
 
 // boards
 ts_BoardIdx ts_transistor_add_board(ts_Transistor* t, int w, int h);
