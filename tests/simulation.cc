@@ -15,8 +15,8 @@ TEST_SUITE("Simulation")
     struct Fixture {
         ts_Sandbox sb {};
 
-        Fixture(bool multithreaded) {
-            ts_sandbox_init(&sb, { multithreaded, multithreaded });
+        Fixture() {
+            ts_sandbox_init(&sb);
             ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__led", { 3, 1 }, TS_N);
             ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
@@ -35,7 +35,7 @@ TEST_SUITE("Simulation")
         ts_Position pos[200];
         uint8_t value[200];
 
-        Fixture f(false);
+        Fixture f;
         ts_simulation_run(&f.sb.simulation, 10000);
         CHECK(f.led()->data[0] == 0);
 
@@ -57,30 +57,4 @@ TEST_SUITE("Simulation")
         printf("Single-threaded steps: %zu\n", steps);
     }
 
-    TEST_CASE("Multithreaded")
-    {
-        ts_Position pos[200];
-        uint8_t value[200];
-
-        Fixture f(true);
-        usleep(10000);
-        CHECK(f.led()->data[0] == 0);
-
-        ts_component_on_click(f.button());
-        usleep(10000);
-        CHECK(f.led()->data[0] != 0);
-        size_t sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
-        CHECK(sz == 4);
-        CHECK(value[0] != 0);
-
-        ts_component_on_click(f.button());
-        usleep(10000);
-        CHECK(f.led()->data[0] == 0);
-        sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
-        CHECK(sz == 4);
-        CHECK(value[0] == 0);
-
-        size_t steps = ts_simulation_steps(&f.sb.simulation);
-        printf("Multithreaded steps: %zu\n", steps);
-    }
 }

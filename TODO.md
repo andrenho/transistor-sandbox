@@ -11,12 +11,12 @@ Version 0.1.0
 - [x] Compilation
   - [x] Single-tile component
   - [x] IC
-- [x] Simulation
-  - [x] Single-threaded
-- [ ] Restructure multi-threading (?)
-- [ ] Rename enums, fields (?)
-  - [ ] Review code
 - [ ] Cursor (?)
+- [ ] Wrapper
+  - [ ] Single-threaded
+  - [ ] Multithreaded
+- [ ] Rename enums, fields (?)
+    - [ ] Review code
 - [ ] Architecture document
 
 Version 0.2.0

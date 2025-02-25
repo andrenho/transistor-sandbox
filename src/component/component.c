@@ -37,12 +37,8 @@ ts_Result ts_component_update_pos(ts_Component* component, ts_Board const* board
 
 ts_Result ts_component_on_click(ts_Component* component)
 {
-    ts_simulation_pause(&component->board->sandbox->simulation);
-
     if (component->def->on_click)
         component->def->on_click(component);
-
-    ts_simulation_unpause(&component->board->sandbox->simulation);
     return TS_OK;
 }
 

@@ -27,7 +27,7 @@ TEST_SUITE("Position & Wires")
     TEST_CASE("Wire placement")
     {
         ts_Sandbox sb;
-        ts_sandbox_init(&sb, {});
+        ts_sandbox_init(&sb);
         ts_board_add_wire(&sb.boards[0], { 1, 1, TS_S }, { TS_WIRE_1, TS_LAYER_TOP });
 
         ts_Result response = ts_board_add_wire(&sb.boards[0], { 1, 11, TS_S }, { TS_WIRE_1, TS_LAYER_TOP });
