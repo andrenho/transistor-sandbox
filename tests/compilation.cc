@@ -30,24 +30,24 @@ TEST_SUITE("Compilation")
 
     TEST_CASE("Basic circuit")
     {
-        struct Fixture {
+        struct CompFixture {
             ts_Sandbox sb {};
 
-            Fixture() {
+            CompFixture() {
                 ts_sandbox_init(&sb);
                 ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
                 ts_board_add_component(&sb.boards[0], "__led", { 3, 1 }, TS_N);
                 ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
             }
 
-            ~Fixture() {
+            ~CompFixture() {
                 ts_sandbox_finalize(&sb);
             }
         };
 
         SUBCASE("Board elements")
         {
-            Fixture f;
+            CompFixture f;
             ts_Board* board = &f.sb.boards[0];
 
             CHECK(hmlen(board->components) == 2);
@@ -63,7 +63,7 @@ TEST_SUITE("Compilation")
 
         SUBCASE("Find all pins")
         {
-            Fixture f;
+            CompFixture f;
 
             ts_Pin* pins = ts_compiler_find_all_pins(&f.sb);
 
@@ -89,7 +89,7 @@ TEST_SUITE("Compilation")
 
         SUBCASE("Compile")
         {
-            Fixture f;
+            CompFixture f;
 
             ts_Connection* connections = ts_compiler_compile(&f.sb);
 
@@ -112,7 +112,7 @@ TEST_SUITE("Compilation")
 
         SUBCASE("Multiple connections to the same component")
         {
-            Fixture f;
+            CompFixture f;
             ts_board_add_wires(&f.sb.boards[0], { 1, 0 }, { 1, 1 }, TS_VERTICAL, { TS_WIRE_1, TS_LAYER_TOP });
 
             ts_Connection* connections = ts_compiler_compile(&f.sb);
@@ -125,7 +125,7 @@ TEST_SUITE("Compilation")
 
         SUBCASE("Single-tile component rotation")
         {
-            Fixture f;
+            CompFixture f;
             ts_board_rotate_tile(&f.sb.boards[0], { 1, 1 });
 
             ts_Connection* connections = ts_compiler_compile(&f.sb);
@@ -144,24 +144,24 @@ TEST_SUITE("Compilation")
 
     TEST_CASE("IC")
     {
-        struct Fixture {
+        struct CompFixture {
             ts_Sandbox sb {};
 
-            Fixture(ts_Direction ic_dir) {
+            CompFixture(ts_Direction ic_dir) {
                 ts_sandbox_init(&sb);
                 ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
                 ts_board_add_component(&sb.boards[0], "__or_2i", { 3, 1 }, ic_dir);
                 ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
             }
 
-            ~Fixture() {
+            ~CompFixture() {
                 ts_sandbox_finalize(&sb);
             }
         };
 
         SUBCASE("Compile")
         {
-            Fixture f(TS_N);
+            CompFixture f(TS_N);
 
             ts_Connection* connections = ts_compiler_compile(&f.sb);
 
@@ -182,7 +182,7 @@ TEST_SUITE("Compilation")
 
         SUBCASE("Compile rotated IC")
         {
-            Fixture f(TS_S);
+            CompFixture f(TS_S);
 
             ts_Connection* connections = ts_compiler_compile(&f.sb);
 

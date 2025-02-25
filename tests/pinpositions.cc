@@ -11,9 +11,9 @@ extern "C" {
 
 static ts_PinPos pins[20];
 
-struct Fixture {
+struct PPFixture {
 
-    Fixture(ts_ComponentType type, uint8_t n_pins, int width=1)
+    PPFixture(ts_ComponentType type, uint8_t n_pins, int width=1)
     {
         def.type = type;
         def.n_pins = n_pins;
@@ -23,7 +23,7 @@ struct Fixture {
         ts_component_init(&component, &def, TS_N);
     }
 
-    ~Fixture()
+    ~PPFixture()
     {
         ts_component_finalize(&component);
     }
@@ -53,7 +53,7 @@ TEST_SUITE("Pin positions")
 {
     TEST_CASE("Single-tile 1 pin")
     {
-        Fixture f(TS_SINGLE_TILE, 1);
+        PPFixture f(TS_SINGLE_TILE, 1);
 
         SUBCASE("Direction N")
         {
@@ -77,7 +77,7 @@ TEST_SUITE("Pin positions")
 
     TEST_CASE("Single-tile 2 pin")
     {
-        Fixture f(TS_SINGLE_TILE, 2);
+        PPFixture f(TS_SINGLE_TILE, 2);
 
         SUBCASE("Direction N")
         {
@@ -105,7 +105,7 @@ TEST_SUITE("Pin positions")
 
     TEST_CASE("Single-tile 4 pin")
     {
-        Fixture f(TS_SINGLE_TILE, 4);
+        PPFixture f(TS_SINGLE_TILE, 4);
 
         SUBCASE("Direction N")
         {
@@ -139,7 +139,7 @@ TEST_SUITE("Pin positions")
 
     TEST_CASE("DIP component - 6 pins")
     {
-        Fixture f(TS_IC_DIP, 6);
+        PPFixture f(TS_IC_DIP, 6);
 
         SUBCASE("Direction N")
         {
@@ -230,7 +230,7 @@ TEST_SUITE("Pin positions")
 
     TEST_CASE("DIP component - 6 pins, width 2")
     {
-        Fixture f(TS_IC_DIP, 6, 2);
+        PPFixture f(TS_IC_DIP, 6, 2);
 
         SUBCASE("Direction N")
         {
@@ -321,7 +321,7 @@ TEST_SUITE("Pin positions")
 
     TEST_CASE("QUAD component - 8 pins")
     {
-        Fixture f(TS_IC_QUAD, 8);
+        PPFixture f(TS_IC_QUAD, 8);
 
         SUBCASE("Direction N")
         {
