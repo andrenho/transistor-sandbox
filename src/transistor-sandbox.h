@@ -26,6 +26,9 @@ typedef struct ts_Transistor {
 
 typedef unsigned int ts_BoardIdx;
 
+// version
+const char* ts_transistor_version(int* major, int* minor, int* patch);
+
 // initialization
 ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config);
 ts_Result ts_transistor_unserialize(ts_Transistor* t, ts_TransistorConfig config, const char* str);

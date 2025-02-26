@@ -8,6 +8,17 @@
 #include "stb_ds.h"
 #include "sandbox/sandbox.h"
 
+const char* ts_transistor_version(int* major, int* minor, int* patch)
+{
+    if (major)
+        *major = PROJECT_VERSION_MAJOR;
+    if (minor)
+        *minor = PROJECT_VERSION_MINOR;
+    if (patch)
+        *patch = PROJECT_VERSION_PATCH;
+    return PROJECT_VERSION;
+}
+
 //
 // execution thread
 //
