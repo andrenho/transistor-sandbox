@@ -228,45 +228,66 @@ ts_Result ts_transistor_last_error(ts_Transistor* t, char* err_buf, size_t err_b
 // snapshots
 //
 
+static void add_component_def(ts_ComponentDef const* def, ts_Position pos, ts_Direction dir, bool cursor, ts_ComponentSnapshot* dest)
+{
+    *dest = (ts_ComponentSnapshot) {
+        .key = strdup(def->key),
+        .pos = pos,
+        .direction = dir,
+        .type = def->type,
+        .ic_width = def->ic_width,
+        .n_pins = def->n_pins,
+        .pins = calloc(def->n_pins, sizeof(ts_PinSnapshot)),
+        .extra_data = def->extra,
+        .cursor = cursor,
+    };
+
+    // pins
+    for (int k = 0; k < def->n_pins; ++k) {
+        ts_PinDef* pin = &def->pins[k];
+        dest->pins[k] = (ts_PinSnapshot) {
+            .name = strdup(pin->name),
+            .type = pin->type,
+        };
+    }
+}
+
 ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnapshot* snap)
 {
+    const size_t MAX_WIRE_CURSOR = 2000;
+
     snap->boards = calloc(arrlen(t->sandbox.boards), sizeof(ts_BoardSnapshot));
     snap->n_boards = arrlen(t->sandbox.boards);
     for (int i = 0; i < arrlen(t->sandbox.boards); ++i) {
 
-        // board
         ts_Board* board = &t->sandbox.boards[i];
+
+        // get wire cursor positions
+        size_t n_wire_cursor = 0;
+        ts_Position wire_cursor[MAX_WIRE_CURSOR];
+        if (board->cursor.wire.drawing)
+            n_wire_cursor = ts_pos_a_to_b(board->cursor.wire.starting_pos, board->cursor.pos, board->cursor.wire.orientation, wire_cursor, MAX_WIRE_CURSOR);
+
+        // board
+        size_t n_components = phlen(board->components) + (board->cursor.selected_def ? 1 : 0);
+        size_t n_wires = phlen(board->wires) + n_wire_cursor;
         snap->boards[i] = (ts_BoardSnapshot) {
             .w = board->w,
             .h = board->h,
-            .n_components = phlen(board->components),
-            .components = calloc(phlen(board->components), sizeof(ts_ComponentSnapshot)),
-            .n_wires = phlen(board->wires),
-            .wires = calloc(phlen(board->wires), sizeof(ts_WireSnapshot)),
+            .n_components = n_components,
+            .components = calloc(n_components, sizeof(ts_ComponentSnapshot)),
+            .n_wires = n_wires,
+            .wires = calloc(n_wires, sizeof(ts_WireSnapshot)),
         };
 
         // components
-        for (int j = 0; j < phlen(board->components); ++j) {
+        int j;
+        for (j = 0; j < phlen(board->components); ++j) {
             ts_Component* component = board->components[j].value;
-            snap->boards[i].components[j] = (ts_ComponentSnapshot) {
-                .key = strdup(component->def->key),
-                .pos = ts_pos_unhash(board->components[j].key),
-                .type = component->def->type,
-                .ic_width = component->def->ic_width,
-                .n_pins = component->def->n_pins,
-                .pins = calloc(component->def->n_pins, sizeof(ts_PinSnapshot)),
-                .extra_data = component->def->extra,
-            };
-
-            // pins
-            for (int k = 0; k < component->def->n_pins; ++k) {
-                ts_PinDef* pin = &component->def->pins[k];
-                snap->boards[i].components[j].pins[k] = (ts_PinSnapshot) {
-                    .name = strdup(pin->name),
-                    .type = pin->type,
-                };
-            }
+            add_component_def(component->def, ts_pos_unhash(board->components[j].key), component->direction, false, &snap->boards[i].components[j]);
         }
+        if (board->cursor.selected_def)
+            add_component_def(board->cursor.selected_def, board->cursor.pos, board->cursor.selected_direction, true, &snap->boards[i].components[j]);
 
         // wires
         const int max = phlen(board->wires);
@@ -274,17 +295,32 @@ ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnaps
         uint8_t values[max];
         size_t sz = ts_simulation_wires(&t->sandbox.simulation, positions, values, max);
         int k = 0;
-        for (size_t j = 0; j < sz; ++j) {
-            ts_Wire* wire = ts_board_wire(board, positions[j]);
+        for (size_t m = 0; m < sz; ++m) {
+            ts_Wire* wire = ts_board_wire(board, positions[m]);
             if (wire) {
                 snap->boards[i].wires[k++] = (ts_WireSnapshot) {
-                    .pos = positions[j],
+                    .pos = positions[m],
                     .layer = wire->layer,
                     .width = wire->width,
-                    .value = values[j],
+                    .value = values[m],
+                    .cursor = false,
                 };
             }
         }
+
+        // cursor wires
+        if (board->cursor.wire.drawing) {
+            for (size_t m = 0; m < n_wire_cursor; ++m) {
+                snap->boards[i].wires[k++] = (ts_WireSnapshot) {
+                    .pos = wire_cursor[m],
+                    .layer = board->cursor.selected_wire.layer,
+                    .width = board->cursor.selected_wire.width,
+                    .value = 0,
+                    .cursor = true,
+                };
+            }
+        }
+
         snap->boards[i].n_wires = k;
     }
 

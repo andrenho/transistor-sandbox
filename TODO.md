@@ -19,9 +19,7 @@ Version 0.1.0
   - [x] Manage DB?
   - [x] Single-threaded
   - [x] Multithreaded
-  - [ ] Temporary wire
-- [ ] Rename enums, fields (?)
-    - [ ] Review code
+  - [x] Temporary wire
 - [ ] Architecture document
 
 Version 0.2.0

@@ -68,11 +68,13 @@ typedef struct ts_PinSnapshot {
 typedef struct ts_ComponentSnapshot {
     char*            key;
     ts_Position      pos;
+    ts_Direction     direction;
     ts_ComponentType type;
     uint8_t          ic_width;
     uint8_t          n_pins;
     ts_PinSnapshot*  pins;
     void*            extra_data;
+    bool             cursor;
 } ts_ComponentSnapshot;
 
 typedef struct ts_WireSnapshot {
@@ -80,6 +82,7 @@ typedef struct ts_WireSnapshot {
     ts_WireWidth width;
     ts_WireLayer layer;
     uint8_t      value;
+    bool         cursor;
 } ts_WireSnapshot;
 
 typedef struct ts_BoardSnapshot {
