@@ -91,7 +91,6 @@ typedef struct ts_WireSnapshot {
 typedef struct ts_BoardSnapshot {
     int                   w;
     int                   h;
-    ts_ComponentSnapshot  cursor;
     ts_ComponentSnapshot* components;
     size_t                n_components;
     ts_WireSnapshot*      wires;
