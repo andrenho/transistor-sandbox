@@ -35,7 +35,7 @@ ts_Result ts_sandbox_init(ts_Sandbox* sb)
     ts_sandbox_init_common(sb);
 
     arrpush(sb->boards, (ts_Board) {});
-    ts_board_init(&sb->boards[0], sb, 10, 10);
+    ts_board_init(&sb->boards[0], sb, 20, 10);
 
     ts_add_default_components(&sb->component_db);
 
