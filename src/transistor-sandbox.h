@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "sandbox/sandbox.h"
 
@@ -32,7 +33,11 @@ const char* ts_transistor_version(int* major, int* minor, int* patch);
 // initialization
 ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config);
 ts_Result ts_transistor_unserialize(ts_Transistor* t, ts_TransistorConfig config, const char* str);
+ts_Result ts_transistor_unserialize_from_file(ts_Transistor* t, ts_TransistorConfig config, FILE* f);
 ts_Result ts_transistor_finalize(ts_Transistor* t);
+
+// serialization
+ts_Result ts_transistor_serialize_to_file(ts_Transistor const* t, FILE* f);
 
 // locks (generally not needed)
 ts_Result ts_transistor_lock(ts_Transistor* t);
