@@ -124,6 +124,9 @@ ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 
 ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end, ts_Orientation orientation, ts_Wire wire)
 {
+    if (ts_pos_equals(start, end))
+        return TS_OK;
+
     ts_sandbox_end_simulation(board->sandbox);
 
     ts_Position pos[300];
