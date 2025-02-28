@@ -27,7 +27,7 @@ ts_Result ts_cursor_set_pointer(ts_Cursor* cursor, ts_Position pos)
 
     if (cursor->wire.drawing && !cursor->wire.orientation_defined) {
         int dx = cursor->wire.starting_pos.x - pos.x;
-        int dy = cursor->wire.starting_pos.x - pos.x;
+        int dy = cursor->wire.starting_pos.y - pos.y;
         if (dx != 0 || dy != 0) {
             if (abs(dx) > abs(dy))
                 cursor->wire.orientation = TS_HORIZONTAL;
