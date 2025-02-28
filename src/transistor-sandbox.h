@@ -54,7 +54,6 @@ ts_Result ts_transistor_run(ts_Transistor* t, size_t run_for_us);
 
 // cursor
 ts_Result ts_transistor_cursor_set_pointer(ts_Transistor* t, ts_BoardIdx board_idx, ts_Position pos);
-ts_Result ts_transistor_cursor_set_pointer_out_of_bounds(ts_Transistor* t, ts_BoardIdx board_idx);
 ts_Result ts_transistor_cursor_click(ts_Transistor* t, ts_BoardIdx board_idx, ts_CursorButton button);
 ts_Result ts_transistor_cursor_release(ts_Transistor* t, uint8_t button);
 ts_Result ts_transistor_cursor_key_press(ts_Transistor* t, ts_BoardIdx board_idx, char key, uint8_t keymod);

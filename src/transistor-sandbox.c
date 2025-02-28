@@ -174,16 +174,12 @@ ts_Result ts_transistor_run(ts_Transistor* t, size_t run_for_us)
 
 ts_Result ts_transistor_cursor_set_pointer(ts_Transistor* t, ts_BoardIdx board_idx, ts_Position pos)
 {
+    ts_Result r;
     ts_transistor_lock(t);
-    ts_Result r = ts_cursor_set_pointer(&t->sandbox.boards[board_idx].cursor, pos);
-    ts_transistor_unlock(t);
-    return r;
-}
-
-ts_Result ts_transistor_cursor_set_pointer_out_of_bounds(ts_Transistor* t, ts_BoardIdx board_idx)
-{
-    ts_transistor_lock(t);
-    ts_Result r = ts_cursor_set_pointer_out_of_bounds(&t->sandbox.boards[board_idx].cursor);
+    if (pos.x < 0 || pos.y < 0 || pos.x >= t->sandbox.boards[board_idx].w || pos.y >= t->sandbox.boards[board_idx].h)
+        r = ts_cursor_set_pointer_out_of_bounds(&t->sandbox.boards[board_idx].cursor);
+    else
+        r = ts_cursor_set_pointer(&t->sandbox.boards[board_idx].cursor, pos);
     ts_transistor_unlock(t);
     return r;
 }
