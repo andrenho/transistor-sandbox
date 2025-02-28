@@ -2,6 +2,7 @@
 #define WIRE_H
 
 #include <lua.h>
+#include <stdio.h>
 
 #include "util/result.h"
 
@@ -15,7 +16,7 @@ typedef struct ts_Wire {
     ts_WireLayer layer;
 } ts_Wire;
 
-int         ts_wire_serialize(ts_Wire const* wire, int vspace, char* buf, size_t buf_sz);
+int         ts_wire_serialize(ts_Wire const* wire, int vspace, FILE* f);
 ts_Result ts_wire_unserialize(ts_Wire* wire, lua_State* L, struct ts_Sandbox* sb);
 
 #endif //WIRE_H

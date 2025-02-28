@@ -21,7 +21,7 @@ ts_Result              ts_component_db_add_def(ts_ComponentDB* db, ts_ComponentD
 ts_ComponentDef const* ts_component_db_def(ts_ComponentDB const* db, const char* name);
 
 // serialization
-int       ts_component_db_serialize(ts_ComponentDB const* db, int vspace, char* buf, size_t buf_sz);
+int       ts_component_db_serialize(ts_ComponentDB const* db, int vspace, FILE* f);
 ts_Result ts_component_db_unserialize(ts_ComponentDB* db, lua_State* L, ts_Sandbox* sb);
 
 #endif //COMPONENTDB_HH

@@ -110,13 +110,7 @@ ts_Result ts_transistor_finalize(ts_Transistor* t)
 
 ts_Result ts_transistor_serialize_to_file(ts_Transistor const* t, FILE* f)
 {
-    size_t bufsz = 64 * 1024 * 1024;
-    char* buffer = malloc(bufsz);
-    ts_Result r = ts_sandbox_serialize(&t->sandbox, 0, buffer, bufsz);
-    if (fputs(buffer, f) < 0)
-        r = TS_SYSTEM_ERROR;
-    free(buffer);
-    return r;
+    return ts_sandbox_serialize(&t->sandbox, 0, f);
 }
 
 //

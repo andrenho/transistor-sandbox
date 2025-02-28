@@ -52,7 +52,7 @@ size_t ts_component_pin_positions(ts_Component const* component, ts_PinPos* pin_
     return ts_component_def_pin_positions(component->def, component->position, component->direction, pin_pos, max_pin_pos);
 }
 
-int ts_component_serialize(ts_Component const* component, int vspace, char* buf, size_t buf_sz)
+int ts_component_serialize(ts_Component const* component, int vspace, FILE* f)
 {
     SR_INIT_INLINE("{");
     SR_CONT("  name = '%s',", component->def->key);
@@ -63,7 +63,8 @@ int ts_component_serialize(ts_Component const* component, int vspace, char* buf,
             SR_CONT_INLINE(" 0x%02x,", component->data[i]);
         SR_CONT(" },");
     }
-    SR_FINI_INLINE("}");
+    SR_CONT_INLINE("}");
+    return TS_OK;
 }
 
 ts_Result ts_component_unserialize(ts_Component* component, lua_State* L, ts_Sandbox* sb)

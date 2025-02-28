@@ -3,6 +3,7 @@
 
 #include <lua.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "basic/position.h"
 #include "util/result.h"
@@ -35,7 +36,7 @@ ts_Rect ts_component_rect(ts_Component const* component);
 size_t  ts_component_pin_positions(ts_Component const* component, ts_PinPos* pin_pos, size_t max_pin_pos);
 
 // serialization
-int       ts_component_serialize(ts_Component const* component, int vspace, char* buf, size_t buf_sz);
+int       ts_component_serialize(ts_Component const* component, int vspace, FILE* f);
 ts_Result ts_component_unserialize(ts_Component* component, lua_State* L, ts_Sandbox* sb);
 
 #endif //COMPONENT_H

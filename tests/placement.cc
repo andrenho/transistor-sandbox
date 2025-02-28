@@ -24,8 +24,8 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place wire outside of circuit bounds")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
-            ts_board_add_wire(&sb.boards[0], { 10, 1, TS_E }, { TS_WIRE_1, TS_LAYER_TOP });
-            CHECK(ts_board_wire(&sb.boards[0], { 10, 1, TS_E }) == NULL);
+            ts_board_add_wire(&sb.boards[0], { 20, 1, TS_E }, { TS_WIRE_1, TS_LAYER_TOP });
+            CHECK(ts_board_wire(&sb.boards[0], { 20, 1, TS_E }) == NULL);
             ts_sandbox_finalize(&sb);
         }
 
@@ -57,7 +57,7 @@ TEST_SUITE("Placement")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
             ts_board_add_component(&sb.boards[0], "__button", { 10, 1 }, TS_N);
-            CHECK(ts_board_component(&sb.boards[0], { 10, 1 }) == NULL);
+            CHECK(ts_board_component(&sb.boards[0], { 20, 1 }) == NULL);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 0, 0 }, TS_N);
             CHECK(ts_board_component(&sb.boards[0], { 0, 0 }) == NULL);
             ts_sandbox_finalize(&sb);
@@ -133,7 +133,7 @@ TEST_SUITE("Placement")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 11, 1 }, TS_N);
-            CHECK(ts_board_component(&sb.boards[0], { 11, 1 }) == NULL);
+            CHECK(ts_board_component(&sb.boards[0], { 21, 1 }) == NULL);
             ts_sandbox_finalize(&sb);
         }
 
