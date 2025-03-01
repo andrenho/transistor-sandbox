@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "sandbox/sandbox.h"
 
@@ -32,7 +33,11 @@ const char* ts_transistor_version(int* major, int* minor, int* patch);
 // initialization
 ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config);
 ts_Result ts_transistor_unserialize(ts_Transistor* t, ts_TransistorConfig config, const char* str);
+ts_Result ts_transistor_unserialize_from_file(ts_Transistor* t, ts_TransistorConfig config, FILE* f);
 ts_Result ts_transistor_finalize(ts_Transistor* t);
+
+// serialization
+ts_Result ts_transistor_serialize_to_file(ts_Transistor const* t, FILE* f);
 
 // locks (generally not needed)
 ts_Result ts_transistor_lock(ts_Transistor* t);
@@ -49,7 +54,6 @@ ts_Result ts_transistor_run(ts_Transistor* t, size_t run_for_us);
 
 // cursor
 ts_Result ts_transistor_cursor_set_pointer(ts_Transistor* t, ts_BoardIdx board_idx, ts_Position pos);
-ts_Result ts_transistor_cursor_set_pointer_out_of_bounds(ts_Transistor* t, ts_BoardIdx board_idx);
 ts_Result ts_transistor_cursor_click(ts_Transistor* t, ts_BoardIdx board_idx, ts_CursorButton button);
 ts_Result ts_transistor_cursor_release(ts_Transistor* t, uint8_t button);
 ts_Result ts_transistor_cursor_key_press(ts_Transistor* t, ts_BoardIdx board_idx, char key, uint8_t keymod);
@@ -91,7 +95,6 @@ typedef struct ts_WireSnapshot {
 typedef struct ts_BoardSnapshot {
     int                   w;
     int                   h;
-    ts_ComponentSnapshot  cursor;
     ts_ComponentSnapshot* components;
     size_t                n_components;
     ts_WireSnapshot*      wires;

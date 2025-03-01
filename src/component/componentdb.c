@@ -39,7 +39,7 @@ ts_Result ts_component_db_init_component(ts_ComponentDB const* db, const char* n
     return ts_component_init(component, def, TS_N);
 }
 
-int ts_component_db_serialize(ts_ComponentDB const* db, int vspace, char* buf, size_t buf_sz)
+int ts_component_db_serialize(ts_ComponentDB const* db, int vspace, FILE* f)
 {
     // TODO - free non-native components
     return TS_OK;

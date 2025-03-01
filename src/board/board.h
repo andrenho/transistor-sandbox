@@ -1,6 +1,8 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include <stdio.h>
+
 #include "basic/position.h"
 #include "wire.h"
 #include "component/component.h"
@@ -40,7 +42,7 @@ ts_Result     ts_board_rotate_tile(ts_Board const* board, ts_Position pos);
 ts_Result     ts_board_clear_tile(ts_Board const* board, ts_Position pos);
 
 // serialization
-int         ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_sz);
+int         ts_board_serialize(ts_Board const* board, int vspace, FILE* f);
 ts_Result ts_board_unserialize(ts_Board* board, lua_State* L, ts_Sandbox* sb);
 
 #endif //BOARD_H

@@ -19,8 +19,11 @@ TEST_SUITE("Serialization") {
         ts_board_add_wire(&sb.boards[0], { 1, 1, TS_S }, { TS_WIRE_1, TS_LAYER_TOP });
         ts_board_add_component(&sb.boards[0], "__vcc", { 2, 2, TS_CENTER }, TS_E);
 
-        char serialized[4096] = "return ";
-        ts_sandbox_serialize(&sb, 0, &serialized[7], sizeof serialized - 7);
+        char serialized[4096];
+        FILE* stream = fmemopen(serialized, sizeof(serialized), "w");
+        fprintf(stream, "return ");
+        ts_sandbox_serialize(&sb, 0, stream);
+        fclose(stream);
         printf("%s\n", serialized);
 
         ts_Sandbox sb2;

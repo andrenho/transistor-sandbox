@@ -75,10 +75,23 @@ ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config)
 ts_Result ts_transistor_unserialize(ts_Transistor* t, ts_TransistorConfig config, const char* str)
 {
     memset(t, 0, sizeof(ts_Transistor));
-    ts_sandbox_unserialize_from_string(&t->sandbox, str);
+    ts_Result r = ts_sandbox_unserialize_from_string(&t->sandbox, str);
+    if (r != 0)
+        return r;
     t->config = config;
     thread_init(t);
     return TS_OK;
+}
+
+ts_Result ts_transistor_unserialize_from_file(ts_Transistor* t, ts_TransistorConfig config, FILE* f)
+{
+    char* buffer;
+    ssize_t bytes_read = getdelim(&buffer, NULL, '\0', f);
+    if (bytes_read < 0)
+        return TS_SYSTEM_ERROR;
+    ts_Result r = ts_transistor_unserialize(t, config, buffer);
+    free(buffer);
+    return r;
 }
 
 ts_Result ts_transistor_finalize(ts_Transistor* t)
@@ -89,6 +102,15 @@ ts_Result ts_transistor_finalize(ts_Transistor* t)
     }
     ts_sandbox_finalize(&t->sandbox);
     return TS_OK;
+}
+
+//
+// serialization
+//
+
+ts_Result ts_transistor_serialize_to_file(ts_Transistor const* t, FILE* f)
+{
+    return ts_sandbox_serialize(&t->sandbox, 0, f);
 }
 
 //
@@ -118,7 +140,7 @@ ts_Result ts_transistor_unlock(ts_Transistor* t)
 // boards
 //
 
-ts_BoardIdx ts_transistor_add_board(ts_Transistor* t, int w, int h)
+[[noreturn]] ts_BoardIdx ts_transistor_add_board(ts_Transistor* t, int w, int h)
 {
     abort();  // TODO - not implemented yet
 }
@@ -152,16 +174,12 @@ ts_Result ts_transistor_run(ts_Transistor* t, size_t run_for_us)
 
 ts_Result ts_transistor_cursor_set_pointer(ts_Transistor* t, ts_BoardIdx board_idx, ts_Position pos)
 {
+    ts_Result r;
     ts_transistor_lock(t);
-    ts_Result r = ts_cursor_set_pointer(&t->sandbox.boards[board_idx].cursor, pos);
-    ts_transistor_unlock(t);
-    return r;
-}
-
-ts_Result ts_transistor_cursor_set_pointer_out_of_bounds(ts_Transistor* t, ts_BoardIdx board_idx)
-{
-    ts_transistor_lock(t);
-    ts_Result r = ts_cursor_set_pointer_out_of_bounds(&t->sandbox.boards[board_idx].cursor);
+    if (pos.x < 0 || pos.y < 0 || pos.x >= t->sandbox.boards[board_idx].w || pos.y >= t->sandbox.boards[board_idx].h)
+        r = ts_cursor_set_pointer_out_of_bounds(&t->sandbox.boards[board_idx].cursor);
+    else
+        r = ts_cursor_set_pointer(&t->sandbox.boards[board_idx].cursor, pos);
     ts_transistor_unlock(t);
     return r;
 }

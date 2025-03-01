@@ -1,6 +1,7 @@
 #ifndef SANDBOX_H
 #define SANDBOX_H
 
+#include <stdio.h>
 #include <stddef.h>
 #include <lua.h>
 
@@ -27,9 +28,10 @@ ts_Result ts_sandbox_end_simulation(ts_Sandbox* sb);
 ts_Result ts_sandbox_start_simulation(ts_Sandbox* sb);
 
 // serialization
-int       ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, char* buf, size_t buf_sz);
+ts_Result ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, FILE* f);
 ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L);
 ts_Result ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str);
+ts_Result ts_sandbox_unserialize_from_file(ts_Sandbox* sb, FILE* f);
 
 // error handling
 ts_Result   ts_error(ts_Sandbox* sb, ts_Result response, const char* fmt, ...) __attribute__((format(printf, 3, 0)));

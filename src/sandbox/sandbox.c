@@ -35,7 +35,7 @@ ts_Result ts_sandbox_init(ts_Sandbox* sb)
     ts_sandbox_init_common(sb);
 
     arrpush(sb->boards, (ts_Board) {});
-    ts_board_init(&sb->boards[0], sb, 10, 10);
+    ts_board_init(&sb->boards[0], sb, 20, 10);
 
     // ts_add_default_components(&sb->component_db);
 
@@ -75,7 +75,7 @@ ts_Result ts_sandbox_start_simulation(ts_Sandbox* sb)
 // serialization
 //
 
-int ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, char* buf, size_t buf_sz)
+ts_Result ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, FILE* f)
 {
     SR_INIT("{");
     SR_CONT("  boards = {");
@@ -85,7 +85,8 @@ int ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, char* buf, size_t buf
     SR_CONT("  component_db = {");
     SR_CALL(ts_component_db_serialize, &sb->component_db, 4);
     SR_CONT("  },");
-    SR_FINI("}");
+    SR_CONT("}");
+    return TS_OK;
 }
 
 ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L)
@@ -146,6 +147,17 @@ ts_Result ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str)
 end:
     lua_close(L);
     return response;
+}
+
+ts_Result ts_sandbox_unserialize_from_file(ts_Sandbox* sb, FILE* f)
+{
+    char* buffer;
+    ssize_t bytes_read = getdelim(&buffer, NULL, '\0', f);
+    if (bytes_read < 0)
+        return TS_SYSTEM_ERROR;
+    ts_Result r = ts_sandbox_unserialize_from_string(sb, buffer);
+    free(buffer);
+    return r;
 }
 
 //

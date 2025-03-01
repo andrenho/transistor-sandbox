@@ -124,6 +124,9 @@ ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 
 ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end, ts_Orientation orientation, ts_Wire wire)
 {
+    if (ts_pos_equals(start, end))
+        return TS_OK;
+
     ts_sandbox_end_simulation(board->sandbox);
 
     ts_Position pos[300];
@@ -279,7 +282,7 @@ ts_HashPosComponentPtr ts_board_component_tiles(ts_Board const* board)
 // serialization
 //
 
-int ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_sz)
+int ts_board_serialize(ts_Board const* board, int vspace, FILE* f)
 {
     SR_INIT("{");
     SR_CONT("  w = %d,", board->w);
@@ -300,7 +303,8 @@ int ts_board_serialize(ts_Board const* board, int vspace, char* buf, size_t buf_
         SR_ADD_INLINE(",\n");
     }
     SR_CONT("  },");
-    SR_FINI("},");
+    SR_CONT("},");
+    return TS_OK;
 }
 
 static ts_Result ts_board_unserialize_wires(ts_Board* board, lua_State* L, ts_Sandbox* sb)

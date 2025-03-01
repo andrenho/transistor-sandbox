@@ -6,9 +6,9 @@
 #include "sandbox/sandbox.h"
 #include "util/serialize.h"
 
-int ts_wire_serialize(ts_Wire const* wire, int vspace, char* buf, size_t buf_sz)
+int ts_wire_serialize(ts_Wire const* wire, int vspace, FILE* f)
 {
-    return snprintf(buf, buf_sz, "\"%c%c\"", wire->width, wire->layer);
+    return fprintf(f, "\"%c%c\"", wire->width, wire->layer);
 }
 
 ts_Result ts_wire_unserialize(ts_Wire* wire, lua_State* L, ts_Sandbox* sb)

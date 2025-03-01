@@ -10,6 +10,8 @@ typedef enum ts_Direction {
     TS_CENTER, TS_N, TS_S, TS_W, TS_E,
 } ts_Direction;
 
+#define TS_DIRS_N 5
+
 ts_Direction ts_direction_rotate_component(ts_Direction dir);
 
 const char*  ts_direction_serialize(ts_Direction dir);
