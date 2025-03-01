@@ -37,7 +37,7 @@ ts_Result ts_sandbox_init(ts_Sandbox* sb)
     arrpush(sb->boards, (ts_Board) {});
     ts_board_init(&sb->boards[0], sb, 10, 10);
 
-    ts_add_default_components(&sb->component_db);
+    // ts_add_default_components(&sb->component_db);
 
     ts_sandbox_start_simulation(sb);
     return TS_OK;
@@ -101,7 +101,7 @@ ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L)
     if (!lua_istable(L, -1))
         return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'component_db'");
     ts_Result r = ts_component_db_unserialize(&sb->component_db, L, sb);
-    ts_add_default_components(&sb->component_db);
+    // ts_add_default_components(&sb->component_db);
     if (r != TS_OK)
         return r;
     lua_pop(L, 1);
