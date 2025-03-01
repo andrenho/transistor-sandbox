@@ -32,7 +32,7 @@ static void ts_component_create_lua_reference_object(ts_Component* component)
     // pin
     LuaComponentData* pins = lua_newuserdata(L, sizeof(LuaComponentData));
     pins->component = component;
-    luaL_getmetatable(L, "Data");
+    luaL_getmetatable(L, "Pin");
     lua_setmetatable(L, -2);
     lua_setfield(L, -2, "pin");
 

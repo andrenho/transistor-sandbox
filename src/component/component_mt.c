@@ -18,7 +18,7 @@ static int data_get(lua_State* L)
 
 static int data_set(lua_State* L)
 {
-    get_component(L)->data[luaL_checkinteger(L, 2) - 1] = luaL_checkinteger(L, 3) % 0xff;
+    get_component(L)->data[luaL_checkinteger(L, 2) - 1] = luaL_checkinteger(L, 3) & 0xff;
     return 0;
 }
 
@@ -36,7 +36,7 @@ static int pin_get(lua_State* L)
 
 static int pin_set(lua_State* L)
 {
-    get_component(L)->pins[luaL_checkinteger(L, 2) - 1] = luaL_checkinteger(L, 3) % 0xff;
+    get_component(L)->pins[luaL_checkinteger(L, 2) - 1] = luaL_checkinteger(L, 3) & 0xff;
     return 0;
 }
 

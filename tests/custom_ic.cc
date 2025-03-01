@@ -28,7 +28,12 @@ std::string button = R"({
     end,
 
     simulate = function(button)
-        for i in 1,#button.pin do button.pin[i] = button.data[1] end
+        --print(#button.pin)
+        --print(button.pin[1])
+        --print(button.data[1])
+        --for i=1,#button.pin do button.pin[i] = button.data[1] end
+        button.pin[1] = button.data[1]
+        print(button.pin[1])
     end,
 
     -- rendering
@@ -85,6 +90,11 @@ TEST_SUITE("Load IC from Lua")
         if (ts_component_on_click(&component) != TS_OK)
             fprintf(stderr, "error: %s\n", ts_last_error(&sb, nullptr));
         CHECK(component.data[0] != 0);
+
+        CHECK(component.pins[0] == 0);
+        if (ts_component_simulate(&component) != TS_OK)
+            fprintf(stderr, "error: %s\n", ts_last_error(&sb, nullptr));
+        CHECK(component.pins[0] != 0);
 
         ts_component_def_finalize(&def);
     }
