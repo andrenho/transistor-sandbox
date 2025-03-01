@@ -99,10 +99,6 @@ TEST_SUITE("Load IC from Lua")
         ts_component_def_finalize(&def);
     }
 
-    TEST_CASE("Custom simulation (C)")
-    {
-    }
-
     TEST_CASE("Multiple ICs")
     {
     }
