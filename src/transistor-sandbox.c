@@ -267,7 +267,6 @@ static void add_component_def(ts_ComponentDef const* def, ts_Position pos, ts_Di
         .ic_width = def->ic_width,
         .n_pins = def->n_pins,
         .pins = calloc(def->n_pins, sizeof(ts_PinSnapshot)),
-        .extra_data = def->extra,
         .cursor = cursor,
     };
 

@@ -2,6 +2,87 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "sandbox/sandbox.h"
+
+static const char* TYPE_ERR_MSG = "Expected a field 'type' with either: 'single_tile', 'ic_dip' or 'ic_quad'";
+
+ts_Result ts_component_def_finalize(ts_ComponentDef* def)
+{
+    free(def->key);
+    free(def->pins);
+}
+
+ts_Result ts_component_def_load(ts_ComponentDef* def, lua_State* L, SimulateFn sim_fn, ts_Sandbox* sb)
+{
+#define ERROR(msg)               { r = ts_error(sb, TS_COMPONENT_DEF_ERROR, msg); goto end; }
+#define EXPECT(type, msg)        { if (!lua_is ## type(L, -1)) ERROR(msg) }
+#define EXPECT_OR_NIL(type, msg) { if (!lua_is ## type(L, -1) && !lua_isnil(L, -1)) ERROR(msg) }
+
+    ts_Result r = TS_OK;
+    int initial_stack = lua_gettop(L);
+
+    memset(def, 0, sizeof(ts_ComponentDef));
+    EXPECT(table, "Component definition should be a Lua table");
+
+    // key
+    lua_getfield(L, -1, "key");
+    EXPECT(string, "Expected a field 'key' with the component name.");
+    def->key = strdup(lua_tostring(L, -1));
+    lua_pop(L, 1);
+
+    // type
+    lua_getfield(L, -1, "type");
+    EXPECT(string, TYPE_ERR_MSG);
+    const char* type = lua_tostring(L, -1);
+    if (strcmp(type, "single_tile") == 0)
+        def->type = TS_SINGLE_TILE;
+    else if (strcmp(type, "ic_dip") == 0)
+        def->type = TS_IC_DIP;
+    else if (strcmp(type, "ic_quad") == 0)
+        def->type = TS_IC_QUAD;
+    else
+        ERROR(TYPE_ERR_MSG);
+    lua_pop(L, 1);
+
+    // can_rotate
+    lua_getfield(L, -1, "can_rotate");
+    EXPECT_OR_NIL(boolean, "Expected a boolean field 'can_rotate' (optional)");
+    def->can_rotate = lua_toboolean(L, -1);
+    lua_pop(L, 1);
+
+    // data_size
+    lua_getfield(L, -1, "data_size");
+    EXPECT_OR_NIL(number, "Expected a numeric field 'data_size' (optional)");
+    def->data_size = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    // ic_width
+    lua_getfield(L, -1, "ic_width");
+    EXPECT_OR_NIL(number, "Expected a numeric field 'ic_width' (optional)");
+    def->ic_width = lua_isnil(L, -1) ? 1 : lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    // pins
+    lua_getfield(L, -1, "pins");
+    EXPECT(table, "Expected a field 'pin', with a list of pins { name, type, wire_width }.");
+    def->n_pins = lua_objlen(L, -1);
+    def->pins = calloc(def->n_pins, sizeof(ts_PinDef));
+    for (size_t i = 0; i < def->n_pins; ++i) {
+        // TODO
+    }
+    lua_pop(L, 1);
+
+end:
+    if (lua_gettop(L) > initial_stack)
+        lua_pop(L, initial_stack - lua_gettop(L));
+    return r;
+
+#undef ERROR
+#undef EXPECT
+#undef EXPECT_OR_NIL
+}
 
 ts_Rect ts_component_def_rect(ts_ComponentDef const* def, ts_Position component_pos, ts_Direction dir)
 {
@@ -174,3 +255,4 @@ size_t ts_component_def_pin_positions(ts_ComponentDef const* def, ts_Position co
             abort();
     }
 }
+

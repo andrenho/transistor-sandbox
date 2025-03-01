@@ -126,6 +126,7 @@ add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL
         tests/serialization.cc
         tests/simulation.cc
         tests/wrapper.cc
+        tests/custom_ic.cc
 )
 target_compile_options(${PROJECT_NAME}-tests PRIVATE ${warnings} )
 target_link_directories(${PROJECT_NAME}-tests PRIVATE ${LUA_LIBRARY_DIRS})

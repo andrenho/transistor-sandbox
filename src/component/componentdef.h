@@ -20,7 +20,7 @@ typedef struct ts_PinDef {
 } ts_PinDef;
 
 typedef struct ts_ComponentDef {
-    const char*      key;
+    char*            key;
     ts_ComponentType type;
     bool             can_rotate;
     uint8_t          ic_width;
@@ -38,10 +38,12 @@ typedef struct ts_ComponentDef {
     int              (*serialize)(ts_Component* component, int vspace, char* buf, size_t buf_sz);
     ts_Result        (*unserialize)(ts_Component* component, lua_State* L, ts_Board* board);
 
-    void*            extra;
-    bool             custom;  // not native
-
 } ts_ComponentDef;
+
+// initialization
+typedef void (*SimulateFn)(ts_Component* component);
+ts_Result ts_component_def_load(ts_ComponentDef* def, lua_State* L, SimulateFn sim_fn, ts_Sandbox* sb); // assumes component table in place
+ts_Result ts_component_def_finalize(ts_ComponentDef* def);
 
 // positioning
 ts_Rect ts_component_def_rect(ts_ComponentDef const* def, ts_Position component_pos, ts_Direction dir);
