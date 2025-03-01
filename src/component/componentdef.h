@@ -11,12 +11,12 @@ typedef struct ts_Component ts_Component;
 
 typedef enum { TS_SINGLE_TILE, TS_IC_DIP, TS_IC_QUAD } ts_ComponentType;
 
-typedef enum { TS_INPUT, TS_OUTPUT } ts_PinType;
+typedef enum { TS_INPUT, TS_OUTPUT } ts_PinDirection;
 
 typedef struct ts_PinDef {
-    const char*  name;
-    ts_PinType   type;
-    ts_WireWidth wire_width;
+    char*           name;
+    ts_PinDirection direction;
+    ts_WireWidth    wire_width;
 } ts_PinDef;
 
 typedef struct ts_ComponentDef {

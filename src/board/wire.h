@@ -8,7 +8,7 @@
 
 struct ts_Sandbox;
 
-typedef enum { TS_WIRE_1 = '1' } ts_WireWidth;
+typedef enum { TS_WIRE_1 = '1', TS_WIRE_8 = '8' } ts_WireWidth;
 typedef enum { TS_LAYER_TOP = 'T', TS_LAYER_BOTTOM = 'B' } ts_WireLayer;
 
 typedef struct ts_Wire {

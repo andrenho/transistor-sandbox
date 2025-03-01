@@ -17,10 +17,10 @@ std::string button = R"({
     data_size = 1,
 
     pins = {
-        { name = "O1", type = "output", wire_width = 1 },
-        { name = "O2", type = "output", wire_width = 1 },
-        { name = "O3", type = "output", wire_width = 1 },
-        { name = "O4", type = "output", wire_width = 1 },
+        { name = "O1", direction = "output" },
+        { name = "O2", direction = "output" },
+        { name = "O3", direction = "output" },
+        { name = "O4", direction = "output" },
     },
 
     on_click = function(button)
@@ -64,7 +64,7 @@ TEST_SUITE("Load IC from Lua")
         CHECK(def.ic_width == 1);
         CHECK(def.data_size == 1);
         CHECK(def.n_pins == 4);
-        CHECK(std::string(def.pins[1].name) == "02");
+        CHECK(std::string(def.pins[1].name) == "O2");
 
         ts_component_def_finalize(&def);
         lua_close(L);

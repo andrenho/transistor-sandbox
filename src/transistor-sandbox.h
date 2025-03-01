@@ -69,7 +69,7 @@ ts_Result ts_transistor_last_error(ts_Transistor* t, char* err_buf, size_t err_b
 
 typedef struct ts_PinSnapshot {
     char*      name;
-    ts_PinType type;
+    ts_PinDirection type;
 } ts_PinSnapshot;
 
 typedef struct ts_ComponentSnapshot {

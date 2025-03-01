@@ -34,7 +34,7 @@ ts_Result ts_simulation_single_step(ts_Simulation* sim)
         // calculate value from output pins
         for (int j = 0; j < arrlen(connection->pins); ++j) {
             ts_Pin* pin = &connection->pins[j];
-            if (pin->component->def->pins[pin->pin_no].type == TS_OUTPUT)
+            if (pin->component->def->pins[pin->pin_no].direction == TS_OUTPUT)
                 value |= pin->component->pins[pin->pin_no];
         }
 
@@ -43,7 +43,7 @@ ts_Result ts_simulation_single_step(ts_Simulation* sim)
         // set input pins
         for (int j = 0; j < arrlen(connection->pins); ++j) {
             ts_Pin* pin = &connection->pins[j];
-            if (pin->component->def->pins[pin->pin_no].type == TS_INPUT)
+            if (pin->component->def->pins[pin->pin_no].direction == TS_INPUT)
                 pin->component->pins[pin->pin_no] = value;     // (note: modify component)
         }
 

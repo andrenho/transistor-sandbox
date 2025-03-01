@@ -15,10 +15,10 @@ return {
       data_size = 1,
       
       pins = {
-         { name = "O1", type = "output", wire_width = 1 },
-         { name = "O2", type = "output", wire_width = 1 },
-         { name = "O3", type = "output", wire_width = 1 },
-         { name = "O4", type = "output", wire_width = 1 },
+         { name = "O1", direction = "output" },
+         { name = "O2", direction = "output" },
+         { name = "O3", direction = "output" },
+         { name = "O4", direction = "output" },
       },
       
       on_click = function(button)

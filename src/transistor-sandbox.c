@@ -275,7 +275,7 @@ static void add_component_def(ts_ComponentDef const* def, ts_Position pos, ts_Di
         ts_PinDef* pin = &def->pins[k];
         dest->pins[k] = (ts_PinSnapshot) {
             .name = strdup(pin->name),
-            .type = pin->type,
+            .type = pin->direction,
         };
     }
 }

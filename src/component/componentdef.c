@@ -7,10 +7,13 @@
 #include "sandbox/sandbox.h"
 
 static const char* TYPE_ERR_MSG = "Expected a field 'type' with either: 'single_tile', 'ic_dip' or 'ic_quad'";
+static const char* WIRE_WIDTH_ERR_MSG = "Expected a field 'wire_width' with either 1 or 8.";
 
 ts_Result ts_component_def_finalize(ts_ComponentDef* def)
 {
     free(def->key);
+    for (size_t i = 0; i < def->n_pins; ++i)
+        free(def->pins[i].name);
     free(def->pins);
 }
 
@@ -70,7 +73,38 @@ ts_Result ts_component_def_load(ts_ComponentDef* def, lua_State* L, SimulateFn s
     def->n_pins = lua_objlen(L, -1);
     def->pins = calloc(def->n_pins, sizeof(ts_PinDef));
     for (size_t i = 0; i < def->n_pins; ++i) {
-        // TODO
+
+        lua_rawgeti(L, -1, i + 1);
+
+        // key
+        lua_getfield(L, -1, "name");
+        EXPECT(string, "Expected a field 'name' with the pin name.");
+        def->pins[i].name = strdup(lua_tostring(L, -1));
+        lua_pop(L, 1);
+
+        // type
+        lua_getfield(L, -1, "direction");
+        EXPECT(string, TYPE_ERR_MSG);
+        const char* direction = lua_tostring(L, -1);
+        if (strcmp(direction, "input") == 0)
+            def->pins[i].direction = TS_INPUT;
+        else if (strcmp(direction, "output") == 0)
+            def->pins[i].direction = TS_OUTPUT;
+        else
+            ERROR("Expected a field 'direction', with values either 'input' or 'output'.");
+        lua_pop(L, 1);
+
+        // wire_width
+        lua_getfield(L, -1, "ic_width");
+        EXPECT_OR_NIL(number, WIRE_WIDTH_ERR_MSG);
+        if (lua_isnil(L, -1) || lua_tonumber(L, -1) == 1)
+            def->pins[i].wire_width = TS_WIRE_1;
+        else if (lua_tonumber(L, -1) == 8)
+            def->pins[i].wire_width = TS_WIRE_8;
+        else
+            ERROR(WIRE_WIDTH_ERR_MSG);
+        lua_pop(L, 2);
+
     }
     lua_pop(L, 1);
 
