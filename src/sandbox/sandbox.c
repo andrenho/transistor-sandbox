@@ -22,6 +22,10 @@ static ts_Result ts_sandbox_init_common(ts_Sandbox* sb)
     memset(sb, 0, sizeof(ts_Sandbox));
     ts_component_db_init(&sb->component_db, sb);
 
+    sb->L = luaL_newstate();
+    luaL_openlibs(sb->L);
+    luaL_dostring(sb->L, "local bit = require('bit')");
+
     sb->last_error = TS_OK;
     sb->last_error_message[0] = '\0';
 
@@ -46,6 +50,8 @@ ts_Result ts_sandbox_init(ts_Sandbox* sb)
 ts_Result ts_sandbox_finalize(ts_Sandbox* sb)
 {
     ts_sandbox_end_simulation(sb);
+
+    lua_close(sb->L);
 
     for (int i = 0; i < arrlen(sb->boards); ++i)
         ts_board_finalize(&sb->boards[i]);

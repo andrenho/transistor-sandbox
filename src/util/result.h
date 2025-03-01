@@ -8,6 +8,7 @@ typedef enum {
     TS_COMPONENT_NOT_FOUND   = -3,
     TS_SYSTEM_ERROR          = -4,
     TS_COMPONENT_DEF_ERROR   = -5,
+    TS_LUA_FUNCTION_ERROR    = -6,
 } ts_Result;
 
 #endif //RESPONSE_H

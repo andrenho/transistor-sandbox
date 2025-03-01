@@ -20,8 +20,7 @@ ts_Result ts_simulation_single_step(ts_Simulation* sim)
         ts_Board* board = &sim->sandbox->boards[i];
         for (int j = 0; j < hmlen(board->components); ++j) {
             ts_Component* component = board->components[j].value;
-            if (component->def->simulate)
-                component->def->simulate(component);       // (note: modify component)
+            ts_component_simulate(component);
         }
     }
 

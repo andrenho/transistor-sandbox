@@ -1,5 +1,6 @@
 #include "componentdef.h"
 
+#include <lauxlib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,25 +10,22 @@
 static const char* TYPE_ERR_MSG = "Expected a field 'type' with either: 'single_tile', 'ic_dip' or 'ic_quad'";
 static const char* WIRE_WIDTH_ERR_MSG = "Expected a field 'wire_width' with either 1 or 8.";
 
-ts_Result ts_component_def_finalize(ts_ComponentDef* def)
-{
-    free(def->key);
-    for (size_t i = 0; i < def->n_pins; ++i)
-        free(def->pins[i].name);
-    free(def->pins);
-}
-
-ts_Result ts_component_def_load(ts_ComponentDef* def, lua_State* L, SimulateFn sim_fn, ts_Sandbox* sb)
+ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, SimulateFn sim_fn, ts_Sandbox* sb)
 {
 #define ERROR(msg)               { r = ts_error(sb, TS_COMPONENT_DEF_ERROR, msg); goto end; }
 #define EXPECT(type, msg)        { if (!lua_is ## type(L, -1)) ERROR(msg) }
 #define EXPECT_OR_NIL(type, msg) { if (!lua_is ## type(L, -1) && !lua_isnil(L, -1)) ERROR(msg) }
+#define CHECK_FUNCTION(name)     { lua_getfield(L, -1, name); EXPECT_OR_NIL(function, "'" # name "' should be a function"); lua_pop(L, 1); }
+
+    lua_State* L = sb->L;
 
     ts_Result r = TS_OK;
     int initial_stack = lua_gettop(L);
 
     memset(def, 0, sizeof(ts_ComponentDef));
     EXPECT(table, "Component definition should be a Lua table");
+
+    def->sandbox = sb;
 
     // key
     lua_getfield(L, -1, "key");
@@ -108,6 +106,17 @@ ts_Result ts_component_def_load(ts_ComponentDef* def, lua_State* L, SimulateFn s
     }
     lua_pop(L, 1);
 
+    // check functions
+    CHECK_FUNCTION("on_click")
+    CHECK_FUNCTION("simulate")
+
+    // native simulation
+    def->c_simulate = sim_fn;
+
+    // store Lua reference
+    lua_pushvalue(L, -1);
+    def->luaref = luaL_ref(L, LUA_REGISTRYINDEX);
+
 end:
     if (lua_gettop(L) > initial_stack)
         lua_pop(L, initial_stack - lua_gettop(L));
@@ -116,7 +125,19 @@ end:
 #undef ERROR
 #undef EXPECT
 #undef EXPECT_OR_NIL
+#undef CHECK_FUNCTION
 }
+
+ts_Result ts_component_def_finalize(ts_ComponentDef* def)
+{
+    luaL_unref(def->sandbox->L, LUA_REGISTRYINDEX, def->luaref);
+    free(def->key);
+    for (size_t i = 0; i < def->n_pins; ++i)
+        free(def->pins[i].name);
+    free(def->pins);
+    return TS_OK;
+}
+
 
 ts_Rect ts_component_def_rect(ts_ComponentDef const* def, ts_Position component_pos, ts_Direction dir)
 {

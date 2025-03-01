@@ -93,6 +93,8 @@ add_library(${PROJECT_NAME} STATIC
         src/util/set.h
         src/transistor-sandbox.c
         src/transistor-sandbox.h
+        src/component/component_mt.c
+        src/component/component_mt.h
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})

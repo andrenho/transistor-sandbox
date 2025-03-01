@@ -6,8 +6,38 @@
 #include <lauxlib.h>
 
 #include "componentdef.h"
+#include "component_mt.h"
 #include "sandbox/sandbox.h"
 #include "util/serialize.h"
+
+static void ts_component_create_lua_reference_object(ts_Component* component)
+{
+    lua_State* L = component->def->sandbox->L;
+    ts_components_mt_init(L);
+
+    // component
+    lua_newtable(L);
+
+    // def
+    lua_rawgeti(L, LUA_REGISTRYINDEX, component->def->luaref);
+    lua_setfield(L, -2, "def");
+
+    // data
+    LuaComponentData* data = lua_newuserdata(L, sizeof(LuaComponentData));
+    data->component = component;
+    luaL_getmetatable(L, "Data");
+    lua_setmetatable(L, -2);
+    lua_setfield(L, -2, "data");
+
+    // pin
+    LuaComponentData* pins = lua_newuserdata(L, sizeof(LuaComponentData));
+    pins->component = component;
+    luaL_getmetatable(L, "Data");
+    lua_setmetatable(L, -2);
+    lua_setfield(L, -2, "pin");
+
+    component->luaref = luaL_ref(L, LUA_REGISTRYINDEX);
+}
 
 ts_Result ts_component_init(ts_Component* component, ts_ComponentDef const* def, ts_Direction direction)
 {
@@ -16,13 +46,15 @@ ts_Result ts_component_init(ts_Component* component, ts_ComponentDef const* def,
     component->direction = direction;
     component->data = calloc(1, def->data_size);
     component->pins = calloc(def->n_pins, sizeof component->pins[0]);
-    if (def->init)
-        def->init(component);
+
+    ts_component_create_lua_reference_object(component);
+
     return TS_OK;
 }
 
 ts_Result ts_component_finalize(ts_Component* component)
 {
+    luaL_unref(component->def->sandbox->L, LUA_REGISTRYINDEX, component->luaref);
     free(component->data);
     free(component->pins);
     return TS_OK;
@@ -35,11 +67,40 @@ ts_Result ts_component_update_pos(ts_Component* component, ts_Board const* board
     return TS_OK;
 }
 
+ts_Result call_component_lua_function(ts_Component* component, const char* function)
+{
+    lua_State* L = component->def->sandbox->L;
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, component->def->luaref);
+    lua_getfield(L, -1, function);
+    if (!lua_isnil(L, -1)) {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, component->luaref);
+        int r = lua_pcall(L, 1, 0, 0);
+        if (r != LUA_OK) {
+            const char* error = lua_tostring(L, -1);
+            lua_pop(L, 2);
+            return ts_error(component->def->sandbox, TS_LUA_FUNCTION_ERROR, "lua function '%s' error: %s", function, error);
+        }
+    } else {
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+    return TS_OK;
+}
+
 ts_Result ts_component_on_click(ts_Component* component)
 {
-    if (component->def->on_click)
-        component->def->on_click(component);
-    return TS_OK;
+    return call_component_lua_function(component, "on_click");
+}
+
+ts_Result ts_component_simulate(ts_Component* component)
+{
+    if (component->def->c_simulate) {
+        component->def->c_simulate(component);
+        return TS_OK;
+    } else {
+        return call_component_lua_function(component, "simulate");
+    }
 }
 
 ts_Rect ts_component_rect(ts_Component const* component)

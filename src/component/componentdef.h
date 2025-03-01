@@ -30,19 +30,25 @@ typedef struct ts_ComponentDef {
 
     size_t           data_size;
 
+    void             (*c_simulate)(ts_Component* component);
+
+    ts_Sandbox*      sandbox;
+    int              luaref;
+
+    /*
     void             (*init)(ts_Component* component);
 
     void             (*on_click)(ts_Component* component);
-    void             (*simulate)(ts_Component* component);
 
     int              (*serialize)(ts_Component* component, int vspace, char* buf, size_t buf_sz);
     ts_Result        (*unserialize)(ts_Component* component, lua_State* L, ts_Board* board);
+    */
 
 } ts_ComponentDef;
 
 // initialization
 typedef void (*SimulateFn)(ts_Component* component);
-ts_Result ts_component_def_load(ts_ComponentDef* def, lua_State* L, SimulateFn sim_fn, ts_Sandbox* sb); // assumes component table in place
+ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, SimulateFn sim_fn, ts_Sandbox* sb); // assumes component Lua table in place
 ts_Result ts_component_def_finalize(ts_ComponentDef* def);
 
 // positioning

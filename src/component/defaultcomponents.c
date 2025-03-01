@@ -20,7 +20,7 @@ static const ts_ComponentDef vcc = {
         { "O2", TS_OUTPUT, TS_WIRE_1 },
         { "O3", TS_OUTPUT, TS_WIRE_1 },
     },
-    .simulate = vcc_sim,
+    // .simulate = vcc_sim,
 };
 
 //
@@ -49,8 +49,8 @@ static const ts_ComponentDef button = {
         { "O3", TS_OUTPUT, TS_WIRE_1 },
     },
     .data_size = 1,
-    .on_click = button_click,
-    .simulate = button_sim,
+    // .on_click = button_click,
+    // .simulate = button_sim,
 };
 
 //
@@ -74,7 +74,7 @@ static const ts_ComponentDef led = {
         { "I3", TS_INPUT, TS_WIRE_1 },
     },
     .data_size = 1,
-    .simulate = led_sim,
+    // .simulate = led_sim,
 };
 
 //
@@ -98,7 +98,7 @@ static const ts_ComponentDef npn = {
         { "SW1", TS_INPUT,  TS_WIRE_1 },
         { "OUT", TS_OUTPUT, TS_WIRE_1 },
     },
-    .simulate = npn_sim,
+    // .simulate = npn_sim,
 };
 
 //
@@ -122,7 +122,7 @@ static const ts_ComponentDef pnp = {
         { "SW1", TS_INPUT,  TS_WIRE_1 },
         { "OUT", TS_OUTPUT, TS_WIRE_1 },
     },
-    .simulate = pnp_sim,
+    // .simulate = pnp_sim,
 };
 
 //
@@ -148,7 +148,7 @@ static const ts_ComponentDef or_2i = {
         { "~Q",  TS_OUTPUT, TS_WIRE_1 },
         { "Q",   TS_OUTPUT, TS_WIRE_1 },
     },
-    .simulate = or_2i_sim,
+    // .simulate = or_2i_sim,
 };
 
 //

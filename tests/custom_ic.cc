@@ -24,11 +24,11 @@ std::string button = R"({
     },
 
     on_click = function(button)
-        button.data[1] = not button.data[1]
+        button.data[1] = bit.bnot(button.data[1])
     end,
 
     simulate = function(button)
-        for i in 1,4 do button.pin[i] = button.data[1] end
+        for i in 1,#button.pin do button.pin[i] = button.data[1] end
     end,
 
     -- rendering
@@ -45,17 +45,16 @@ TEST_SUITE("Load IC from Lua")
 
     TEST_CASE("Custom single-tile data")
     {
-        lua_State* L = luaL_newstate();
         ts_Sandbox sb;
         ts_sandbox_init(&sb);
 
-        luaL_loadstring(L, ("return " + button).c_str());
-        lua_call(L, 0, 1);
+        luaL_loadstring(sb.L, ("return " + button).c_str());
+        lua_call(sb.L, 0, 1);
 
         ts_ComponentDef def;
-        ts_Result r = ts_component_def_load(&def, L, nullptr, &sb);
+        ts_Result r = ts_component_def_init_from_lua(&def, nullptr, &sb);
         if (r != TS_OK)
-            fprintf(stderr, "%s\n", ts_last_error(&sb, NULL));
+            fprintf(stderr, "error: %s\n", ts_last_error(&sb, NULL));
 
         CHECK(r == TS_OK);
         CHECK(std::string(def.key) == "__button");
@@ -67,11 +66,27 @@ TEST_SUITE("Load IC from Lua")
         CHECK(std::string(def.pins[1].name) == "O2");
 
         ts_component_def_finalize(&def);
-        lua_close(L);
     }
 
     TEST_CASE("Custom IC functions (Lua)")
     {
+        ts_Sandbox sb;
+        ts_sandbox_init(&sb);
+
+        luaL_loadstring(sb.L, ("return " + button).c_str());
+        lua_call(sb.L, 0, 1);
+
+        ts_ComponentDef def;
+        ts_component_def_init_from_lua(&def, nullptr, &sb);
+        ts_Component component;
+        ts_component_init(&component, &def, TS_N);
+
+        CHECK(component.data[0] == 0);
+        if (ts_component_on_click(&component) != TS_OK)
+            fprintf(stderr, "error: %s\n", ts_last_error(&sb, nullptr));
+        CHECK(component.data[0] != 0);
+
+        ts_component_def_finalize(&def);
     }
 
     TEST_CASE("Custom simulation (C)")
