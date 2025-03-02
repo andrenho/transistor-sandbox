@@ -66,6 +66,13 @@ ts_Result ts_component_db_unserialize(ts_ComponentDB* db, lua_State* L, ts_Sandb
 {
     // TODO
     ts_component_db_init(db, sb);
+    size_t len = lua_objlen(L, -1);
+    for (size_t i = 0; i < len; ++i) {
+        ts_ComponentDef def;
+        lua_rawgeti(L, i + 1, -1);
+        ts_component_db_add_def_from_lua(db, lua_tostring(L, -1));
+        lua_pop(L, 1);
+    }
     return TS_OK;
 
 }

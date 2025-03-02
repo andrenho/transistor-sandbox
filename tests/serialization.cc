@@ -30,7 +30,6 @@ TEST_SUITE("Serialization") {
         printf("%s\n", serialized);
 
         ts_Sandbox sb2;
-        ts_add_lua_components(&sb2);
         ts_Result response = ts_sandbox_unserialize_from_string(&sb2, serialized);
         if (response != TS_OK)
             printf("%s\n", ts_last_error(&sb2, nullptr));

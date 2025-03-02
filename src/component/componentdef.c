@@ -322,7 +322,7 @@ ts_Result ts_component_def_serialize(ts_ComponentDef const* def, FILE* f)
     lua_State* L = def->sandbox->L;
     lua_rawgeti(L, LUA_REGISTRYINDEX, def->luaref);
     lua_getfield(L, -1, "__code");
-    fprintf(f, "[===[%s]===]", lua_tostring(L, -1));
+    fprintf(f, "[====[%s]====]", lua_tostring(L, -1));
     lua_pop(L, 2);
     return TS_OK;
 }
