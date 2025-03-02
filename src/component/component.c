@@ -10,6 +10,27 @@
 #include "sandbox/sandbox.h"
 #include "util/serialize.h"
 
+ts_Result call_component_lua_function(ts_Component* component, const char* function)
+{
+    lua_State* L = component->def->sandbox->L;
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, component->def->luaref);
+    lua_getfield(L, -1, function);
+    if (!lua_isnil(L, -1)) {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, component->luaref);
+        int r = lua_pcall(L, 1, 0, 0);
+        if (r != LUA_OK) {
+            const char* error = lua_tostring(L, -1);
+            lua_pop(L, 2);
+            return ts_error(component->def->sandbox, TS_LUA_FUNCTION_ERROR, "lua function '%s' error: %s", function, error);
+        }
+    } else {
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+    return TS_OK;
+}
+
 static void ts_component_create_lua_reference_object(ts_Component* component)
 {
     lua_State* L = component->def->sandbox->L;
@@ -37,6 +58,7 @@ static void ts_component_create_lua_reference_object(ts_Component* component)
     lua_setfield(L, -2, "pin");
 
     component->luaref = luaL_ref(L, LUA_REGISTRYINDEX);
+    call_component_lua_function(component, "init_component");
 }
 
 ts_Result ts_component_init(ts_Component* component, ts_ComponentDef const* def, ts_Direction direction)
@@ -64,27 +86,6 @@ ts_Result ts_component_update_pos(ts_Component* component, ts_Board const* board
 {
     component->board = board;
     component->position = pos;
-    return TS_OK;
-}
-
-ts_Result call_component_lua_function(ts_Component* component, const char* function)
-{
-    lua_State* L = component->def->sandbox->L;
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, component->def->luaref);
-    lua_getfield(L, -1, function);
-    if (!lua_isnil(L, -1)) {
-        lua_rawgeti(L, LUA_REGISTRYINDEX, component->luaref);
-        int r = lua_pcall(L, 1, 0, 0);
-        if (r != LUA_OK) {
-            const char* error = lua_tostring(L, -1);
-            lua_pop(L, 2);
-            return ts_error(component->def->sandbox, TS_LUA_FUNCTION_ERROR, "lua function '%s' error: %s", function, error);
-        }
-    } else {
-        lua_pop(L, 1);
-    }
-    lua_pop(L, 1);
     return TS_OK;
 }
 

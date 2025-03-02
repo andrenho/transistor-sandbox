@@ -30,6 +30,8 @@ ts_Result ts_component_finalize(ts_Component* component);
 
 // updates
 ts_Result ts_component_update_pos(ts_Component* component, ts_Board const* board, ts_Position pos);
+
+// functions
 ts_Result ts_component_on_click(ts_Component* component);
 ts_Result ts_component_simulate(ts_Component* component);
 
