@@ -104,29 +104,6 @@ ts_Result ts_component_simulate(ts_Component* component)
     }
 }
 
-ts_Result ts_component_render(ts_Component* component, int G_luaref, int x, int y)
-{
-    lua_State* L = component->def->sandbox->L;
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, component->def->luaref);   // function
-    lua_getfield(L, -1, "render");
-
-    // parameters
-    lua_rawgeti(L, LUA_REGISTRYINDEX, component->luaref);  // component
-    lua_rawgeti(L, LUA_REGISTRYINDEX, G_luaref);           // G
-    lua_pushinteger(L, x);                                       // x
-    lua_pushinteger(L, y);                                       // y
-
-    int r = lua_pcall(L, 3, 0, 0);
-    if (r != LUA_OK) {
-        const char* error = lua_tostring(L, -1);
-        lua_pop(L, 2);
-        return ts_error(component->def->sandbox, TS_LUA_FUNCTION_ERROR, "lua function 'render' error: %s", error);
-    }
-    lua_pop(L, 1);
-    return TS_OK;
-}
-
 ts_Rect ts_component_rect(ts_Component const* component)
 {
     return ts_component_def_rect(component->def, component->position, component->direction);

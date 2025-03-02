@@ -269,7 +269,7 @@ ts_Result ts_transistor_last_error(ts_Transistor* t, char* err_buf, size_t err_b
 // snapshots
 //
 
-static void add_component_def(ts_ComponentDef const* def, ts_Position pos, ts_Direction dir, bool cursor, ts_ComponentSnapshot* dest)
+static void add_component_def(ts_ComponentDef const* def, ts_Component const* component, ts_Position pos, ts_Direction dir, bool cursor, ts_ComponentSnapshot* dest)
 {
     *dest = (ts_ComponentSnapshot) {
         .key = strdup(def->key),
@@ -280,6 +280,8 @@ static void add_component_def(ts_ComponentDef const* def, ts_Position pos, ts_Di
         .n_pins = def->n_pins,
         .pins = calloc(def->n_pins, sizeof(ts_PinSnapshot)),
         .cursor = cursor,
+        .def_luaref = def->luaref,
+        .luaref = component ? component->luaref : -1,
     };
 
     // pins
@@ -324,10 +326,10 @@ ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnaps
         int j;
         for (j = 0; j < phlen(board->components); ++j) {
             ts_Component* component = board->components[j].value;
-            add_component_def(component->def, ts_pos_unhash(board->components[j].key), component->direction, false, &snap->boards[i].components[j]);
+            add_component_def(component->def, component, ts_pos_unhash(board->components[j].key), component->direction, false, &snap->boards[i].components[j]);
         }
         if (board->cursor.selected_def)
-            add_component_def(board->cursor.selected_def, board->cursor.pos, board->cursor.selected_direction, true, &snap->boards[i].components[j]);
+            add_component_def(board->cursor.selected_def, NULL, board->cursor.pos, board->cursor.selected_direction, true, &snap->boards[i].components[j]);
 
         // wires
         const int max = phlen(board->wires);
@@ -380,5 +382,49 @@ ts_Result ts_snapshot_finalize(ts_TransistorSnapshot* snap)
         free(snap->boards[i].wires);
     }
     free(snap->boards);
+    return TS_OK;
+}
+
+ts_Result ts_transistor_component_onclick(ts_Transistor* t, ts_ComponentSnapshot const* component)
+{
+    lua_State* L = t->sandbox.L;
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, component->def_luaref);
+    lua_getfield(L, -1, "onclick");
+    if (!lua_isnil(L, -1)) {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, component->luaref);
+        int r = lua_pcall(L, 1, 0, 0);
+        if (r != LUA_OK) {
+            const char* error = lua_tostring(L, -1);
+            lua_pop(L, 2);
+            return ts_error(&t->sandbox, TS_LUA_FUNCTION_ERROR, "lua function 'onclick' error: %s", error);
+        }
+    } else {
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+    return TS_OK;
+}
+
+ts_Result ts_transistor_component_render(ts_Transistor* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y)
+{
+    lua_State* L = t->sandbox.L;
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, component->def_luaref);
+    lua_getfield(L, -1, "render");
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, component->luaref);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, graphics_luaref);
+    lua_pushinteger(L, x);
+    lua_pushinteger(L, y);
+    // TODO - add context
+
+    int r = lua_pcall(L, 4, 0, 0);
+    if (r != LUA_OK) {
+        const char* error = lua_tostring(L, -1);
+        lua_pop(L, 2);
+        return ts_error(&t->sandbox, TS_LUA_FUNCTION_ERROR, "lua function 'onclick' error: %s", error);
+    }
+    lua_pop(L, 1);
     return TS_OK;
 }
