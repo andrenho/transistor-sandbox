@@ -16,10 +16,12 @@ struct PPFixture {
 
     PPFixture(ts_ComponentType type, uint8_t n_pins, int width=1)
     {
+        ts_sandbox_init(&sandbox);
         def.type = type;
         def.n_pins = n_pins;
         def.ic_width = width;
         def.data_size = 0;
+        def.sandbox = &sandbox;
 
         ts_component_init(&component, &def, TS_N);
     }
@@ -27,8 +29,10 @@ struct PPFixture {
     ~PPFixture()
     {
         ts_component_finalize(&component);
+        ts_sandbox_finalize(&sandbox);
     }
 
+    ts_Sandbox sandbox;
     ts_Component component {};
 
     ts_ComponentDef def = {
