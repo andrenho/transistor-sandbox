@@ -1,8 +1,8 @@
 #include "doctest.h"
 
 #include <cstdlib>
-#include <string.h>
 #include <string>
+#include <regex>
 
 extern "C" {
 #include "sandbox/sandbox.h"
@@ -12,17 +12,42 @@ extern "C" {
 
 static ts_PinPos pins[20];
 
+static const std::string custom_ic = R"(return
+    {
+        key = "my",
+        type = "<<type>>",
+        ic_width = <<width>>,
+        pins = {<<pins>>},
+    }
+)";
+
 struct PPFixture {
 
     PPFixture(ts_ComponentType type, uint8_t n_pins, int width=1)
     {
         ts_sandbox_init(&sandbox);
-        def.type = type;
-        def.n_pins = n_pins;
-        def.ic_width = width;
-        def.data_size = 0;
-        def.sandbox = &sandbox;
 
+        std::string ic = custom_ic;
+        switch (type) {
+            case TS_SINGLE_TILE:
+                ic = std::regex_replace(ic, std::regex("<<type>>"), "single_tile");
+                break;
+            case TS_IC_DIP:
+                ic = std::regex_replace(ic, std::regex("<<type>>"), "ic_dip");
+                break;
+            case TS_IC_QUAD:
+                ic = std::regex_replace(ic, std::regex("<<type>>"), "ic_quad");
+                break;
+        }
+
+        ic = std::regex_replace(ic, std::regex("<<ic_width>>"), std::to_string(width));
+
+        std::string mypins;
+        for (uint8_t i = 0; i < n_pins; ++i)
+            mypins += "{ name='X', direction = 'output' },";
+        ic = std::regex_replace(ic, std::regex("<<pins>>"), mypins);
+
+        ts_component_def_init_from_lua(&def, ic.c_str(), &sandbox);
         ts_component_init(&component, &def, TS_N);
     }
 
@@ -35,23 +60,7 @@ struct PPFixture {
 
     ts_Sandbox sandbox;
     ts_Component component {};
-
-    ts_ComponentDef def = {
-        .key = strdup(""),
-        .can_rotate = true,
-        .ic_width = 1,
-        .pins = (ts_PinDef[]) {
-            { strdup(""), TS_INPUT, TS_WIRE_1 },
-            { strdup(""), TS_INPUT, TS_WIRE_1 },
-            { strdup(""), TS_INPUT, TS_WIRE_1 },
-            { strdup(""), TS_INPUT, TS_WIRE_1 },
-            { strdup(""), TS_INPUT, TS_WIRE_1 },
-            { strdup(""), TS_INPUT, TS_WIRE_1 },
-            { strdup(""), TS_INPUT, TS_WIRE_1 },
-            { strdup(""), TS_INPUT, TS_WIRE_1 },
-        },
-    };
-
+    ts_ComponentDef def;
 };
 
 
