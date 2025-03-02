@@ -1,6 +1,7 @@
 #include "doctest.h"
 
 #include <cstdlib>
+#include <string.h>
 #include <string>
 
 extern "C" {
@@ -31,18 +32,18 @@ struct PPFixture {
     ts_Component component {};
 
     ts_ComponentDef def = {
-        .key = "",
+        .key = strdup(""),
         .can_rotate = true,
         .ic_width = 1,
         .pins = (ts_PinDef[]) {
-            { "", TS_INPUT, TS_WIRE_1 },
-            { "", TS_INPUT, TS_WIRE_1 },
-            { "", TS_INPUT, TS_WIRE_1 },
-            { "", TS_INPUT, TS_WIRE_1 },
-            { "", TS_INPUT, TS_WIRE_1 },
-            { "", TS_INPUT, TS_WIRE_1 },
-            { "", TS_INPUT, TS_WIRE_1 },
-            { "", TS_INPUT, TS_WIRE_1 },
+            { strdup(""), TS_INPUT, TS_WIRE_1 },
+            { strdup(""), TS_INPUT, TS_WIRE_1 },
+            { strdup(""), TS_INPUT, TS_WIRE_1 },
+            { strdup(""), TS_INPUT, TS_WIRE_1 },
+            { strdup(""), TS_INPUT, TS_WIRE_1 },
+            { strdup(""), TS_INPUT, TS_WIRE_1 },
+            { strdup(""), TS_INPUT, TS_WIRE_1 },
+            { strdup(""), TS_INPUT, TS_WIRE_1 },
         },
     };
 
