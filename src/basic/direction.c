@@ -22,11 +22,11 @@ ts_Direction ts_direction_rotate_component(ts_Direction dir)
 const char* ts_direction_serialize(ts_Direction dir)
 {
     switch (dir) {
-        case TS_CENTER: return "center";
-        case TS_N:      return "n";
-        case TS_S:      return "s";
-        case TS_W:      return "w";
-        case TS_E:      return "e";
+        case TS_CENTER: return "CENTER";
+        case TS_N:      return "N";
+        case TS_S:      return "S";
+        case TS_W:      return "W";
+        case TS_E:      return "E";
     }
     return "invalid";
 }
@@ -34,15 +34,15 @@ const char* ts_direction_serialize(ts_Direction dir)
 ts_Result ts_direction_unserialize(ts_Direction* dir, lua_State* L, ts_Sandbox* sb)
 {
     const char* s = luaL_checkstring(L, -1);
-    if (strcmp(s, "center") == 0)
+    if (strcmp(s, "CENTER") == 0)
         *dir = TS_CENTER;
-    else if (strcmp(s, "n") == 0)
+    else if (strcmp(s, "N") == 0)
         *dir = TS_N;
-    else if (strcmp(s, "s") == 0)
+    else if (strcmp(s, "S") == 0)
         *dir = TS_S;
-    else if (strcmp(s, "w") == 0)
+    else if (strcmp(s, "W") == 0)
         *dir = TS_W;
-    else if (strcmp(s, "e") == 0)
+    else if (strcmp(s, "E") == 0)
         *dir = TS_E;
     else
         return ts_error(sb, TS_DESERIALIZATION_ERROR, "Direction invalid: '%s'", s);

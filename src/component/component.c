@@ -121,8 +121,8 @@ int ts_component_serialize(ts_Component const* component, int vspace, FILE* f)
     if (component->def->data_size > 0) {
         SR_CONT_INLINE("  data = {");
         for (size_t i = 0; i < component->def->data_size; ++i)
-            SR_CONT_INLINE(" 0x%02x,", component->data[i]);
-        SR_CONT(" },");
+            fprintf(f, " 0x%02x,", component->data[i]);
+        fprintf(f, " },\n");
     }
     SR_CONT_INLINE("}");
     return TS_OK;

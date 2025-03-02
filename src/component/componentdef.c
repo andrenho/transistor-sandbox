@@ -17,6 +17,9 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
 #define EXPECT_OR_NIL(type, msg) { if (!lua_is ## type(L, -1) && !lua_isnil(L, -1)) ERROR(msg) }
 #define CHECK_FUNCTION(name)     { lua_getfield(L, -1, name); EXPECT_OR_NIL(function, "'" # name "' should be a function"); lua_pop(L, 1); }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
+
     lua_State* L = sb->L;
 
     if (luaL_loadstring(L, lua_code) != LUA_OK)
@@ -127,6 +130,8 @@ end:
     if (lua_gettop(L) > initial_stack)
         lua_pop(L, initial_stack - lua_gettop(L));
     return r;
+
+#pragma GCC diagnostic pop
 
 #undef ERROR
 #undef EXPECT
@@ -322,7 +327,22 @@ ts_Result ts_component_def_serialize(ts_ComponentDef const* def, FILE* f)
     lua_State* L = def->sandbox->L;
     lua_rawgeti(L, LUA_REGISTRYINDEX, def->luaref);
     lua_getfield(L, -1, "__code");
-    fprintf(f, "[====[%s]====]", lua_tostring(L, -1));
+
+    const char* code = lua_tostring(L, -1);
+    fputc('\'', f);
+    for (const char* c = code; (*c) != '\0'; ++c) {
+        if (*c == '\n' || *c == '\r') {
+            fputc('\\', f);
+            fputc('n', f);
+        } else if (*c == '\'' || *c == '\\') {
+            fputc('\\', f);
+            fputc(*c, f);
+        } else {
+            fputc(*c, f);
+        }
+    }
+    fputc('\'', f);
+
     lua_pop(L, 2);
     return TS_OK;
 }

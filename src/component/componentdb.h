@@ -23,6 +23,6 @@ ts_ComponentDef const* ts_component_db_def(ts_ComponentDB const* db, const char*
 
 // serialization
 int       ts_component_db_serialize(ts_ComponentDB const* db, int vspace, FILE* f);
-ts_Result ts_component_db_unserialize(ts_ComponentDB* db, lua_State* L, ts_Sandbox* sb);
+ts_Result ts_component_db_unserialize(ts_ComponentDB* db, lua_State* LL, ts_Sandbox* sb);
 
 #endif //COMPONENTDB_HH

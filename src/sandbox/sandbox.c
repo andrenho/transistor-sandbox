@@ -94,37 +94,35 @@ ts_Result ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, FILE* f)
     return TS_OK;
 }
 
-ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L)
+static ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* LL)
 {
-    if (!lua_istable(L, -1))
+    if (!lua_istable(LL, -1))
         return ts_error(sb, TS_DESERIALIZATION_ERROR, "The returned element is not a table");
-
-    ts_sandbox_init_common(sb);
 
     // component db
 
-    lua_getfield(L, -1, "component_db");
-    if (!lua_istable(L, -1))
+    lua_getfield(LL, -1, "component_db");
+    if (!lua_istable(LL, -1))
         return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'component_db'");
-    ts_Result r = ts_component_db_unserialize(&sb->component_db, L, sb);
+    ts_Result r = ts_component_db_unserialize(&sb->component_db, LL, sb);
     // ts_add_default_components(&sb->component_db);
     if (r != TS_OK)
         return r;
-    lua_pop(L, 1);
+    lua_pop(LL, 1);
 
     // boards
 
-    lua_getfield(L, -1, "boards");
-    if (!lua_istable(L, -1))
+    lua_getfield(LL, -1, "boards");
+    if (!lua_istable(LL, -1))
         return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'boards'");
-    lua_pushnil(L);
-    while (lua_next(L, -2)) {
+    lua_pushnil(LL);
+    while (lua_next(LL, -2)) {
         arrpush(sb->boards, (ts_Board) {});
-        if ((r = ts_board_unserialize(&arrlast(sb->boards), L, sb)) != TS_OK)
+        if ((r = ts_board_unserialize(&arrlast(sb->boards), LL, sb)) != TS_OK)
             return r;
-        lua_pop(L, 1);
+        lua_pop(LL, 1);
     }
-    lua_pop(L, 1);
+    lua_pop(LL, 1);
 
     return TS_OK;
 }
@@ -133,24 +131,25 @@ ts_Result ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str)
 {
     ts_Result response = TS_OK;
 
-    lua_State* L = luaL_newstate();
+    ts_sandbox_init_common(sb);
+    lua_State* LL = luaL_newstate();
+    luaL_openlibs(LL);
 
-    luaL_openlibs(L);
-    if (luaL_dostring(L, str)) {
-        response = ts_error(sb, TS_DESERIALIZATION_ERROR, "Error reported from Lua: %s", lua_tostring(L, -1));
+    if (luaL_dostring(LL, str)) {
+        response = ts_error(sb, TS_DESERIALIZATION_ERROR, "Error reported from Lua: %s", lua_tostring(LL, -1));
         goto end;
     }
 
-    if (lua_gettop(L) != 1) {
+    if (lua_gettop(LL) != 1) {
         response = ts_error(sb, TS_DESERIALIZATION_ERROR, "A element was not added to the stack.");
         goto end;
     }
 
-    response = ts_sandbox_unserialize(sb, L);
-    lua_pop(L, 1);
+    response = ts_sandbox_unserialize(sb, LL);
+    lua_pop(LL, 1);
 
 end:
-    lua_close(L);
+    lua_close(LL);
     return response;
 }
 

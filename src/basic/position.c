@@ -28,19 +28,26 @@ ts_Position ts_pos_unhash(ts_PositionHash hash)
 
 int ts_pos_serialize(ts_Position pos, char* buf, size_t buf_sz)
 {
-    return snprintf(buf, buf_sz, "{ %d, %d, '%s' }", pos.x, pos.y, ts_direction_serialize(pos.dir));
+    if (pos.dir != TS_CENTER)
+        return snprintf(buf, buf_sz, "{ %d, %d, '%s' }", pos.x, pos.y, ts_direction_serialize(pos.dir));
+    else
+        return snprintf(buf, buf_sz, "{ %d, %d }", pos.x, pos.y);
 }
 
 ts_Result ts_pos_unserialize(ts_Position* pos, lua_State* L, ts_Sandbox* sb)
 {
     if (!lua_istable(L, -1))
         return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected position table");
-    if (lua_objlen(L, -1) != 3)
-        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected 3-item position table");
+    if (lua_objlen(L, -1) != 2 && lua_objlen(L, -1) != 3)
+        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected 2 or 3-item position table");
 
     lua_rawgeti(L, -1, 1); pos->x = luaL_checkinteger(L, -1); lua_pop(L, 1);
     lua_rawgeti(L, -1, 2); pos->y = luaL_checkinteger(L, -1); lua_pop(L, 1);
-    lua_rawgeti(L, -1, 3); ts_direction_unserialize(&pos->dir, L, sb); lua_pop(L, 1);
+    if (lua_objlen(L, -1) == 3) {
+        lua_rawgeti(L, -1, 3); ts_direction_unserialize(&pos->dir, L, sb); lua_pop(L, 1);
+    } else {
+        pos->dir = TS_CENTER;
+    }
 
     return TS_OK;
 }

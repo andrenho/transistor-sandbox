@@ -30,7 +30,6 @@ ts_Result ts_sandbox_start_simulation(ts_Sandbox* sb);
 
 // serialization
 ts_Result ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, FILE* f);
-ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* L);
 ts_Result ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str);
 ts_Result ts_sandbox_unserialize_from_file(ts_Sandbox* sb, FILE* f);
 

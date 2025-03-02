@@ -123,7 +123,7 @@ add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL
         tests/connected_wires.cc
         tests/placement.cc
         tests/compilation.cc
-        # tests/serialization.cc
+        tests/serialization.cc
         tests/simulation.cc
         tests/wrapper.cc
         tests/custom_ic.cc
