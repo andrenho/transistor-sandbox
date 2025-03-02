@@ -52,7 +52,7 @@ TEST_SUITE("Load IC from Lua")
         ts_sandbox_init(&sb);
 
         ts_ComponentDef def;
-        ts_Result r = ts_component_def_init_from_lua(&def, components, &sb);
+        ts_Result r = ts_component_def_init_from_lua(&def, components, &sb, -1);
         if (r != TS_OK)
             fprintf(stderr, "error: %s\n", ts_last_error(&sb, NULL));
 
@@ -75,7 +75,7 @@ TEST_SUITE("Load IC from Lua")
         ts_sandbox_init(&sb);
 
         ts_ComponentDef def;
-        ts_component_def_init_from_lua(&def, components, &sb);
+        ts_component_def_init_from_lua(&def, components, &sb, -1);
         ts_Component component;
         ts_component_init(&component, &def, TS_N);
 

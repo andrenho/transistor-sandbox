@@ -10,7 +10,7 @@
 static const char* TYPE_ERR_MSG = "Expected a field 'type' with either: 'single_tile', 'ic_dip' or 'ic_quad'";
 static const char* WIRE_WIDTH_ERR_MSG = "Expected a field 'wire_width' with either 1 or 8.";
 
-ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_code, ts_Sandbox* sb)
+ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_code, ts_Sandbox* sb, int graphics_luaref)
 {
 #define ERROR(msg)               { r = ts_error(sb, TS_COMPONENT_DEF_ERROR, msg); goto end; }
 #define EXPECT(type, msg)        { if (!lua_is ## type(L, -1)) ERROR(msg) }
@@ -115,8 +115,11 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
     lua_pop(L, 1);
 
     // check functions
+    CHECK_FUNCTION("init")
+    CHECK_FUNCTION("init_component")
     CHECK_FUNCTION("on_click")
     CHECK_FUNCTION("simulate")
+    CHECK_FUNCTION("render")
 
     // add own code to table (for serialization)
     lua_pushstring(L, lua_code);
@@ -125,6 +128,18 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
     // store Lua reference
     lua_pushvalue(L, -1);
     def->luaref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    // call init, if present
+    if (graphics_luaref != -1) {
+        lua_getfield(L, -1, "init");
+        if (!lua_isnil(L, -1)) {
+            lua_rawgeti(L, -1, graphics_luaref);
+            if (lua_pcall(L, 1, 0, 0) != LUA_OK)
+                r = ts_error(def->sandbox, TS_LUA_FUNCTION_ERROR, "Error running lua function 'init': %s", lua_tostring(L, -1));
+        } else {
+            lua_pop(L, 1);
+        }
+    }
 
 end:
     if (lua_gettop(L) > initial_stack)

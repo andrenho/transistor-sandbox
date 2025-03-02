@@ -47,7 +47,7 @@ struct PPFixture {
             mypins += "{ name='X', direction = 'output' },";
         ic = std::regex_replace(ic, std::regex("<<pins>>"), mypins);
 
-        ts_Result r = ts_component_def_init_from_lua(&def, ic.c_str(), &sandbox);
+        ts_Result r = ts_component_def_init_from_lua(&def, ic.c_str(), &sandbox, -1);
         if (r != TS_OK)
             throw std::runtime_error(ts_last_error(&sandbox, nullptr));
         ts_component_init(&component, &def, TS_N);

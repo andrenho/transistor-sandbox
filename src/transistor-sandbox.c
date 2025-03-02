@@ -152,11 +152,11 @@ ts_Result ts_transistor_unlock(ts_Transistor* t)
 // component db
 //
 
-ts_Result ts_transistor_component_db_add_from_lua(ts_Transistor* t, const char* lua_code)
+ts_Result ts_transistor_component_db_add_from_lua(ts_Transistor* t, const char* lua_code, int graphics_luaref)
 {
     ts_Result r;
     ts_transistor_lock(t);
-    r = ts_component_db_add_def_from_lua(&t->sandbox.component_db, lua_code);
+    r = ts_component_db_add_def_from_lua(&t->sandbox.component_db, lua_code, graphics_luaref);
     ts_transistor_unlock(t);
     return r;
 }

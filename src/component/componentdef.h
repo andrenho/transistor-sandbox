@@ -40,7 +40,7 @@ typedef struct ts_ComponentDef {
 } ts_ComponentDef;
 
 // initialization
-ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_code, ts_Sandbox* sb); // assumes component Lua table in place
+ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_code, ts_Sandbox* sb, int graphics_luaref);
 ts_Result ts_component_def_finalize(ts_ComponentDef* def);
 
 // positioning

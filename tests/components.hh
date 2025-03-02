@@ -3,6 +3,8 @@
 
 #include <lua.hpp>
 
+#include "component/componentdb.h"
+
 constexpr const char* button = R"(
 return {
     key = "__button",
@@ -70,9 +72,9 @@ return {
 
 inline void ts_add_lua_components(ts_Sandbox* sb)
 {
-    ts_component_db_add_def_from_lua(&sb->component_db, button);
-    ts_component_db_add_def_from_lua(&sb->component_db, led);
-    ts_component_db_add_def_from_lua(&sb->component_db, or_2i);
+    ts_component_db_add_def_from_lua(&sb->component_db, button, -1);
+    ts_component_db_add_def_from_lua(&sb->component_db, led, -1);
+    ts_component_db_add_def_from_lua(&sb->component_db, or_2i, -1);
 }
 
 #endif //COMPONENTS_HH
