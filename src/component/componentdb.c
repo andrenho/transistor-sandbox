@@ -16,6 +16,8 @@ ts_Result ts_component_db_init(ts_ComponentDB* db, ts_Sandbox* sb)
 
 ts_Result ts_component_db_finalize(ts_ComponentDB* db)
 {
+    for (int i = 0; i < shlen(db->items); ++i)
+        ts_component_def_finalize(&db->items[i]);
     shfree(db->items);
     return TS_OK;
 }

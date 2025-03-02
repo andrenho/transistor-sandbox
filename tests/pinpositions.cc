@@ -29,6 +29,7 @@ struct PPFixture {
     ~PPFixture()
     {
         ts_component_finalize(&component);
+        ts_component_def_finalize(&def);
         ts_sandbox_finalize(&sandbox);
     }
 

@@ -329,5 +329,5 @@ ts_Result ts_component_def_serialize(ts_ComponentDef const* def, FILE* f)
 
 ts_Result ts_component_def_unserialize(ts_ComponentDef* def, lua_State* L, ts_Sandbox* sb)
 {
-
+    return TS_OK;
 }

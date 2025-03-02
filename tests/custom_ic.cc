@@ -66,6 +66,7 @@ TEST_SUITE("Load IC from Lua")
         CHECK(std::string(def.pins[1].name) == "O2");
 
         ts_component_def_finalize(&def);
+        ts_sandbox_finalize(&sb);
     }
 
     TEST_CASE("Custom IC functions (Lua)")
@@ -88,7 +89,9 @@ TEST_SUITE("Load IC from Lua")
             fprintf(stderr, "error: %s\n", ts_last_error(&sb, nullptr));
         CHECK(component.pins[0] != 0);
 
+        ts_component_finalize(&component);
         ts_component_def_finalize(&def);
+        ts_sandbox_finalize(&sb);
     }
 
     TEST_CASE("Multiple ICs")

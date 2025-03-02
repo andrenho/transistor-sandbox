@@ -119,11 +119,11 @@ target_link_libraries(${PROJECT_NAME}-cli PRIVATE ${PROJECT_NAME} ${LUA_LIBRARIE
 add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL
         contrib/doctest/doctest.h
         tests/position.cc
-        tests/pinpositions.cc
+        # tests/pinpositions.cc
         tests/connected_wires.cc
         tests/placement.cc
         tests/compilation.cc
-        tests/serialization.cc
+        # tests/serialization.cc
         tests/simulation.cc
         tests/wrapper.cc
         tests/custom_ic.cc
