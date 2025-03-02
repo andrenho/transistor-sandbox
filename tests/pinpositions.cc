@@ -40,14 +40,16 @@ struct PPFixture {
                 break;
         }
 
-        ic = std::regex_replace(ic, std::regex("<<ic_width>>"), std::to_string(width));
+        ic = std::regex_replace(ic, std::regex("<<width>>"), std::to_string(width));
 
         std::string mypins;
         for (uint8_t i = 0; i < n_pins; ++i)
             mypins += "{ name='X', direction = 'output' },";
         ic = std::regex_replace(ic, std::regex("<<pins>>"), mypins);
 
-        ts_component_def_init_from_lua(&def, ic.c_str(), &sandbox);
+        ts_Result r = ts_component_def_init_from_lua(&def, ic.c_str(), &sandbox);
+        if (r != TS_OK)
+            throw std::runtime_error(ts_last_error(&sandbox, nullptr));
         ts_component_init(&component, &def, TS_N);
     }
 
