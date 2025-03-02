@@ -10,7 +10,6 @@
 #include <stb_ds.h>
 
 #include "board/board.h"
-#include "component/defaultcomponents.h"
 #include "util/serialize.h"
 
 //

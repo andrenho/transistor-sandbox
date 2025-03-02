@@ -40,12 +40,16 @@ typedef struct ts_ComponentDef {
 } ts_ComponentDef;
 
 // initialization
-ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, ts_Sandbox* sb); // assumes component Lua table in place
+ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_code, ts_Sandbox* sb); // assumes component Lua table in place
 ts_Result ts_component_def_finalize(ts_ComponentDef* def);
 
 // positioning
 ts_Rect ts_component_def_rect(ts_ComponentDef const* def, ts_Position component_pos, ts_Direction dir);
 size_t  ts_component_def_pin_positions(ts_ComponentDef const* def, ts_Position component_pos, ts_Direction dir,
                                        ts_PinPos* pin_pos, size_t max_pin_pos);
+
+// serialization
+ts_Result ts_component_def_serialize(ts_ComponentDef const* def, FILE* f);
+ts_Result ts_component_def_unserialize(ts_ComponentDef* def, lua_State* L, ts_Sandbox* sb);
 
 #endif //COMPONENTDEF_H

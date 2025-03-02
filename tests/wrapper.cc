@@ -17,7 +17,9 @@ struct Fixture {
     Fixture(bool multithreaded)
     {
         ts_transistor_init(&t, { multithreaded, multithreaded });
-        ts_transistor_component_db_add_from_lua_bytes(&t, (uint8_t const *) components, strlen(components));
+        ts_transistor_component_db_add_from_lua(&t, button);
+        ts_transistor_component_db_add_from_lua(&t, led);
+        ts_transistor_component_db_add_from_lua(&t, or_2i);
 
         // add wire
         ts_transistor_cursor_set_pointer(&t, 0, { 1, 1 });

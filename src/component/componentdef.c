@@ -10,7 +10,7 @@
 static const char* TYPE_ERR_MSG = "Expected a field 'type' with either: 'single_tile', 'ic_dip' or 'ic_quad'";
 static const char* WIRE_WIDTH_ERR_MSG = "Expected a field 'wire_width' with either 1 or 8.";
 
-ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, ts_Sandbox* sb)
+ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_code, ts_Sandbox* sb)
 {
 #define ERROR(msg)               { r = ts_error(sb, TS_COMPONENT_DEF_ERROR, msg); goto end; }
 #define EXPECT(type, msg)        { if (!lua_is ## type(L, -1)) ERROR(msg) }
@@ -18,6 +18,11 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, ts_Sandbox* sb)
 #define CHECK_FUNCTION(name)     { lua_getfield(L, -1, name); EXPECT_OR_NIL(function, "'" # name "' should be a function"); lua_pop(L, 1); }
 
     lua_State* L = sb->L;
+
+    if (luaL_loadstring(L, lua_code) != LUA_OK)
+        return ts_error(sb, TS_LUA_FUNCTION_ERROR, "syntax error loading component def: %s", lua_tostring(L, -1));
+    if (lua_pcall(L, 0, 1, 0) != LUA_OK)
+        return ts_error(sb, TS_LUA_FUNCTION_ERROR, "syntax error loading component def: %s", lua_tostring(L, -1));
 
     ts_Result r = TS_OK;
     int initial_stack = lua_gettop(L);
@@ -109,6 +114,10 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, ts_Sandbox* sb)
     // check functions
     CHECK_FUNCTION("on_click")
     CHECK_FUNCTION("simulate")
+
+    // add own code to table (for serialization)
+    lua_pushstring(L, lua_code);
+    lua_setfield(L, -2, "__code");
 
     // store Lua reference
     lua_pushvalue(L, -1);
@@ -308,3 +317,17 @@ size_t ts_component_def_pin_positions(ts_ComponentDef const* def, ts_Position co
     }
 }
 
+ts_Result ts_component_def_serialize(ts_ComponentDef const* def, FILE* f)
+{
+    lua_State* L = def->sandbox->L;
+    lua_rawgeti(L, LUA_REGISTRYINDEX, def->luaref);
+    lua_getfield(L, -1, "__code");
+    fprintf(f, "[===[%s]===]", lua_tostring(L, -1));
+    lua_pop(L, 2);
+    return TS_OK;
+}
+
+ts_Result ts_component_def_unserialize(ts_ComponentDef* def, lua_State* L, ts_Sandbox* sb)
+{
+
+}

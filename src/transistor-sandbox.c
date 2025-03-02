@@ -152,35 +152,11 @@ ts_Result ts_transistor_unlock(ts_Transistor* t)
 // component db
 //
 
-ts_Result ts_transistor_component_db_add_from_lua_file(ts_Transistor* t, FILE* f)
-{
-    // lock happens on the inner function
-
-    char* buffer;
-    ssize_t bytes_read = getdelim(&buffer, NULL, '\0', f);
-    if (bytes_read < 0)
-        return TS_SYSTEM_ERROR;
-    ts_Result r = ts_transistor_component_db_add_from_lua_bytes(t, (uint8_t *) buffer, bytes_read);
-    free(buffer);
-
-    return r;
-}
-
-ts_Result ts_transistor_component_db_add_from_lua_bytes(ts_Transistor* t, uint8_t const* bytes, size_t sz)
+ts_Result ts_transistor_component_db_add_from_lua(ts_Transistor* t, const char* lua_code)
 {
     ts_Result r;
     ts_transistor_lock(t);
-
-    lua_State* L = t->sandbox.L;
-    if (luaL_loadbuffer(L, (const char *) bytes, sz, "load_component_def") != LUA_OK) {
-        r = ts_error(&t->sandbox, TS_LUA_FUNCTION_ERROR, "syntax error loading component def: %s", lua_tostring(L, -1));
-    } else {
-        if (lua_pcall(L, 0, 1, 0) != LUA_OK)
-            r = ts_error(&t->sandbox, TS_LUA_FUNCTION_ERROR, "syntax error loading component def: %s", lua_tostring(L, -1));
-        else
-            r = ts_component_db_add_def_from_lua(&t->sandbox.component_db);
-    }
-
+    r = ts_component_db_add_def_from_lua(&t->sandbox.component_db, lua_code);
     ts_transistor_unlock(t);
     return r;
 }
