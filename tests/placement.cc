@@ -5,12 +5,12 @@
 #include <stb_ds.h>
 #include <string>
 
-
-
 extern "C" {
 #include "board/board.h"
 #include "sandbox/sandbox.h"
 #include "basic/pos_ds.h"
+
+#include "components.hh"
 
 extern ts_HashPosComponentPtr ts_board_component_tiles(ts_Board const* board);
 }
@@ -24,6 +24,7 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place wire outside of circuit bounds")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_wire(&sb.boards[0], { 20, 1, TS_E }, { TS_WIRE_1, TS_LAYER_TOP });
             CHECK(ts_board_wire(&sb.boards[0], { 20, 1, TS_E }) == NULL);
             ts_sandbox_finalize(&sb);
@@ -32,6 +33,7 @@ TEST_SUITE("Placement")
         SUBCASE("Don't wire place on top of ICs")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 1 }, TS_N);
             ts_board_add_wire(&sb.boards[0], { 2, 2, TS_N }, { TS_WIRE_1, TS_LAYER_TOP });
             CHECK(ts_board_wire(&sb.boards[0], { 2, 2, TS_N }) == NULL);
@@ -41,6 +43,7 @@ TEST_SUITE("Placement")
         SUBCASE("Remove wire")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
             ts_board_clear_tile(&sb.boards[0], { 2, 1 });
             CHECK(ts_board_wire(&sb.boards[0], { 1, 1, TS_E }) != NULL);
@@ -56,6 +59,7 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place outside of circuit bounds")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__button", { 10, 1 }, TS_N);
             CHECK(ts_board_component(&sb.boards[0], { 20, 1 }) == NULL);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 0, 0 }, TS_N);
@@ -66,6 +70,7 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place single-tile component on top of another single-tile component")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__led", { 1, 1 }, TS_N);
             CHECK(std::string(ts_board_component(&sb.boards[0], { 1, 1 })->def->key) == "__button");
@@ -75,6 +80,7 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place single-tile component on top of IC component")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 1 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__button", { 2, 2 }, TS_N);
             CHECK(std::string(ts_board_component(&sb.boards[0], { 2, 2 })->def->key) == "__or_2i");
@@ -84,6 +90,7 @@ TEST_SUITE("Placement")
         SUBCASE("Remove component")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
             ts_board_clear_tile(&sb.boards[0], { 1, 1 });
             CHECK(ts_board_component(&sb.boards[0], { 1, 1 }) == NULL);
@@ -97,6 +104,7 @@ TEST_SUITE("Placement")
         {
             ts_PositionHash p;
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
 
             ts_board_add_component(&sb.boards[0], "__button", { 0, 0 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 2, 2 }, TS_N);
@@ -124,6 +132,7 @@ TEST_SUITE("Placement")
         SUBCASE("Query IC in a different tile")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 2, 2 }, TS_N);
             CHECK(ts_board_component(&sb.boards[0], { 1, 1 }) != NULL);
             ts_sandbox_finalize(&sb);
@@ -132,6 +141,7 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place outside of circuit bounds")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 11, 1 }, TS_N);
             CHECK(ts_board_component(&sb.boards[0], { 21, 1 }) == NULL);
             ts_sandbox_finalize(&sb);
@@ -140,6 +150,7 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place any part of IC outside of circuit bounds")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 9 }, TS_N);
             CHECK(ts_board_component(&sb.boards[0], { 1, 9 }) == NULL);
             ts_sandbox_finalize(&sb);
@@ -148,6 +159,7 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place IC over single-tile component")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__button", { 2, 2 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 1 }, TS_N);
             CHECK(ts_board_component(&sb.boards[0], { 1, 1 }) == NULL);
@@ -157,6 +169,7 @@ TEST_SUITE("Placement")
         SUBCASE("Don't place IC over another IC")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 2, 2 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 1 }, TS_N);
             CHECK(ts_board_component(&sb.boards[0], { 0, 0 }) == NULL);
@@ -168,6 +181,7 @@ TEST_SUITE("Placement")
             ts_Position p;
 
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_wires(&sb.boards[0], { 0, 1 }, { 4, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
             ts_board_add_component(&sb.boards[0], "__or_2i", { 2, 1 }, TS_N);
 
@@ -183,6 +197,7 @@ TEST_SUITE("Placement")
         SUBCASE("Remove IC")
         {
             ts_Sandbox sb; ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__or_2i", { 1, 1 }, TS_N);
             ts_board_clear_tile(&sb.boards[0], { 2, 2 });
             CHECK(ts_board_component(&sb.boards[0], { 1, 1 }) == NULL);
@@ -190,6 +205,4 @@ TEST_SUITE("Placement")
             ts_sandbox_finalize(&sb);
         }
     }
-
-    // TODO - check memory usage
 }

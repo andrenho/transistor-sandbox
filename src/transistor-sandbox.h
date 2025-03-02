@@ -47,7 +47,9 @@ ts_Result ts_transistor_unlock(ts_Transistor* t);
 ts_BoardIdx ts_transistor_add_board(ts_Transistor* t, int w, int h);
 
 // component db
-ts_Result ts_transistor_component_db_add(ts_Transistor* t, ts_ComponentDef const* def);
+ts_Result ts_transistor_component_db_add_from_lua_file(ts_Transistor* t, FILE* f);
+ts_Result ts_transistor_component_db_add_from_lua_bytes(ts_Transistor* t, uint8_t const* bytes, size_t sz);
+ts_Result ts_transistor_component_db_native_simulation(ts_Transistor* t, const char* name, SimulateFn sim_fn);
 
 // execution
 ts_Result ts_transistor_run(ts_Transistor* t, size_t run_for_us);

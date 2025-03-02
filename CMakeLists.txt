@@ -75,8 +75,6 @@ add_library(${PROJECT_NAME} STATIC
         src/component/componentdb.c
         src/component/componentdb.h
         src/component/componentdef.h
-        src/component/defaultcomponents.h
-        src/component/defaultcomponents.c
         src/component/component.h
         src/component/component.c
         src/component/pinpos.h
@@ -129,6 +127,7 @@ add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL
         tests/simulation.cc
         tests/wrapper.cc
         tests/custom_ic.cc
+        tests/components.hh
 )
 target_compile_options(${PROJECT_NAME}-tests PRIVATE ${warnings} )
 target_link_directories(${PROJECT_NAME}-tests PRIVATE ${LUA_LIBRARY_DIRS})

@@ -3,12 +3,13 @@
 #include <stb_ds.h>
 #include <string>
 
-
 extern "C" {
 #include "sandbox/sandbox.h"
 #include "compiler/compiler.h"
 extern ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb);
 }
+
+#include "components.hh"
 
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
@@ -35,6 +36,7 @@ TEST_SUITE("Compilation")
 
             CompFixture() {
                 ts_sandbox_init(&sb);
+                ts_add_lua_components(&sb);
                 ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
                 ts_board_add_component(&sb.boards[0], "__led", { 3, 1 }, TS_N);
                 ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });
@@ -149,6 +151,7 @@ TEST_SUITE("Compilation")
 
             CompFixture(ts_Direction ic_dir) {
                 ts_sandbox_init(&sb);
+                ts_add_lua_components(&sb);
                 ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
                 ts_board_add_component(&sb.boards[0], "__or_2i", { 3, 1 }, ic_dir);
                 ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });

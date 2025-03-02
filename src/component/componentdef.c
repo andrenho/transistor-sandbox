@@ -10,7 +10,7 @@
 static const char* TYPE_ERR_MSG = "Expected a field 'type' with either: 'single_tile', 'ic_dip' or 'ic_quad'";
 static const char* WIRE_WIDTH_ERR_MSG = "Expected a field 'wire_width' with either 1 or 8.";
 
-ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, SimulateFn sim_fn, ts_Sandbox* sb)
+ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, ts_Sandbox* sb)
 {
 #define ERROR(msg)               { r = ts_error(sb, TS_COMPONENT_DEF_ERROR, msg); goto end; }
 #define EXPECT(type, msg)        { if (!lua_is ## type(L, -1)) ERROR(msg) }
@@ -109,9 +109,6 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, SimulateFn sim_fn
     // check functions
     CHECK_FUNCTION("on_click")
     CHECK_FUNCTION("simulate")
-
-    // native simulation
-    def->c_simulate = sim_fn;
 
     // store Lua reference
     lua_pushvalue(L, -1);

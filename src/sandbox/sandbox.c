@@ -51,13 +51,13 @@ ts_Result ts_sandbox_finalize(ts_Sandbox* sb)
 {
     ts_sandbox_end_simulation(sb);
 
-    lua_close(sb->L);
-
     for (int i = 0; i < arrlen(sb->boards); ++i)
         ts_board_finalize(&sb->boards[i]);
     arrfree(sb->boards);
 
     ts_component_db_finalize(&sb->component_db);
+
+    lua_close(sb->L);
 
     return TS_OK;
 }

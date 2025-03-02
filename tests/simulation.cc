@@ -8,6 +8,8 @@ extern "C" {
 #include "sandbox/sandbox.h"
 }
 
+#include "components.hh"
+
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
 TEST_SUITE("Simulation")
@@ -17,6 +19,7 @@ TEST_SUITE("Simulation")
 
         SimFixture() {
             ts_sandbox_init(&sb);
+            ts_add_lua_components(&sb);
             ts_board_add_component(&sb.boards[0], "__button", { 1, 1 }, TS_N);
             ts_board_add_component(&sb.boards[0], "__led", { 3, 1 }, TS_N);
             ts_board_add_wires(&sb.boards[0], { 1, 1 }, { 3, 1 }, TS_HORIZONTAL, { TS_WIRE_1, TS_LAYER_TOP });

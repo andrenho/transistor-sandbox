@@ -17,7 +17,8 @@ ts_Result ts_component_db_init(ts_ComponentDB* db, ts_Sandbox* sb);
 ts_Result ts_component_db_finalize(ts_ComponentDB* db);
 
 // db management
-ts_Result              ts_component_db_add_def(ts_ComponentDB* db, ts_ComponentDef const* def);
+ts_Result              ts_component_db_add_def_from_lua(ts_ComponentDB* db);
+ts_Result              ts_component_db_update_simulation(ts_ComponentDB* db, const char* name, SimulateFn sim_fn);
 ts_ComponentDef const* ts_component_db_def(ts_ComponentDB const* db, const char* name);
 
 // serialization

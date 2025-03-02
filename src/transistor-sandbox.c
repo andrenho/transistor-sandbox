@@ -5,6 +5,9 @@
 #include <string.h>
 #include <sched.h>
 
+#include <lua.h>
+#include <lauxlib.h>
+
 #include "stb_ds.h"
 #include "sandbox/sandbox.h"
 
@@ -149,12 +152,45 @@ ts_Result ts_transistor_unlock(ts_Transistor* t)
 // component db
 //
 
-ts_Result ts_transistor_component_db_add(ts_Transistor* t, ts_ComponentDef const* def)
+ts_Result ts_transistor_component_db_add_from_lua_file(ts_Transistor* t, FILE* f)
 {
+    // lock happens on the inner function
+
+    char* buffer;
+    ssize_t bytes_read = getdelim(&buffer, NULL, '\0', f);
+    if (bytes_read < 0)
+        return TS_SYSTEM_ERROR;
+    ts_Result r = ts_transistor_component_db_add_from_lua_bytes(t, (uint8_t *) buffer, bytes_read);
+    free(buffer);
+
+    return r;
+}
+
+ts_Result ts_transistor_component_db_add_from_lua_bytes(ts_Transistor* t, uint8_t const* bytes, size_t sz)
+{
+    ts_Result r;
     ts_transistor_lock(t);
-    ts_Result r = ts_component_db_add_def(&t->sandbox.component_db, def);
+
+    lua_State* L = t->sandbox.L;
+    if (luaL_loadbuffer(L, (const char *) bytes, sz, "load_component_def") != LUA_OK) {
+        r = ts_error(&t->sandbox, TS_LUA_FUNCTION_ERROR, "syntax error loading component def: %s", lua_tostring(L, -1));
+    } else {
+        if (lua_pcall(L, 0, 1, 0) != LUA_OK)
+            r = ts_error(&t->sandbox, TS_LUA_FUNCTION_ERROR, "syntax error loading component def: %s", lua_tostring(L, -1));
+        else
+            r = ts_component_db_add_def_from_lua(&t->sandbox.component_db);
+    }
+
     ts_transistor_unlock(t);
     return r;
+}
+
+ts_Result ts_transistor_component_db_native_simulation(ts_Transistor* t, const char* name, SimulateFn sim_fn)
+{
+    ts_transistor_lock(t);
+    ts_component_db_update_simulation(&t->sandbox.component_db, name, sim_fn);
+    ts_transistor_unlock(t);
+    return TS_OK;
 }
 
 //

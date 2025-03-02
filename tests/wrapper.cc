@@ -5,10 +5,11 @@
 #include <stb_ds.h>
 #include <unistd.h>
 
-
 extern "C" {
 #include "transistor-sandbox.h"
 }
+
+#include "components.hh"
 
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
@@ -16,6 +17,7 @@ struct Fixture {
     Fixture(bool multithreaded)
     {
         ts_transistor_init(&t, { multithreaded, multithreaded });
+        ts_transistor_component_db_add_from_lua_bytes(&t, (uint8_t const *) components, strlen(components));
 
         // add wire
         ts_transistor_cursor_set_pointer(&t, 0, { 1, 1 });

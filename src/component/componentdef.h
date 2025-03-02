@@ -19,36 +19,28 @@ typedef struct ts_PinDef {
     ts_WireWidth    wire_width;
 } ts_PinDef;
 
+typedef void (*SimulateFn)(ts_Component* component);
+
 typedef struct ts_ComponentDef {
-    char*            key;
-    ts_ComponentType type;
+    char*            key;               // component name (used as index in database)
+    ts_ComponentType type;              // single tile, ic_dup (PDIP) or ic_quad
     bool             can_rotate;
-    uint8_t          ic_width;
+    uint8_t          ic_width;          // in PDIP, distance between the two rows
 
     uint8_t          n_pins;
     ts_PinDef*       pins;
 
-    size_t           data_size;
+    size_t           data_size;         // number of bytes used as data
 
-    void             (*c_simulate)(ts_Component* component);
+    SimulateFn       c_simulate;        // call this instead of 'simulate' on Lua, if present
 
     ts_Sandbox*      sandbox;
-    int              luaref;
-
-    /*
-    void             (*init)(ts_Component* component);
-
-    void             (*on_click)(ts_Component* component);
-
-    int              (*serialize)(ts_Component* component, int vspace, char* buf, size_t buf_sz);
-    ts_Result        (*unserialize)(ts_Component* component, lua_State* L, ts_Board* board);
-    */
+    int              luaref;            // store global reference in Lua
 
 } ts_ComponentDef;
 
 // initialization
-typedef void (*SimulateFn)(ts_Component* component);
-ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, SimulateFn sim_fn, ts_Sandbox* sb); // assumes component Lua table in place
+ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, ts_Sandbox* sb); // assumes component Lua table in place
 ts_Result ts_component_def_finalize(ts_ComponentDef* def);
 
 // positioning

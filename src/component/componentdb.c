@@ -20,9 +20,42 @@ ts_Result ts_component_db_finalize(ts_ComponentDB* db)
     return TS_OK;
 }
 
-ts_Result ts_component_db_add_def(ts_ComponentDB* db, ts_ComponentDef const* def)
+ts_Result ts_component_db_add_def_from_lua(ts_ComponentDB* db)
 {
-    shputs(db->items, *def);
+    lua_State* L = db->sandbox->L;
+    ts_Result r = TS_OK;
+    int initial_stack = lua_gettop(L);
+
+    if (!lua_istable(L, -1))
+        return ts_error(db->sandbox, TS_COMPONENT_DEF_ERROR, "Component definition file should return a table.");
+
+    size_t len = lua_objlen(L, -1);
+    if (len == 0) {
+        ts_ComponentDef def;
+        if ((r = ts_component_def_init_from_lua(&def, db->sandbox)) != TS_OK)
+            return r;
+        shputs(db->items, def);
+    } else for (size_t i = 0; i < len; ++i) {
+        lua_rawgeti(L, -1, i + 1);
+        ts_ComponentDef def;
+        if ((r = ts_component_def_init_from_lua(&def, db->sandbox)) != TS_OK)
+            return r;
+        shputs(db->items, def);
+        lua_pop(L, 1);
+    }
+
+end:
+    if (lua_gettop(L) > initial_stack)
+        lua_pop(L, initial_stack - lua_gettop(L));
+    return r;
+}
+
+ts_Result ts_component_db_update_simulation(ts_ComponentDB* db, const char* name, SimulateFn sim_fn)
+{
+    ts_ComponentDef* def = (ts_ComponentDef *) ts_component_db_def(db, name);
+    if (def == NULL)
+        return ts_error(db->sandbox, TS_COMPONENT_NOT_FOUND, "Component definition '%s' not found in database.", name);
+    def->c_simulate = sim_fn;
     return TS_OK;
 }
 

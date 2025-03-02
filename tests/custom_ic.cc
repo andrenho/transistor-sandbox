@@ -9,41 +9,39 @@ extern "C" {
 #include "component/componentdef.h"
 }
 
-std::string button = R"({
-    key = "__button",
-    type = "single_tile",
+constexpr const char* components = R"(return
+    {
+        key = "__button",
+        type = "single_tile",
 
-    can_rotate = false,
-    data_size = 1,
+        can_rotate = false,
+        data_size = 1,
 
-    pins = {
-        { name = "O1", direction = "output" },
-        { name = "O2", direction = "output" },
-        { name = "O3", direction = "output" },
-        { name = "O4", direction = "output" },
-    },
+        pins = {
+            { name = "O1", direction = "output" },
+            { name = "O2", direction = "output" },
+            { name = "O3", direction = "output" },
+            { name = "O4", direction = "output" },
+        },
 
-    on_click = function(button)
-        button.data[1] = bit.bnot(button.data[1])
-    end,
+        on_click = function(button)
+            button.data[1] = bit.bnot(button.data[1])
+        end,
 
-    simulate = function(button)
-        --print(#button.pin)
-        --print(button.pin[1])
-        --print(button.data[1])
-        --for i=1,#button.pin do button.pin[i] = button.data[1] end
-        button.pin[1] = button.data[1]
-        print(button.pin[1])
-    end,
+        simulate = function(button)
+            for i=1,#button.pin do button.pin[i] = button.data[1] end
+        end,
 
-    -- rendering
+        -- rendering
 
-    init = function(button, renderer)
-        puts('Button initialized.')
-    end,
+        init = function(button, renderer)
+            puts('Button initialized.')
+        end,
 
-    render = function(button, renderer, x, y) end,
-})";
+        render = function(button, renderer, x, y) end,
+    }
+)";
+
 
 TEST_SUITE("Load IC from Lua")
 {
@@ -53,11 +51,11 @@ TEST_SUITE("Load IC from Lua")
         ts_Sandbox sb;
         ts_sandbox_init(&sb);
 
-        luaL_loadstring(sb.L, ("return " + button).c_str());
+        luaL_loadstring(sb.L, components);
         lua_call(sb.L, 0, 1);
 
         ts_ComponentDef def;
-        ts_Result r = ts_component_def_init_from_lua(&def, nullptr, &sb);
+        ts_Result r = ts_component_def_init_from_lua(&def, &sb);
         if (r != TS_OK)
             fprintf(stderr, "error: %s\n", ts_last_error(&sb, NULL));
 
@@ -78,11 +76,11 @@ TEST_SUITE("Load IC from Lua")
         ts_Sandbox sb;
         ts_sandbox_init(&sb);
 
-        luaL_loadstring(sb.L, ("return " + button).c_str());
+        luaL_loadstring(sb.L, components);
         lua_call(sb.L, 0, 1);
 
         ts_ComponentDef def;
-        ts_component_def_init_from_lua(&def, nullptr, &sb);
+        ts_component_def_init_from_lua(&def, &sb);
         ts_Component component;
         ts_component_init(&component, &def, TS_N);
 
