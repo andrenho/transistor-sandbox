@@ -406,7 +406,7 @@ ts_Result ts_transistor_component_onclick(ts_Transistor* t, ts_ComponentSnapshot
     return TS_OK;
 }
 
-ts_Result ts_transistor_component_render(ts_Transistor* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y)
+ts_Result ts_transistor_component_render(ts_Transistor const* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y)
 {
     lua_State* L = t->sandbox.L;
 
@@ -423,7 +423,7 @@ ts_Result ts_transistor_component_render(ts_Transistor* t, ts_ComponentSnapshot 
     if (r != LUA_OK) {
         const char* error = lua_tostring(L, -1);
         lua_pop(L, 2);
-        return ts_error(&t->sandbox, TS_LUA_FUNCTION_ERROR, "lua function 'onclick' error: %s", error);
+        return ts_error(&t->sandbox, TS_LUA_FUNCTION_ERROR, "lua function 'render' error: %s", error);
     }
     lua_pop(L, 1);
     return TS_OK;

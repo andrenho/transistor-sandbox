@@ -168,13 +168,13 @@ ts_Result ts_sandbox_unserialize_from_file(ts_Sandbox* sb, FILE* f)
 // error handling
 //
 
-ts_Result ts_error(ts_Sandbox* sb, ts_Result response, const char* fmt, ...)
+ts_Result ts_error(ts_Sandbox const* sb, ts_Result response, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
 
-    sb->last_error = response;
-    vsnprintf(sb->last_error_message, sizeof sb->last_error_message, fmt, ap);
+    ((ts_Sandbox *)sb)->last_error = response;
+    vsnprintf(((ts_Sandbox *)sb)->last_error_message, sizeof sb->last_error_message, fmt, ap);
 
     va_end(ap);
     return response;

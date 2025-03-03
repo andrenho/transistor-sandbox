@@ -34,7 +34,7 @@ ts_Result ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str);
 ts_Result ts_sandbox_unserialize_from_file(ts_Sandbox* sb, FILE* f);
 
 // error handling
-ts_Result   ts_error(ts_Sandbox* sb, ts_Result response, const char* fmt, ...) __attribute__((format(printf, 3, 0)));
+ts_Result   ts_error(ts_Sandbox const* sb, ts_Result response, const char* fmt, ...) __attribute__((format(printf, 3, 0)));
 const char* ts_last_error(ts_Sandbox const* sb, ts_Result* response);
 
 #endif //SANDBOX_H
