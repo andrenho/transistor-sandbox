@@ -417,7 +417,6 @@ ts_Result ts_transistor_component_render(ts_Transistor const* t, ts_ComponentSna
     lua_rawgeti(L, LUA_REGISTRYINDEX, graphics_luaref);
     lua_pushinteger(L, x);
     lua_pushinteger(L, y);
-    // TODO - add context
 
     int r = lua_pcall(L, 4, 0, 0);
     if (r != LUA_OK) {
