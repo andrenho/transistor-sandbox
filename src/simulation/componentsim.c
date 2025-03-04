@@ -10,7 +10,7 @@
 ts_Result ts_component_sim_init(ts_Sandbox* sandbox)
 {
     lua_State* L = sandbox->L;
-    const char* lua_code = "function " FN_NAME "(list) for c in pairs(list) do c[1].simluate(c[2]) end end";
+    const char* lua_code = "function " FN_NAME "(list) for _,c in pairs(list) do c[1].simulate(c[2]) end end";
     if (luaL_dostring(L, lua_code))
         return ts_error(sandbox, TS_LUA_FUNCTION_ERROR, "lua error: %s", lua_tostring(L, -1));
     assert(lua_gettop(L) == 0);
