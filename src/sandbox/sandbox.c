@@ -1,5 +1,6 @@
 #include "sandbox.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -56,6 +57,7 @@ ts_Result ts_sandbox_finalize(ts_Sandbox* sb)
 
     ts_component_db_finalize(&sb->component_db);
 
+    assert(lua_gettop(sb->L) == 0);
     lua_close(sb->L);
 
     return TS_OK;
@@ -124,6 +126,8 @@ static ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* LL)
     }
     lua_pop(LL, 1);
 
+    assert(lua_gettop(LL) == 0);
+
     return TS_OK;
 }
 
@@ -149,6 +153,7 @@ ts_Result ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str)
     lua_pop(LL, 1);
 
 end:
+    assert(lua_gettop(LL) == 0);
     lua_close(LL);
     return response;
 }

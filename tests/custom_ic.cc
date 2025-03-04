@@ -84,11 +84,6 @@ TEST_SUITE("Load IC from Lua")
             fprintf(stderr, "error: %s\n", ts_last_error(&sb, nullptr));
         CHECK(component.data[0] != 0);
 
-        CHECK(component.pins[0] == 0);
-        if (ts_component_simulate(&component) != TS_OK)
-            fprintf(stderr, "error: %s\n", ts_last_error(&sb, nullptr));
-        CHECK(component.pins[0] != 0);
-
         ts_component_finalize(&component);
         ts_component_def_finalize(&def);
         ts_sandbox_finalize(&sb);

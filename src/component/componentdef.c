@@ -1,5 +1,6 @@
 #include "componentdef.h"
 
+#include <assert.h>
 #include <lauxlib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -141,8 +142,9 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
         }
     }
 
+    assert(lua_gettop(L) == 0);
 end:
-    if (lua_gettop(L) > initial_stack)
+    if (lua_gettop(L) >= initial_stack)
         lua_pop(L, initial_stack - lua_gettop(L));
     return r;
 
@@ -359,6 +361,7 @@ ts_Result ts_component_def_serialize(ts_ComponentDef const* def, FILE* f)
     fputc('\'', f);
 
     lua_pop(L, 2);
+    assert(lua_gettop(L) == 0);
     return TS_OK;
 }
 

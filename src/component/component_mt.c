@@ -1,5 +1,6 @@
 #include "component_mt.h"
 
+#include <assert.h>
 #include <lauxlib.h>
 
 #include "component.h"
@@ -65,4 +66,6 @@ void ts_components_mt_init(lua_State* L)
     lua_pushcfunction(L, pin_set); lua_setfield(L, -2, "__newindex");
     lua_pushcfunction(L, pin_len); lua_setfield(L, -2, "__len");
     lua_pop(L, 1);
+
+    assert(lua_gettop(L) == 0);
 }

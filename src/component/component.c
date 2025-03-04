@@ -1,5 +1,6 @@
 #include "component.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -28,6 +29,8 @@ ts_Result call_component_lua_function(ts_Component* component, const char* funct
         lua_pop(L, 1);
     }
     lua_pop(L, 1);
+
+    assert(lua_gettop(L) == 0);
     return TS_OK;
 }
 
@@ -57,8 +60,12 @@ static void ts_component_create_lua_reference_object(ts_Component* component)
     lua_setmetatable(L, -2);
     lua_setfield(L, -2, "pin");
 
+    assert(lua_gettop(L) == 0);
+
     component->luaref = luaL_ref(L, LUA_REGISTRYINDEX);
     call_component_lua_function(component, "init_component");
+
+    assert(lua_gettop(L) == 0);
 }
 
 ts_Result ts_component_init(ts_Component* component, ts_ComponentDef const* def, ts_Direction direction)
@@ -92,16 +99,6 @@ ts_Result ts_component_update_pos(ts_Component* component, ts_Board const* board
 ts_Result ts_component_on_click(ts_Component* component)
 {
     return call_component_lua_function(component, "on_click");
-}
-
-ts_Result ts_component_simulate(ts_Component* component)
-{
-    if (component->def->c_simulate) {
-        component->def->c_simulate(component);
-        return TS_OK;
-    } else {
-        return call_component_lua_function(component, "simulate");
-    }
 }
 
 ts_Rect ts_component_rect(ts_Component const* component)

@@ -8,6 +8,29 @@
 
 #include "compiler/compiler.h"
 #include "sandbox/sandbox.h"
+#include "componentsim.h"
+
+//
+// initialize
+//
+
+ts_Result ts_simulation_init(ts_Simulation* sim, ts_Sandbox* sandbox)
+{
+    sim->connections = NULL;
+    sim->sandbox = sandbox;
+    sim->steps = 0;
+    ts_component_sim_init(sandbox);
+    return TS_OK;
+}
+
+ts_Result ts_simulation_finalize(ts_Simulation* sim)
+{
+    for (int i = 0; i < arrlen(sim->connections); ++i)
+        ts_connection_finalize(&sim->connections[i]);
+    arrfree(sim->connections);
+    return TS_OK;
+}
+
 
 //
 // execution
@@ -15,14 +38,19 @@
 
 ts_Result ts_simulation_single_step(ts_Simulation* sim)
 {
-    // execute components
+    // simulate components
+    int idx = 0;
+    lua_State* L = sim->sandbox->L;
+    ts_component_sim_prepare(L);
     for (int i = 0; i < arrlen(sim->sandbox->boards); ++i) {
         ts_Board* board = &sim->sandbox->boards[i];
         for (int j = 0; j < hmlen(board->components); ++j) {
             ts_Component* component = board->components[j].value;
-            ts_component_simulate(component);
+            ts_component_sim_add_component(L, component, idx++);
         }
     }
+    ts_Result r; if ((r = ts_component_sim_execute(sim->sandbox)) != TS_OK)
+        return r;
 
     // update connection and input pin values
     for (int i = 0; i < arrlen(sim->connections); ++i) {
@@ -72,26 +100,6 @@ ts_Result ts_simulation_run(ts_Simulation* sim, size_t run_for_us)
     }
 
     return r;
-}
-
-//
-// initialize
-//
-
-ts_Result ts_simulation_init(ts_Simulation* sim, ts_Sandbox* sandbox)
-{
-    sim->connections = NULL;
-    sim->sandbox = sandbox;
-    sim->steps = 0;
-    return TS_OK;
-}
-
-ts_Result ts_simulation_finalize(ts_Simulation* sim)
-{
-    for (int i = 0; i < arrlen(sim->connections); ++i)
-        ts_connection_finalize(&sim->connections[i]);
-    arrfree(sim->connections);
-    return TS_OK;
 }
 
 //
