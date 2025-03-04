@@ -60,8 +60,6 @@ static void ts_component_create_lua_reference_object(ts_Component* component)
     lua_setmetatable(L, -2);
     lua_setfield(L, -2, "pin");
 
-    assert(lua_gettop(L) == 0);
-
     component->luaref = luaL_ref(L, LUA_REGISTRYINDEX);
     call_component_lua_function(component, "init_component");
 

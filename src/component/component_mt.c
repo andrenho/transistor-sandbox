@@ -54,6 +54,7 @@ void ts_components_mt_init(lua_State* L)
         lua_pop(L, 1);
         return;
     }
+    lua_pop(L, 1);
 
     luaL_newmetatable(L, "Data");
     lua_pushcfunction(L, data_get); lua_setfield(L, -2, "__index");

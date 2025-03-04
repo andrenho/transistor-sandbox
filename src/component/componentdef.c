@@ -37,12 +37,14 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
     def->sandbox = sb;
 
     // key
+    assert(lua_gettop(L) == 1);
     lua_getfield(L, -1, "key");
     EXPECT(string, "Expected a field 'key' with the component name.");
     def->key = strdup(lua_tostring(L, -1));
     lua_pop(L, 1);
 
     // type
+    assert(lua_gettop(L) == 1);
     lua_getfield(L, -1, "type");
     EXPECT(string, TYPE_ERR_MSG);
     const char* type = lua_tostring(L, -1);
@@ -57,24 +59,28 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
     lua_pop(L, 1);
 
     // can_rotate
+    assert(lua_gettop(L) == 1);
     lua_getfield(L, -1, "can_rotate");
     EXPECT_OR_NIL(boolean, "Expected a boolean field 'can_rotate' (optional)");
     def->can_rotate = lua_toboolean(L, -1);
     lua_pop(L, 1);
 
     // data_size
+    assert(lua_gettop(L) == 1);
     lua_getfield(L, -1, "data_size");
     EXPECT_OR_NIL(number, "Expected a numeric field 'data_size' (optional)");
     def->data_size = lua_tonumber(L, -1);
     lua_pop(L, 1);
 
     // ic_width
+    assert(lua_gettop(L) == 1);
     lua_getfield(L, -1, "ic_width");
     EXPECT_OR_NIL(number, "Expected a numeric field 'ic_width' (optional)");
     def->ic_width = lua_isnil(L, -1) ? 1 : lua_tonumber(L, -1);
     lua_pop(L, 1);
 
     // pins
+    assert(lua_gettop(L) == 1);
     lua_getfield(L, -1, "pins");
     EXPECT(table, "Expected a field 'pin', with a list of pins { name, type, wire_width }.");
     def->n_pins = lua_objlen(L, -1);
@@ -116,6 +122,7 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
     lua_pop(L, 1);
 
     // check functions
+    assert(lua_gettop(L) == 1);
     CHECK_FUNCTION("init")
     CHECK_FUNCTION("init_component")
     CHECK_FUNCTION("on_click")
@@ -123,14 +130,17 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
     CHECK_FUNCTION("render")
 
     // add own code to table (for serialization)
+    assert(lua_gettop(L) == 1);
     lua_pushstring(L, lua_code);
     lua_setfield(L, -2, "__code");
 
     // store Lua reference
+    assert(lua_gettop(L) == 1);
     lua_pushvalue(L, -1);
     def->luaref = luaL_ref(L, LUA_REGISTRYINDEX);
 
     // call init, if present
+    assert(lua_gettop(L) == 1);
     if (graphics_luaref != -1) {
         lua_getfield(L, -1, "init");
         if (!lua_isnil(L, -1)) {
@@ -142,6 +152,7 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
         }
     }
 
+    lua_pop(L, 1);
     assert(lua_gettop(L) == 0);
 end:
     if (lua_gettop(L) >= initial_stack)
