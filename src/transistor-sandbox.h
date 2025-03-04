@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <sys/time.h>
 
 #include "sandbox/sandbox.h"
 
@@ -23,6 +24,10 @@ typedef struct ts_Transistor {
     pthread_cond_t      cond;
     bool                thread_running;
     bool                thread_paused;
+
+    int                 steps_per_second;
+    int                 last_step_count;
+    struct timeval      next_step_calculation;
 } ts_Transistor;
 
 typedef unsigned int ts_BoardIdx;
@@ -62,7 +67,11 @@ ts_Result ts_transistor_cursor_key_release(ts_Transistor* t, char key);
 ts_Result ts_transistor_cursor_select_component_def(ts_Transistor* t, const char* name);
 
 // errors
-ts_Result ts_transistor_last_error(ts_Transistor* t, char* err_buf, size_t err_buf_sz);
+ts_Result ts_transistor_last_error(ts_Transistor const* t, char* err_buf, size_t err_buf_sz);
+
+// other information
+lua_State* ts_transistor_lua_state(ts_Transistor const* t);
+int        ts_transistor_steps_per_second(ts_Transistor* t);
 
 //
 // take snapshot

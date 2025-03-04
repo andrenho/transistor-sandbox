@@ -255,14 +255,23 @@ ts_Result ts_transistor_cursor_select_component_def(ts_Transistor* t, const char
 // errors
 //
 
-ts_Result ts_transistor_last_error(ts_Transistor* t, char* err_buf, size_t err_buf_sz)
+ts_Result ts_transistor_last_error(ts_Transistor const* t, char* err_buf, size_t err_buf_sz)
 {
-    ts_transistor_lock(t);
+    ts_transistor_lock((ts_Transistor *) t);
     ts_Result r;
     const char* err = ts_last_error(&t->sandbox, &r);
     snprintf(err_buf, err_buf_sz, "%s", err);
-    ts_transistor_unlock(t);
+    ts_transistor_unlock((ts_Transistor *) t);
     return r;
+}
+
+//
+// other information
+//
+
+lua_State* ts_transistor_lua_state(ts_Transistor const* t)
+{
+    return t->sandbox.L;
 }
 
 //
@@ -426,4 +435,21 @@ ts_Result ts_transistor_component_render(ts_Transistor const* t, ts_ComponentSna
     }
     lua_pop(L, 1);
     return TS_OK;
+}
+
+int ts_transistor_steps_per_second(ts_Transistor* t)
+{
+    struct timeval now;
+    gettimeofday(&now, NULL);
+
+    if (timercmp(&now, &t->next_step_calculation, >=)) {
+        int total_steps = ts_simulation_steps(&t->sandbox.simulation);
+        t->steps_per_second = total_steps - t->last_step_count;
+        t->last_step_count = total_steps;
+
+        struct timeval one_second = { .tv_sec = 1, .tv_usec = 0 };
+        timeradd(&now, &one_second, &t->next_step_calculation);
+    }
+
+    return t->steps_per_second;
 }
