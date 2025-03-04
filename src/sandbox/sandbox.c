@@ -126,7 +126,7 @@ static ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* LL)
     }
     lua_pop(LL, 1);
 
-    assert(lua_gettop(LL) == 0);
+    assert(lua_gettop(LL) == 1);
 
     return TS_OK;
 }
