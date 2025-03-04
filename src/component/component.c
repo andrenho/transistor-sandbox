@@ -14,6 +14,7 @@
 ts_Result call_component_lua_function(ts_Component* component, const char* function)
 {
     lua_State* L = component->def->sandbox->L;
+    assert(lua_gettop(L) == 0);
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, component->def->luaref);
     lua_getfield(L, -1, function);

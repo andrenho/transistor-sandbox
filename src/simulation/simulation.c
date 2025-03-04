@@ -1,5 +1,6 @@
 #include "simulation.h"
 
+#include <assert.h>
 #include <errno.h>
 #include <stb_ds.h>
 #include <sched.h>
@@ -51,6 +52,7 @@ ts_Result ts_simulation_single_step(ts_Simulation* sim)
     }
     ts_Result r; if ((r = ts_component_sim_execute(sim->sandbox)) != TS_OK)
         return r;
+    assert(lua_gettop(L) == 0);
 
     // update connection and input pin values
     for (int i = 0; i < arrlen(sim->connections); ++i) {

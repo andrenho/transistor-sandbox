@@ -35,22 +35,24 @@ TEST_SUITE("Simulation")
 
     TEST_CASE("Single-threaded")
     {
+#define RUN_SIM() { ts_Result r = ts_simulation_run(&f.sb.simulation, 10000); if (r != TS_OK) fprintf(stderr, "%s\n", ts_last_error(&f.sb, NULL)); CHECK(r == TS_OK); }
         ts_Position pos[200];
         uint8_t value[200];
 
         SimFixture f;
-        ts_simulation_run(&f.sb.simulation, 10000);
+        RUN_SIM()
         CHECK(f.led()->data[0] == 0);
+        CHECK(lua_gettop(f.sb.L) == 0);
 
         ts_component_on_click(f.button());
-        ts_simulation_run(&f.sb.simulation, 10000);
+        RUN_SIM()
         CHECK(f.led()->data[0] != 0);
         size_t sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
         CHECK(sz == 4);
         CHECK(value[0] != 0);
 
         ts_component_on_click(f.button());
-        ts_simulation_run(&f.sb.simulation, 10000);
+        RUN_SIM()
         CHECK(f.led()->data[0] == 0);
         sz = ts_board_wires(&f.sb.boards[0], pos, value, 200);
         CHECK(sz == 4);

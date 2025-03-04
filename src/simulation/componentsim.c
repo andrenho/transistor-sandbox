@@ -29,9 +29,10 @@ ts_Result ts_component_sim_add_component(lua_State* L, ts_Component* component, 
     if (component->def->c_simulate) {
         component->def->c_simulate(component);
     } else {
+        assert(lua_gettop(L) == 1);
         lua_createtable(L, 2, 0);
-        lua_rawgeti(L, LUA_REGISTRYINDEX, component->def->luaref); lua_rawseti(L, -2, 1); lua_pop(L, 1);
-        lua_rawgeti(L, LUA_REGISTRYINDEX, component->luaref); lua_rawseti(L, -2, 2); lua_pop(L, 1);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, component->def->luaref); lua_rawseti(L, -2, 1);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, component->luaref); lua_rawseti(L, -2, 2);
         lua_rawseti(L, -2, idx);
         assert(lua_gettop(L) == 1);
     }
@@ -43,10 +44,9 @@ ts_Result ts_component_sim_execute(ts_Sandbox const* sandbox)
     lua_State* L = sandbox->L;
     lua_getglobal(L, FN_NAME);
     lua_pushvalue(L, -2);
-    int r = lua_pcall(L, 1, 0, 0);
-    lua_pop(L, 1);
-    if (r != LUA_OK)
+    if (lua_pcall(L, 1, 0, 0) != LUA_OK)
         return ts_error(sandbox, TS_LUA_FUNCTION_ERROR, "lua error: %s", lua_tostring(L, -1));
+    lua_pop(L, 1);
     assert(lua_gettop(L) == 0);
     return TS_OK;
 }
