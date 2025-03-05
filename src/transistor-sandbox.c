@@ -378,7 +378,7 @@ ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnaps
     if (pl_level() == PL_TRACE_LEVEL) {
         PL_TRACE("Snapshot created with %zu boards.", snap->n_boards);
         for (size_t i = 0; i < snap->n_boards; ++i)
-            PL_TRACE("Board %zu has %zu wires and %zu components", snap->boards[i].n_wires, snap->boards[i].n_components);
+            PL_TRACE("Board %zu has %zu wires and %zu components", i, snap->boards[i].n_wires, snap->boards[i].n_components);
     }
 
     return TS_OK;

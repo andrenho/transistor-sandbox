@@ -97,7 +97,7 @@ ts_Connection* ts_compiler_compile(ts_Sandbox const* sb)
     arrfree(single_tile_component_pins);
     arrfree(pins);
 
-    PL_DEBUG("Compilation complete: %d connections found", arrlen(connections));
+    PL_DEBUG("Compilation complete: %ld connections found", arrlen(connections));
 
     return connections;
 }
