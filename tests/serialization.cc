@@ -1,6 +1,7 @@
 #include "doctest.h"
 
 #include <cstdio>
+#include <pl_log.h>
 #include <string>
 
 #include <stb_ds.h>
@@ -32,7 +33,7 @@ TEST_SUITE("Serialization") {
         ts_Sandbox sb2;
         ts_Result response = ts_sandbox_unserialize_from_string(&sb2, serialized);
         if (response != TS_OK)
-            printf("%s\n", ts_last_error(&sb2, nullptr));
+            printf("%s\n", pl_last_error());
         CHECK(response == TS_OK);
 
         CHECK(shlen(sb.component_db.items) == shlen(sb2.component_db.items));

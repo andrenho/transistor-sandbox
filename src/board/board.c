@@ -1,6 +1,7 @@
 #include "board.h"
 
 #include <lauxlib.h>
+#include <pl_log.h>
 #include <stb_ds.h>
 
 #include "util/serialize.h"
@@ -21,6 +22,7 @@ ts_Result ts_board_init(ts_Board* board, ts_Sandbox* sb, int w, int h)
     board->wires = NULL;
     board->components = NULL;
     ts_cursor_init(&board->cursor, board);
+    PL_DEBUG("Board created.");
     return TS_OK;
 }
 
@@ -33,8 +35,8 @@ ts_Result ts_board_finalize(ts_Board* board)
         free(board->components[i].value);
     }
     phfree(board->components);
-
     phfree(board->wires);
+    PL_DEBUG("Board finalized.");
     return TS_OK;
 }
 
@@ -81,6 +83,7 @@ static ts_Result ts_board_remove_wires_for_ic(ts_Board* board, ts_Rect rect)
 
 ts_Result ts_board_remove_wire(ts_Board* board, ts_Position position)
 {
+    PL_DEBUG("Removing wires at %d,%d", position.x, position.y);
     phdel(board->wires, position);
     return TS_OK;
 }
@@ -107,6 +110,8 @@ static void ts_remove_wires_under_ics(ts_Board* board)
 
 ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 {
+    PL_DEBUG("Adding wire at %d,%d", pos.x, pos.y);
+
     ts_Result r = TS_OK;
     ts_sandbox_end_simulation(board->sandbox);
 
@@ -114,7 +119,7 @@ ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
     if (pos.x < board->w && pos.y < board->h)
         phput(board->wires, pos, wire);
     else
-        r = ts_error(board->sandbox, TS_CANNOT_PLACE, "Wire out of bounds");
+        PL_ERROR_RET(TS_CANNOT_PLACE, "Wire out of bounds");
 
     ts_remove_wires_under_ics(board);
 
@@ -124,6 +129,8 @@ ts_Result ts_board_add_wire(ts_Board* board, ts_Position pos, ts_Wire wire)
 
 ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end, ts_Orientation orientation, ts_Wire wire)
 {
+    PL_DEBUG("Adding wires from %d,%d to %d,%d", start.x, start.y, end.x, end.y);
+
     if (ts_pos_equals(start, end))
         return TS_OK;
 
@@ -148,6 +155,8 @@ ts_Result ts_board_add_wires(ts_Board* board, ts_Position start, ts_Position end
 
 ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position pos, ts_Direction direction)
 {
+    PL_DEBUG("Tying to add component '%s' at %d,%d", name, pos.x, pos.y);
+
     ts_Result r = TS_OK;
 
     if (pos.dir != TS_CENTER)
@@ -158,13 +167,15 @@ ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position 
     // find component
     ts_ComponentDef const* def = ts_component_db_def(&board->sandbox->component_db, name);
     if (def == NULL)
-        return ts_error(board->sandbox, TS_COMPONENT_NOT_FOUND, "Component '%s' not found in database.", name);
+        PL_ERROR_RET(TS_COMPONENT_NOT_FOUND, "Component '%s' not found in database.", name);
 
     // is it inside the board?
     ts_Rect component_rect = ts_component_def_rect(def, pos, direction);
     ts_Rect board_rect = { (ts_Position) { 0, 0, TS_CENTER }, (ts_Position) { board->w - 1, board->h - 1, TS_CENTER } };
-    if (!ts_rect_a_inside_b(component_rect, board_rect))
+    if (!ts_rect_a_inside_b(component_rect, board_rect)) {
+        PL_DEBUG("Component outside of the board");
         goto skip;
+    }
 
     // is there another component here? (TODO)
     ts_HashPosComponentPtr other_components = ts_board_component_tiles(board);
@@ -173,24 +184,25 @@ ts_Result ts_board_add_component(ts_Board* board, const char* name, ts_Position 
             ts_Position p = { x, y, TS_CENTER };
             if (phgeti(other_components, p) >= 0) {
                 phfree(other_components);
+                PL_DEBUG("Trying to put component on top of another component");
                 goto skip;
             }
         }
     }
     phfree(other_components);
 
-    if (ts_board_component(board, pos) != NULL)
-        goto skip;
-
     // init component
     ts_Component* component = calloc(1, sizeof(ts_Component));
     r = ts_component_init(component, def, direction);
-    if (r != TS_OK)
+    if (r != TS_OK) {
+        PL_DEBUG("Error initializing component");
         goto skip;
+    }
 
     // place component
     phput(board->components, pos, component);  // pointer owns the object
     ts_component_update_pos(component, board, pos);
+    PL_DEBUG("Component placed.");
 
     // remove wires underneath
     if (component->def->type != TS_SINGLE_TILE)
@@ -234,11 +246,14 @@ ts_Result ts_board_rotate_tile(ts_Board const* board, ts_Position pos)
     ts_Component* component = ts_board_component(board, pos);
     if (component != NULL && component->def->type == TS_SINGLE_TILE)
         component->direction = ts_direction_rotate_component(component->direction);
+    PL_DEBUG("Component '%s' rotated to '%s'", component->def->key, ts_direction_serialize(component->direction));
     return TS_OK;
 }
 
 ts_Result ts_board_clear_tile(ts_Board const* board, ts_Position pos)
 {
+    PL_DEBUG("Clearing component tile %d,%d", pos.x, pos.y);
+
     if (pos.dir != TS_CENTER)
         abort();
 
@@ -311,7 +326,7 @@ static ts_Result ts_board_unserialize_wires(ts_Board* board, lua_State* L, ts_Sa
 {
     lua_getfield(L, -1, "wires");
     if (!lua_istable(L, -1))
-        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'wires'");
+        PL_ERROR_RET(TS_DESERIALIZATION_ERROR, "Expected a table 'wires'");
     lua_pushnil(L);
     while (lua_next(L, -2)) {
         ts_Position pos;
@@ -319,7 +334,7 @@ static ts_Result ts_board_unserialize_wires(ts_Board* board, lua_State* L, ts_Sa
         ts_Result r;
 
         lua_pushvalue(L, -2);
-        if ((r = ts_pos_unserialize(&pos, L, sb)) != TS_OK)
+        if ((r = ts_pos_unserialize(&pos, L)) != TS_OK)
             return r;
         lua_pop(L, 1);
         if ((r = ts_wire_unserialize(&wire, L, sb) != TS_OK))
@@ -336,7 +351,7 @@ static ts_Result ts_board_unserialize_components(ts_Board* board, lua_State* L, 
 {
     lua_getfield(L, -1, "components");
     if (!lua_istable(L, -1))
-        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'components'");
+        PL_ERROR_RET(TS_DESERIALIZATION_ERROR, "Expected a table 'components'");
     lua_pushnil(L);
     while (lua_next(L, -2)) {
         ts_Position  pos;
@@ -344,7 +359,7 @@ static ts_Result ts_board_unserialize_components(ts_Board* board, lua_State* L, 
         ts_Result  r;
 
         lua_pushvalue(L, -2);
-        if ((r = ts_pos_unserialize(&pos, L, sb)) != TS_OK)
+        if ((r = ts_pos_unserialize(&pos, L)) != TS_OK)
             return r;
         lua_pop(L, 1);
         if ((r = ts_component_unserialize(component, L, sb) != TS_OK))

@@ -101,6 +101,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${warnings})
 target_include_directories(${PROJECT_NAME} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/contrib/stb
+        ${CMAKE_CURRENT_SOURCE_DIR}/contrib/pastel-log
         ${LUA_INCLUDE_DIRS})
 
 #
@@ -130,6 +131,7 @@ add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL
         tests/wrapper.cc
         tests/custom_ic.cc
         tests/components.hh
+        tests/_implementation.cc
 )
 target_compile_options(${PROJECT_NAME}-tests PRIVATE ${warnings} )
 target_link_directories(${PROJECT_NAME}-tests PRIVATE ${LUA_LIBRARY_DIRS})

@@ -7,6 +7,7 @@
 
 #include <lauxlib.h>
 #include <lualib.h>
+#include <pl_log.h>
 
 #include <stb_ds.h>
 
@@ -26,11 +27,9 @@ static ts_Result ts_sandbox_init_common(ts_Sandbox* sb)
     luaL_openlibs(sb->L);
     luaL_dostring(sb->L, "local bit = require('bit')");
 
-    sb->last_error = TS_OK;
-    sb->last_error_message[0] = '\0';
-
     ts_simulation_init(&sb->simulation, sb);
 
+    PL_DEBUG("Sandbox initialized");
     return TS_OK;
 }
 
@@ -60,6 +59,7 @@ ts_Result ts_sandbox_finalize(ts_Sandbox* sb)
     assert(lua_gettop(sb->L) == 0);
     lua_close(sb->L);
 
+    PL_DEBUG("Sandbox finalized");
     return TS_OK;
 }
 
@@ -99,13 +99,13 @@ ts_Result ts_sandbox_serialize(ts_Sandbox const* sb, int vspace, FILE* f)
 static ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* LL)
 {
     if (!lua_istable(LL, -1))
-        return ts_error(sb, TS_DESERIALIZATION_ERROR, "The returned element is not a table");
+        PL_ERROR_RET(TS_DESERIALIZATION_ERROR, "The returned element is not a table");
 
     // component db
 
     lua_getfield(LL, -1, "component_db");
     if (!lua_istable(LL, -1))
-        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'component_db'");
+        PL_ERROR_RET(TS_DESERIALIZATION_ERROR, "Expected a table 'component_db'");
     ts_Result r = ts_component_db_unserialize(&sb->component_db, LL, sb);
     // ts_add_default_components(&sb->component_db);
     if (r != TS_OK)
@@ -116,7 +116,7 @@ static ts_Result ts_sandbox_unserialize(ts_Sandbox* sb, lua_State* LL)
 
     lua_getfield(LL, -1, "boards");
     if (!lua_istable(LL, -1))
-        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Expected a table 'boards'");
+        PL_ERROR_RET(TS_DESERIALIZATION_ERROR, "Expected a table 'boards'");
     lua_pushnil(LL);
     while (lua_next(LL, -2)) {
         arrpush(sb->boards, (ts_Board) {});
@@ -139,15 +139,11 @@ ts_Result ts_sandbox_unserialize_from_string(ts_Sandbox* sb, const char* str)
     lua_State* LL = luaL_newstate();
     luaL_openlibs(LL);
 
-    if (luaL_dostring(LL, str)) {
-        response = ts_error(sb, TS_DESERIALIZATION_ERROR, "Error reported from Lua: %s", lua_tostring(LL, -1));
-        goto end;
-    }
+    if (luaL_dostring(LL, str))
+        PL_ERROR_RET(TS_DESERIALIZATION_ERROR, "Error reported from Lua: %s", lua_tostring(LL, -1));
 
-    if (lua_gettop(LL) != 1) {
-        response = ts_error(sb, TS_DESERIALIZATION_ERROR, "A element was not added to the stack.");
-        goto end;
-    }
+    if (lua_gettop(LL) != 1)
+        PL_ERROR_RET(TS_DESERIALIZATION_ERROR, "A element was not added to the stack.");
 
     response = ts_sandbox_unserialize(sb, LL);
     lua_pop(LL, 1);
@@ -167,27 +163,4 @@ ts_Result ts_sandbox_unserialize_from_file(ts_Sandbox* sb, FILE* f)
     ts_Result r = ts_sandbox_unserialize_from_string(sb, buffer);
     free(buffer);
     return r;
-}
-
-//
-// error handling
-//
-
-ts_Result ts_error(ts_Sandbox const* sb, ts_Result response, const char* fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-
-    ((ts_Sandbox *)sb)->last_error = response;
-    vsnprintf(((ts_Sandbox *)sb)->last_error_message, sizeof sb->last_error_message, fmt, ap);
-
-    va_end(ap);
-    return response;
-}
-
-const char* ts_last_error(ts_Sandbox const* sb, ts_Result* response)
-{
-    if (response)
-        *response = sb->last_error;
-    return sb->last_error_message;
 }

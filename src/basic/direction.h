@@ -15,6 +15,6 @@ typedef enum ts_Direction {
 ts_Direction ts_direction_rotate_component(ts_Direction dir);
 
 const char*  ts_direction_serialize(ts_Direction dir);
-ts_Result    ts_direction_unserialize(ts_Direction* dir, lua_State* L, ts_Sandbox* sb);
+ts_Result    ts_direction_unserialize(ts_Direction* dir, lua_State* L);
 
 #endif //DIRECTION_H

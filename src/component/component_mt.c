@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <lauxlib.h>
+#include <pl_log.h>
 
 #include "component.h"
 #include "componentdef.h"
@@ -69,4 +70,5 @@ void ts_components_mt_init(lua_State* L)
     lua_pop(L, 1);
 
     assert(lua_gettop(L) == 0);
+    PL_DEBUG("Component Lua metadata created.");
 }

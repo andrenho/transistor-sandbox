@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <lauxlib.h>
+#include <pl_log.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,7 +14,7 @@ static const char* WIRE_WIDTH_ERR_MSG = "Expected a field 'wire_width' with eith
 
 ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_code, ts_Sandbox* sb, int graphics_luaref)
 {
-#define ERROR(msg)               { r = ts_error(sb, TS_COMPONENT_DEF_ERROR, msg); goto end; }
+#define ERROR(msg)               { PL_ERROR_RET(TS_COMPONENT_DEF_ERROR, msg); goto end; }
 #define EXPECT(type, msg)        { if (!lua_is ## type(L, -1)) ERROR(msg) }
 #define EXPECT_OR_NIL(type, msg) { if (!lua_is ## type(L, -1) && !lua_isnil(L, -1)) ERROR(msg) }
 #define CHECK_FUNCTION(name)     { lua_getfield(L, -1, name); EXPECT_OR_NIL(function, "'" # name "' should be a function"); lua_pop(L, 1); }
@@ -21,12 +22,14 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
 
+    PL_DEBUG("Creating component definition from lua code.");
+
     lua_State* L = sb->L;
 
     if (luaL_loadstring(L, lua_code) != LUA_OK)
-        return ts_error(sb, TS_LUA_FUNCTION_ERROR, "syntax error loading component def: %s", lua_tostring(L, -1));
+        PL_ERROR_RET(TS_LUA_FUNCTION_ERROR, "syntax error loading component def: %s", lua_tostring(L, -1));
     if (lua_pcall(L, 0, 1, 0) != LUA_OK)
-        return ts_error(sb, TS_LUA_FUNCTION_ERROR, "syntax error loading component def: %s", lua_tostring(L, -1));
+        PL_ERROR_RET(TS_LUA_FUNCTION_ERROR, "syntax error loading component def: %s", lua_tostring(L, -1));
 
     ts_Result r = TS_OK;
     int initial_stack = lua_gettop(L);
@@ -42,6 +45,7 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
     EXPECT(string, "Expected a field 'key' with the component name.");
     def->key = strdup(lua_tostring(L, -1));
     lua_pop(L, 1);
+    PL_DEBUG("  Component def name: %s", def->key);
 
     // type
     assert(lua_gettop(L) == 1);
@@ -138,6 +142,7 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
     assert(lua_gettop(L) == 1);
     lua_pushvalue(L, -1);
     def->luaref = luaL_ref(L, LUA_REGISTRYINDEX);
+    PL_DEBUG("  Component def reference key: %s", def->luaref);
 
     // call init, if present
     assert(lua_gettop(L) == 1);
@@ -145,8 +150,9 @@ ts_Result ts_component_def_init_from_lua(ts_ComponentDef* def, const char* lua_c
         lua_getfield(L, -1, "init");
         if (!lua_isnil(L, -1)) {
             lua_rawgeti(L, -1, graphics_luaref);
+            PL_DEBUG("  Calling Lua 'init': %s", def->luaref);
             if (lua_pcall(L, 1, 0, 0) != LUA_OK)
-                r = ts_error(def->sandbox, TS_LUA_FUNCTION_ERROR, "Error running lua function 'init': %s", lua_tostring(L, -1));
+                PL_ERROR_RET(TS_LUA_FUNCTION_ERROR, "Error running lua function 'init': %s", lua_tostring(L, -1));
         } else {
             lua_pop(L, 1);
         }
@@ -169,6 +175,7 @@ end:
 
 ts_Result ts_component_def_finalize(ts_ComponentDef* def)
 {
+    PL_DEBUG("Component def '%s' finalized.", def->key);
     luaL_unref(def->sandbox->L, LUA_REGISTRYINDEX, def->luaref);
     free(def->key);
     for (size_t i = 0; i < def->n_pins; ++i)

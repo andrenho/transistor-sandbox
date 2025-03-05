@@ -1,5 +1,6 @@
 #include "cursor.h"
 
+#include <pl_log.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -22,6 +23,8 @@ ts_Result ts_cursor_finalize(ts_Cursor* cursor)
 
 ts_Result ts_cursor_set_pointer(ts_Cursor* cursor, ts_Position pos)
 {
+    PL_TRACE("Cursor pointer set to %d,%d", pos.x, pos.y);
+
     cursor->in_bounds = true;
     cursor->pos = pos;
 
@@ -45,12 +48,16 @@ ts_Result ts_cursor_set_pointer(ts_Cursor* cursor, ts_Position pos)
 
 ts_Result ts_cursor_set_pointer_out_of_bounds(ts_Cursor* cursor)
 {
+    PL_TRACE("Cursor pointer set out of bounds.");
+
     cursor->in_bounds = false;
     return TS_OK;
 }
 
 ts_Result ts_cursor_click(ts_Cursor* cursor, ts_CursorButton button)
 {
+    PL_DEBUG("Mouse click at %d,%d", cursor->pos.x, cursor->pos.y);
+
     if (cursor->in_bounds) {
         if (button == TS_BUTTON_LEFT) {
             ts_Component* component = ts_board_component(cursor->board, cursor->pos);
@@ -66,11 +73,14 @@ ts_Result ts_cursor_click(ts_Cursor* cursor, ts_CursorButton button)
 
 ts_Result ts_cursor_release(ts_Cursor* cursor, uint8_t button)
 {
+    PL_DEBUG("Mouse release at %d,%d", cursor->pos.x, cursor->pos.y);
     return TS_OK;
 }
 
 ts_Result ts_cursor_key_press(ts_Cursor* cursor, char key, uint8_t keymod)
 {
+    PL_DEBUG("Keypress '%c' at %d,%d", key, cursor->pos.x, cursor->pos.y);
+
     if (cursor->in_bounds) {
         if (keymod == 0) {
             switch (key) {
@@ -115,6 +125,8 @@ ts_Result ts_cursor_key_press(ts_Cursor* cursor, char key, uint8_t keymod)
 
 ts_Result ts_cursor_key_release(ts_Cursor* cursor, char key)
 {
+    PL_DEBUG("Key release '%c' at %d,%d", key, cursor->pos.x, cursor->pos.y);
+
     if (key == 'w' && cursor->wire.drawing) {
         if (ts_pos_equals(cursor->pos, cursor->wire.starting_pos) && cursor->pos.dir != TS_CENTER)
             ts_board_add_wire(cursor->board, cursor->pos, cursor->selected_wire);
@@ -130,5 +142,6 @@ ts_Result ts_cursor_key_release(ts_Cursor* cursor, char key)
 ts_Result ts_cursor_select_component_def(ts_Cursor* cursor, const char* name)
 {
     cursor->selected_def = ts_component_db_def(&((ts_Cursor const *)cursor)->board->sandbox->component_db, name);
+    PL_DEBUG("Component '%s' selected.", name);
     return TS_OK;
 }

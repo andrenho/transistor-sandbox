@@ -66,9 +66,6 @@ ts_Result ts_transistor_cursor_key_press(ts_Transistor* t, ts_BoardIdx board_idx
 ts_Result ts_transistor_cursor_key_release(ts_Transistor* t, char key);
 ts_Result ts_transistor_cursor_select_component_def(ts_Transistor* t, const char* name);
 
-// errors
-ts_Result ts_transistor_last_error(ts_Transistor const* t, char* err_buf, size_t err_buf_sz);
-
 // other information
 lua_State* ts_transistor_lua_state(ts_Transistor const* t);
 int        ts_transistor_steps_per_second(ts_Transistor* t);

@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include <lauxlib.h>
+#include <pl_log.h>
 
 #include "componentdef.h"
 #include "component_mt.h"
@@ -13,6 +14,8 @@
 
 ts_Result call_component_lua_function(ts_Component* component, const char* function)
 {
+    PL_DEBUG("Calling lua function '%s' on component '%s'", function, component->def->key);
+
     lua_State* L = component->def->sandbox->L;
     assert(lua_gettop(L) == 0);
 
@@ -24,7 +27,7 @@ ts_Result call_component_lua_function(ts_Component* component, const char* funct
         if (r != LUA_OK) {
             const char* error = lua_tostring(L, -1);
             lua_pop(L, 2);
-            return ts_error(component->def->sandbox, TS_LUA_FUNCTION_ERROR, "lua function '%s' error: %s", function, error);
+            PL_ERROR_RET(TS_LUA_FUNCTION_ERROR, "lua function '%s' error: %s", function, error);
         }
     } else {
         lua_pop(L, 1);
@@ -62,6 +65,8 @@ static void ts_component_create_lua_reference_object(ts_Component* component)
     lua_setfield(L, -2, "pin");
 
     component->luaref = luaL_ref(L, LUA_REGISTRYINDEX);
+    PL_DEBUG("Created lua reference object for component '%s': %d", component->def->key, component->luaref);
+
     call_component_lua_function(component, "init_component");
 
     assert(lua_gettop(L) == 0);
@@ -77,6 +82,7 @@ ts_Result ts_component_init(ts_Component* component, ts_ComponentDef const* def,
 
     ts_component_create_lua_reference_object(component);
 
+    PL_DEBUG("Component '%s' initialized", component->def->key);
     return TS_OK;
 }
 
@@ -85,6 +91,7 @@ ts_Result ts_component_finalize(ts_Component* component)
     luaL_unref(component->def->sandbox->L, LUA_REGISTRYINDEX, component->luaref);
     free(component->data);
     free(component->pins);
+    PL_DEBUG("Component '%s' finalized", component->def->key);
     return TS_OK;
 }
 
@@ -92,6 +99,7 @@ ts_Result ts_component_update_pos(ts_Component* component, ts_Board const* board
 {
     component->board = board;
     component->position = pos;
+    PL_DEBUG("Component '%s' position updated to %d,%d", component->def->key, pos.x, pos.y);
     return TS_OK;
 }
 
@@ -129,7 +137,7 @@ ts_Result ts_component_unserialize(ts_Component* component, lua_State* L, ts_San
 {
     // direction
     ts_Direction dir;
-    lua_getfield(L, -1, "direction"); ts_direction_unserialize(&dir, L, sb); lua_pop(L, 1);
+    lua_getfield(L, -1, "direction"); ts_direction_unserialize(&dir, L); lua_pop(L, 1);
 
     // setup component
     lua_getfield(L, -1, "name");

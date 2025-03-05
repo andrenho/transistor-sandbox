@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include <lauxlib.h>
+#include <pl_log.h>
 
 #include "sandbox/sandbox.h"
 
@@ -31,7 +32,7 @@ const char* ts_direction_serialize(ts_Direction dir)
     return "invalid";
 }
 
-ts_Result ts_direction_unserialize(ts_Direction* dir, lua_State* L, ts_Sandbox* sb)
+ts_Result ts_direction_unserialize(ts_Direction* dir, lua_State* L)
 {
     const char* s = luaL_checkstring(L, -1);
     if (strcmp(s, "CENTER") == 0)
@@ -45,6 +46,6 @@ ts_Result ts_direction_unserialize(ts_Direction* dir, lua_State* L, ts_Sandbox* 
     else if (strcmp(s, "E") == 0)
         *dir = TS_E;
     else
-        return ts_error(sb, TS_DESERIALIZATION_ERROR, "Direction invalid: '%s'", s);
+        PL_ERROR_RET(TS_DESERIALIZATION_ERROR, "Direction invalid: '%s'", s);
     return TS_OK;
 }

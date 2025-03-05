@@ -1,5 +1,6 @@
 #include "compiler.h"
 
+#include <pl_log.h>
 #include <stb_ds.h>
 
 #include "sandbox/sandbox.h"
@@ -33,6 +34,8 @@ ts_Pin* ts_compiler_find_all_pins(ts_Sandbox const* sb)
 
 ts_Connection* ts_compiler_compile(ts_Sandbox const* sb)
 {
+    PL_DEBUG("Running compiler...");
+
     ts_Connection* connections = NULL;
 
     // create set of pin positions
@@ -93,6 +96,8 @@ ts_Connection* ts_compiler_compile(ts_Sandbox const* sb)
     psetfree(wire_set);
     arrfree(single_tile_component_pins);
     arrfree(pins);
+
+    PL_DEBUG("Compilation complete: %d connections found", arrlen(connections));
 
     return connections;
 }

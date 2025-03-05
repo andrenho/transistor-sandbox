@@ -1,3 +1,5 @@
+#include <pl_log.h>
+
 #include "doctest.h"
 
 #include <stb_ds.h>
@@ -35,7 +37,7 @@ TEST_SUITE("Simulation")
 
     TEST_CASE("Single-threaded")
     {
-#define RUN_SIM() { ts_Result r = ts_simulation_run(&f.sb.simulation, 10000); if (r != TS_OK) fprintf(stderr, "%s\n", ts_last_error(&f.sb, NULL)); CHECK(r == TS_OK); }
+#define RUN_SIM() { ts_Result r = ts_simulation_run(&f.sb.simulation, 10000); if (r != TS_OK) fprintf(stderr, "%s\n", pl_last_error()); CHECK(r == TS_OK); }
         ts_Position pos[200];
         uint8_t value[200];
 

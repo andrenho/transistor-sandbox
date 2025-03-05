@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <lauxlib.h>
+#include <pl_log.h>
 
 #include "sandbox/sandbox.h"
 
@@ -12,7 +13,7 @@ ts_Result ts_component_sim_init(ts_Sandbox* sandbox)
     lua_State* L = sandbox->L;
     const char* lua_code = "function " FN_NAME "(list) for _,c in pairs(list) do c[1].simulate(c[2]) end end";
     if (luaL_dostring(L, lua_code))
-        return ts_error(sandbox, TS_LUA_FUNCTION_ERROR, "lua error: %s", lua_tostring(L, -1));
+        PL_ERROR_RET(TS_LUA_FUNCTION_ERROR, "lua error: %s", lua_tostring(L, -1));
     assert(lua_gettop(L) == 0);
     return TS_OK;
 }
@@ -45,7 +46,7 @@ ts_Result ts_component_sim_execute(ts_Sandbox const* sandbox)
     lua_getglobal(L, FN_NAME);
     lua_pushvalue(L, -2);
     if (lua_pcall(L, 1, 0, 0) != LUA_OK)
-        return ts_error(sandbox, TS_LUA_FUNCTION_ERROR, "lua error: %s", lua_tostring(L, -1));
+        PL_ERROR_RET(TS_LUA_FUNCTION_ERROR, "lua error: %s", lua_tostring(L, -1));
     lua_pop(L, 1);
     assert(lua_gettop(L) == 0);
     return TS_OK;

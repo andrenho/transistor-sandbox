@@ -1,4 +1,5 @@
 #include <lua.hpp>
+#include <pl_log.h>
 
 #include "doctest.h"
 
@@ -54,7 +55,7 @@ TEST_SUITE("Load IC from Lua")
         ts_ComponentDef def;
         ts_Result r = ts_component_def_init_from_lua(&def, components, &sb, -1);
         if (r != TS_OK)
-            fprintf(stderr, "error: %s\n", ts_last_error(&sb, NULL));
+            fprintf(stderr, "error: %s\n", pl_last_error());
 
         CHECK(r == TS_OK);
         CHECK(std::string(def.key) == "__button");
@@ -81,7 +82,7 @@ TEST_SUITE("Load IC from Lua")
 
         CHECK(component.data[0] == 0);
         if (ts_component_on_click(&component) != TS_OK)
-            fprintf(stderr, "error: %s\n", ts_last_error(&sb, nullptr));
+            fprintf(stderr, "error: %s\n", pl_last_error());
         CHECK(component.data[0] != 0);
 
         ts_component_finalize(&component);

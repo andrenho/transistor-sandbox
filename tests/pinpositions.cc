@@ -1,6 +1,7 @@
 #include "doctest.h"
 
 #include <cstdlib>
+#include <pl_log.h>
 #include <string>
 #include <regex>
 
@@ -49,7 +50,7 @@ struct PPFixture {
 
         ts_Result r = ts_component_def_init_from_lua(&def, ic.c_str(), &sandbox, -1);
         if (r != TS_OK)
-            throw std::runtime_error(ts_last_error(&sandbox, nullptr));
+            throw std::runtime_error(pl_last_error());
         ts_component_init(&component, &def, TS_N);
     }
 

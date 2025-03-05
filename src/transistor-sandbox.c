@@ -1,5 +1,6 @@
 #include "transistor-sandbox.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +8,7 @@
 
 #include <lua.h>
 #include <lauxlib.h>
+#include <pl_log.h>
 
 #include "stb_ds.h"
 #include "sandbox/sandbox.h"
@@ -30,6 +32,7 @@ static void* thread_run(void* ptr_t)
 {
     ts_Transistor* t = ptr_t;
 
+    PL_DEBUG("Starting simulation thread");
     while (t->thread_running) {
 
         // pause thread
@@ -68,6 +71,8 @@ static void thread_init(ts_Transistor* t)
 
 ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config)
 {
+    PL_INFO("Initializing transistor library");
+
     memset(t, 0, sizeof(ts_Transistor));
     ts_sandbox_init(&t->sandbox);
     t->config = config;
@@ -77,12 +82,16 @@ ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config)
 
 ts_Result ts_transistor_unserialize(ts_Transistor* t, ts_TransistorConfig config, const char* str)
 {
+    PL_DEBUG("Staring deserialization");
+
     memset(t, 0, sizeof(ts_Transistor));
     ts_Result r = ts_sandbox_unserialize_from_string(&t->sandbox, str);
     if (r != 0)
         return r;
     t->config = config;
     thread_init(t);
+
+    PL_DEBUG("Deserialization complete");
     return TS_OK;
 }
 
@@ -91,7 +100,8 @@ ts_Result ts_transistor_unserialize_from_file(ts_Transistor* t, ts_TransistorCon
     char* buffer;
     ssize_t bytes_read = getdelim(&buffer, NULL, '\0', f);
     if (bytes_read < 0)
-        return TS_SYSTEM_ERROR;
+        PL_ERROR_RET(TS_SYSTEM_ERROR, "Error reading file: %s", strerror(errno));
+    PL_DEBUG("File read with %zi bytes", bytes_read);
     ts_Result r = ts_transistor_unserialize(t, config, buffer);
     free(buffer);
     return r;
@@ -104,6 +114,7 @@ ts_Result ts_transistor_finalize(ts_Transistor* t)
         pthread_join(t->thread, NULL);
     }
     ts_sandbox_finalize(&t->sandbox);
+    PL_INFO("Transistor finalized");
     return TS_OK;
 }
 
@@ -123,6 +134,7 @@ ts_Result ts_transistor_serialize_to_file(ts_Transistor const* t, FILE* f)
 ts_Result ts_transistor_lock(ts_Transistor* t)
 {
     if (t->config.multithreaded && !t->thread_paused) {
+        PL_TRACE("Thread lock.");
         pthread_mutex_lock(&t->lock);
         t->thread_paused = true;
     }
@@ -132,6 +144,7 @@ ts_Result ts_transistor_lock(ts_Transistor* t)
 ts_Result ts_transistor_unlock(ts_Transistor* t)
 {
     if (t->config.multithreaded && t->thread_paused) {
+        PL_TRACE("Thread unlock.");
         t->thread_paused = false;
         pthread_cond_signal(&t->cond);
         pthread_mutex_unlock(&t->lock);
@@ -154,9 +167,8 @@ ts_Result ts_transistor_unlock(ts_Transistor* t)
 
 ts_Result ts_transistor_component_db_add_from_lua(ts_Transistor* t, const char* lua_code, int graphics_luaref)
 {
-    ts_Result r;
     ts_transistor_lock(t);
-    r = ts_component_db_add_def_from_lua(&t->sandbox.component_db, lua_code, graphics_luaref);
+    ts_Result r = ts_component_db_add_def_from_lua(&t->sandbox.component_db, lua_code, graphics_luaref);
     ts_transistor_unlock(t);
     return r;
 }
@@ -252,20 +264,6 @@ ts_Result ts_transistor_cursor_select_component_def(ts_Transistor* t, const char
 }
 
 //
-// errors
-//
-
-ts_Result ts_transistor_last_error(ts_Transistor const* t, char* err_buf, size_t err_buf_sz)
-{
-    ts_transistor_lock((ts_Transistor *) t);
-    ts_Result r;
-    const char* err = ts_last_error(&t->sandbox, &r);
-    snprintf(err_buf, err_buf_sz, "%s", err);
-    ts_transistor_unlock((ts_Transistor *) t);
-    return r;
-}
-
-//
 // other information
 //
 
@@ -306,6 +304,8 @@ static void add_component_def(ts_ComponentDef const* def, ts_Component const* co
 ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnapshot* snap)
 {
     const size_t MAX_WIRE_CURSOR = 2000;
+
+    PL_TRACE("Creating snapshot...");
 
     snap->boards = calloc(arrlen(t->sandbox.boards), sizeof(ts_BoardSnapshot));
     snap->n_boards = arrlen(t->sandbox.boards);
@@ -375,6 +375,12 @@ ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnaps
         snap->boards[i].n_wires = k;
     }
 
+    if (pl_level() == PL_TRACE_LEVEL) {
+        PL_TRACE("Snapshot created with %zu boards.", snap->n_boards);
+        for (size_t i = 0; i < snap->n_boards; ++i)
+            PL_TRACE("Board %zu has %zu wires and %zu components", snap->boards[i].n_wires, snap->boards[i].n_components);
+    }
+
     return TS_OK;
 }
 
@@ -391,6 +397,7 @@ ts_Result ts_snapshot_finalize(ts_TransistorSnapshot* snap)
         free(snap->boards[i].wires);
     }
     free(snap->boards);
+    PL_TRACE("Snapshot finalized.");
     return TS_OK;
 }
 
@@ -406,7 +413,7 @@ ts_Result ts_transistor_component_onclick(ts_Transistor* t, ts_ComponentSnapshot
         if (r != LUA_OK) {
             const char* error = lua_tostring(L, -1);
             lua_pop(L, 2);
-            return ts_error(&t->sandbox, TS_LUA_FUNCTION_ERROR, "lua function 'onclick' error: %s", error);
+            PL_ERROR_RET(TS_LUA_FUNCTION_ERROR, "lua function 'onclick' error: %s", error);
         }
     } else {
         lua_pop(L, 1);
@@ -417,6 +424,8 @@ ts_Result ts_transistor_component_onclick(ts_Transistor* t, ts_ComponentSnapshot
 
 ts_Result ts_transistor_component_render(ts_Transistor const* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y)
 {
+    PL_TRACE("Calling LUA function 'render' for component");
+
     lua_State* L = t->sandbox.L;
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, component->def_luaref);
@@ -431,7 +440,7 @@ ts_Result ts_transistor_component_render(ts_Transistor const* t, ts_ComponentSna
     if (r != LUA_OK) {
         const char* error = lua_tostring(L, -1);
         lua_pop(L, 2);
-        return ts_error(&t->sandbox, TS_LUA_FUNCTION_ERROR, "lua function 'render' error: %s", error);
+        PL_ERROR_RET(TS_LUA_FUNCTION_ERROR, "lua function 'render' error: %s", error);
     }
     lua_pop(L, 1);
     return TS_OK;
