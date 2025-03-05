@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <pl_log.h>
 #include <stb_ds.h>
 #include <sched.h>
 #include <stdio.h>
@@ -39,6 +40,8 @@ ts_Result ts_simulation_finalize(ts_Simulation* sim)
 
 ts_Result ts_simulation_single_step(ts_Simulation* sim)
 {
+    PL_TRACE("Starting new simulation");
+
     // simulate components
     int idx = 0;
     lua_State* L = sim->sandbox->L;
@@ -75,7 +78,19 @@ ts_Result ts_simulation_single_step(ts_Simulation* sim)
             if (pin->component->def->pins[pin->pin_no].direction == TS_INPUT)
                 pin->component->pins[pin->pin_no] = value;     // (note: modify component)
         }
+    }
 
+    // debugging
+    if (pl_level() == PL_TRACE_LEVEL) {
+        PL_TRACE("Simulation complete. Results:");
+        for (int i = 0; i < arrlen(sim->connections); ++i) {
+            PL_TRACE("- Connection #%d", i);
+            ts_Connection* c = &sim->connections[i];
+            for (int j = 0; i < arrlen(c->pins); ++i)
+                PL_TRACE("    Pin %d of component '%s' at %d,%d",
+                    c->pins[i].pin_no, c->pins[i].component->def->key, c->pins[i].component->position.x, c->pins[i].component->position.y);
+            PL_TRACE("    Value = 0x%02X", c->value);
+        }
     }
 
     ++sim->steps;
@@ -110,12 +125,14 @@ ts_Result ts_simulation_run(ts_Simulation* sim, size_t run_for_us)
 
 ts_Result ts_simulation_start(ts_Simulation* sim)
 {
+    PL_DEBUG("New simulation started.");
     sim->connections = ts_compiler_compile(sim->sandbox);
     return TS_OK;
 }
 
 ts_Result ts_simulation_end(ts_Simulation* sim)
 {
+    PL_DEBUG("New simulation stopped.");
     ts_simulation_finalize(sim);
     return TS_OK;
 }

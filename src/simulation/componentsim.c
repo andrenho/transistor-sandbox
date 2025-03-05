@@ -42,6 +42,7 @@ ts_Result ts_component_sim_add_component(lua_State* L, ts_Component* component, 
 
 ts_Result ts_component_sim_execute(ts_Sandbox const* sandbox)
 {
+    PL_DEBUG("Executing simulation with Lua");
     lua_State* L = sandbox->L;
     lua_getglobal(L, FN_NAME);
     lua_pushvalue(L, -2);

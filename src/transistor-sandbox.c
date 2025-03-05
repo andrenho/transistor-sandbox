@@ -71,7 +71,7 @@ static void thread_init(ts_Transistor* t)
 
 ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config)
 {
-    PL_INFO("Initializing transistor library");
+    PL_INFO("Initializing transistor library in %s mode", config.multithreaded ? "multithreaded" : "single-threaded");
 
     memset(t, 0, sizeof(ts_Transistor));
     ts_sandbox_init(&t->sandbox);
