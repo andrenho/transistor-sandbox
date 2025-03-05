@@ -56,7 +56,7 @@ ts_Result ts_cursor_set_pointer_out_of_bounds(ts_Cursor* cursor)
 
 ts_Result ts_cursor_click(ts_Cursor* cursor, ts_CursorButton button)
 {
-    PL_DEBUG("Mouse click at %d,%d", cursor->pos.x, cursor->pos.y);
+    PL_TRACE("Mouse click at %d,%d", cursor->pos.x, cursor->pos.y);
 
     if (cursor->in_bounds) {
         if (button == TS_BUTTON_LEFT) {
@@ -73,13 +73,13 @@ ts_Result ts_cursor_click(ts_Cursor* cursor, ts_CursorButton button)
 
 ts_Result ts_cursor_release(ts_Cursor* cursor, uint8_t button)
 {
-    PL_DEBUG("Mouse release at %d,%d", cursor->pos.x, cursor->pos.y);
+    PL_TRACE("Mouse release at %d,%d", cursor->pos.x, cursor->pos.y);
     return TS_OK;
 }
 
 ts_Result ts_cursor_key_press(ts_Cursor* cursor, char key, uint8_t keymod)
 {
-    PL_DEBUG("Keypress '%c' at %d,%d", key, cursor->pos.x, cursor->pos.y);
+    PL_TRACE("Keypress '%c' at %d,%d", key, cursor->pos.x, cursor->pos.y);
 
     if (cursor->in_bounds) {
         if (keymod == 0) {
@@ -125,7 +125,7 @@ ts_Result ts_cursor_key_press(ts_Cursor* cursor, char key, uint8_t keymod)
 
 ts_Result ts_cursor_key_release(ts_Cursor* cursor, char key)
 {
-    PL_DEBUG("Key release '%c' at %d,%d", key, cursor->pos.x, cursor->pos.y);
+    PL_TRACE("Key release '%c' at %d,%d", key, cursor->pos.x, cursor->pos.y);
 
     if (key == 'w' && cursor->wire.drawing) {
         if (ts_pos_equals(cursor->pos, cursor->wire.starting_pos) && cursor->pos.dir != TS_CENTER)

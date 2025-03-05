@@ -243,10 +243,14 @@ ts_Result ts_board_rotate_tile(ts_Board const* board, ts_Position pos)
     if (pos.dir != TS_CENTER)
         abort();
 
+    ts_sandbox_end_simulation(board->sandbox);
+
     ts_Component* component = ts_board_component(board, pos);
-    if (component != NULL && component->def->type == TS_SINGLE_TILE)
+    if (component != NULL && component->def->can_rotate)
         component->direction = ts_direction_rotate_component(component->direction);
     PL_DEBUG("Component '%s' rotated to '%s'", component->def->key, ts_direction_serialize(component->direction));
+
+    ts_sandbox_start_simulation(board->sandbox);
     return TS_OK;
 }
 
@@ -256,6 +260,8 @@ ts_Result ts_board_clear_tile(ts_Board const* board, ts_Position pos)
 
     if (pos.dir != TS_CENTER)
         abort();
+
+    ts_sandbox_end_simulation(board->sandbox);
 
     // clear component
     ts_Component* component = ts_board_component(board, pos);
@@ -272,6 +278,7 @@ ts_Result ts_board_clear_tile(ts_Board const* board, ts_Position pos)
     p = (ts_Position) { pos.x, pos.y, TS_S }; phdel(((ts_Board *) board)->wires, p);
     p = (ts_Position) { pos.x, pos.y, TS_W }; phdel(((ts_Board *) board)->wires, p);
 
+    ts_sandbox_start_simulation(board->sandbox);
     return TS_OK;
 }
 

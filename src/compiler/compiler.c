@@ -38,6 +38,16 @@ ts_Connection* ts_compiler_compile(ts_Sandbox const* sb)
 
     ts_Connection* connections = NULL;
 
+    // reset all component pins
+    for (int i = 0; i < arrlen(sb->boards); ++i) {
+        ts_Board* board = &sb->boards[i];
+        for (int j = 0; j < hmlen(board->components); ++j) {
+            ts_Component* component = board->components[j].value;
+            for (int k = 0; k < component->def->n_pins; ++k)
+                component->pins[k] = 0;
+        }
+    }
+
     // create set of pin positions
     ts_Pin* pins = ts_compiler_find_all_pins(sb);
 
@@ -97,7 +107,18 @@ ts_Connection* ts_compiler_compile(ts_Sandbox const* sb)
     arrfree(single_tile_component_pins);
     arrfree(pins);
 
-    PL_DEBUG("Compilation complete: %ld connections found", arrlen(connections));
+    // debugging
+    if (pl_level() == PL_DEBUG_LEVEL) {
+        PL_DEBUG("Compilation complete: %ld connections found", arrlen(connections));
+        for (int i = 0; i < arrlen(connections); ++i) {
+            PL_DEBUG("- Connection #%d", i);
+            ts_Connection* c = &connections[i];
+            for (int j = 0; j < arrlen(c->pins); ++j)
+                PL_DEBUG("    Pin %d of component '%s' at %d,%d",
+                    c->pins[j].pin_no, c->pins[j].component->def->key, c->pins[j].component->position.x, c->pins[j].component->position.y);
+        }
+    }
+
 
     return connections;
 }
