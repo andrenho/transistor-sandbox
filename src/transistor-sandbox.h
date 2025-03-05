@@ -33,42 +33,42 @@ typedef struct ts_Transistor {
 typedef unsigned int ts_BoardIdx;
 
 // version
-const char* ts_transistor_version(int* major, int* minor, int* patch);
+const char* ts_version(int* major, int* minor, int* patch);
 
 // initialization
-ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config);
-ts_Result ts_transistor_unserialize(ts_Transistor* t, ts_TransistorConfig config, const char* str);
-ts_Result ts_transistor_unserialize_from_file(ts_Transistor* t, ts_TransistorConfig config, FILE* f);
-ts_Result ts_transistor_finalize(ts_Transistor* t);
+ts_Result ts_init(ts_Transistor* t, ts_TransistorConfig config);
+ts_Result ts_unserialize(ts_Transistor* t, ts_TransistorConfig config, const char* str);
+ts_Result ts_unserialize_from_file(ts_Transistor* t, ts_TransistorConfig config, FILE* f);
+ts_Result ts_finalize(ts_Transistor* t);
 
 // serialization
-ts_Result ts_transistor_serialize_to_file(ts_Transistor const* t, FILE* f);
+ts_Result ts_serialize_to_file(ts_Transistor const* t, FILE* f);
 
 // locks (generally not needed)
-ts_Result ts_transistor_lock(ts_Transistor* t);
-ts_Result ts_transistor_unlock(ts_Transistor* t);
+ts_Result ts_lock(ts_Transistor* t);
+ts_Result ts_unlock(ts_Transistor* t);
 
 // boards
-ts_BoardIdx ts_transistor_add_board(ts_Transistor* t, int w, int h);
+ts_BoardIdx ts_add_board(ts_Transistor* t, int w, int h);
 
 // component db
-ts_Result ts_transistor_component_db_add_from_lua(ts_Transistor* t, const char* lua_code, int graphics_luaref);
-ts_Result ts_transistor_component_db_native_simulation(ts_Transistor* t, const char* name, SimulateFn sim_fn);
+ts_Result ts_component_db_add_from_lua(ts_Transistor* t, const char* lua_code, int graphics_luaref);
+ts_Result ts_component_db_native_simulation(ts_Transistor* t, const char* name, SimulateFn sim_fn);
 
 // execution
-ts_Result ts_transistor_run(ts_Transistor* t, size_t run_for_us);
+ts_Result ts_run(ts_Transistor* t, size_t run_for_us);
 
 // cursor
-ts_Result ts_transistor_cursor_set_pointer(ts_Transistor* t, ts_BoardIdx board_idx, ts_Position pos);
-ts_Result ts_transistor_cursor_click(ts_Transistor* t, ts_BoardIdx board_idx, ts_CursorButton button);
-ts_Result ts_transistor_cursor_release(ts_Transistor* t, uint8_t button);
-ts_Result ts_transistor_cursor_key_press(ts_Transistor* t, ts_BoardIdx board_idx, char key, uint8_t keymod);
-ts_Result ts_transistor_cursor_key_release(ts_Transistor* t, char key);
-ts_Result ts_transistor_cursor_select_component_def(ts_Transistor* t, const char* name);
+ts_Result ts_on_cursor_set_position(ts_Transistor* t, ts_BoardIdx board_idx, ts_Position pos);
+ts_Result ts_on_cursor_click(ts_Transistor* t, ts_BoardIdx board_idx, ts_CursorButton button);
+ts_Result ts_on_cursor_release(ts_Transistor* t, uint8_t button);
+ts_Result ts_on_cursor_key_press(ts_Transistor* t, ts_BoardIdx board_idx, char key, uint8_t keymod);
+ts_Result ts_on_key_release(ts_Transistor* t, char key);
+ts_Result ts_on_select_component_def(ts_Transistor* t, const char* name);
 
 // other information
-lua_State* ts_transistor_lua_state(ts_Transistor const* t);
-int        ts_transistor_steps_per_second(ts_Transistor* t);
+lua_State* ts_lua_state(ts_Transistor const* t);
+int        ts_steps_per_second(ts_Transistor* t);
 
 //
 // take snapshot
@@ -114,12 +114,12 @@ typedef struct ts_TransistorSnapshot {
     size_t            n_boards;
 } ts_TransistorSnapshot;
 
-ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnapshot* snap);
+ts_Result ts_take_snapshot(ts_Transistor const* t, ts_TransistorSnapshot* snap);
 ts_Result ts_snapshot_finalize(ts_TransistorSnapshot* snap);
 
 // execute Lua functions
 
-ts_Result ts_transistor_component_onclick(ts_Transistor* t, ts_ComponentSnapshot const* component);
-ts_Result ts_transistor_component_render(ts_Transistor const* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y); // TODO - add context
+ts_Result ts_component_onclick(ts_Transistor* t, ts_ComponentSnapshot const* component);
+ts_Result ts_component_render(ts_Transistor const* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y); // TODO - add context
 
 #endif //TRANSISTOR_SANDBOX_H

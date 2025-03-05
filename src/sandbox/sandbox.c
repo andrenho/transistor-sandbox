@@ -25,7 +25,8 @@ static ts_Result ts_sandbox_init_common(ts_Sandbox* sb)
 
     sb->L = luaL_newstate();
     luaL_openlibs(sb->L);
-    luaL_dostring(sb->L, "local bit = require('bit')");
+    luaL_dostring(sb->L, "local bit = require('bit');\n"
+                         "bnot, band, bor, bxor, lshift, rshift, rol, ror = bit.bnot, bit.band, bit.bor, bit.bxor, bit.lshift, bit.rshift, bit.rol, bit.ror");
 
     ts_simulation_init(&sb->simulation, sb);
 
