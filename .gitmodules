@@ -1,3 +1,5 @@
 [submodule "contrib/pastel-log"]
 	path = contrib/pastel-log
 	url = https://github.com/andrenho/pastel-log.git
+[submodule "pastel-log/"]
+	branch = master
