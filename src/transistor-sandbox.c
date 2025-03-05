@@ -13,7 +13,7 @@
 #include "stb_ds.h"
 #include "sandbox/sandbox.h"
 
-const char* ts_transistor_version(int* major, int* minor, int* patch)
+const char* ts_version(int* major, int* minor, int* patch)
 {
     if (major)
         *major = PROJECT_VERSION_MAJOR;
@@ -69,7 +69,7 @@ static void thread_init(ts_Transistor* t)
 //
 
 
-ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config)
+ts_Result ts_init(ts_Transistor* t, ts_TransistorConfig config)
 {
     PL_INFO("Initializing transistor library in %s mode", config.multithreaded ? "multithreaded" : "single-threaded");
 
@@ -80,7 +80,7 @@ ts_Result ts_transistor_init(ts_Transistor* t, ts_TransistorConfig config)
     return TS_OK;
 }
 
-ts_Result ts_transistor_unserialize(ts_Transistor* t, ts_TransistorConfig config, const char* str)
+ts_Result ts_unserialize(ts_Transistor* t, ts_TransistorConfig config, const char* str)
 {
     PL_DEBUG("Staring deserialization");
 
@@ -95,19 +95,19 @@ ts_Result ts_transistor_unserialize(ts_Transistor* t, ts_TransistorConfig config
     return TS_OK;
 }
 
-ts_Result ts_transistor_unserialize_from_file(ts_Transistor* t, ts_TransistorConfig config, FILE* f)
+ts_Result ts_unserialize_from_file(ts_Transistor* t, ts_TransistorConfig config, FILE* f)
 {
     char* buffer;
     ssize_t bytes_read = getdelim(&buffer, NULL, '\0', f);
     if (bytes_read < 0)
         PL_ERROR_RET(TS_SYSTEM_ERROR, "Error reading file: %s", strerror(errno));
     PL_DEBUG("File read with %zi bytes", bytes_read);
-    ts_Result r = ts_transistor_unserialize(t, config, buffer);
+    ts_Result r = ts_unserialize(t, config, buffer);
     free(buffer);
     return r;
 }
 
-ts_Result ts_transistor_finalize(ts_Transistor* t)
+ts_Result ts_finalize(ts_Transistor* t)
 {
     if (t->config.multithreaded) {
         t->thread_running = false;
@@ -122,7 +122,7 @@ ts_Result ts_transistor_finalize(ts_Transistor* t)
 // serialization
 //
 
-ts_Result ts_transistor_serialize_to_file(ts_Transistor const* t, FILE* f)
+ts_Result ts_serialize_to_file(ts_Transistor const* t, FILE* f)
 {
     return ts_sandbox_serialize(&t->sandbox, 0, f);
 }
@@ -131,7 +131,7 @@ ts_Result ts_transistor_serialize_to_file(ts_Transistor const* t, FILE* f)
 // locking
 //
 
-ts_Result ts_transistor_lock(ts_Transistor* t)
+ts_Result ts_lock(ts_Transistor* t)
 {
     if (t->config.multithreaded && !t->thread_paused) {
         PL_TRACE("Thread lock.");
@@ -141,7 +141,7 @@ ts_Result ts_transistor_lock(ts_Transistor* t)
     return TS_OK;
 }
 
-ts_Result ts_transistor_unlock(ts_Transistor* t)
+ts_Result ts_unlock(ts_Transistor* t)
 {
     if (t->config.multithreaded && t->thread_paused) {
         PL_TRACE("Thread unlock.");
@@ -156,7 +156,7 @@ ts_Result ts_transistor_unlock(ts_Transistor* t)
 // boards
 //
 
-[[noreturn]] ts_BoardIdx ts_transistor_add_board(ts_Transistor* t, int w, int h)
+[[noreturn]] ts_BoardIdx ts_add_board(ts_Transistor* t, int w, int h)
 {
     abort();  // TODO - not implemented yet
 }
@@ -165,19 +165,19 @@ ts_Result ts_transistor_unlock(ts_Transistor* t)
 // component db
 //
 
-ts_Result ts_transistor_component_db_add_from_lua(ts_Transistor* t, const char* lua_code, int graphics_luaref)
+ts_Result ts_component_db_add_from_lua(ts_Transistor* t, const char* lua_code, int graphics_luaref)
 {
-    ts_transistor_lock(t);
+    ts_lock(t);
     ts_Result r = ts_component_db_add_def_from_lua(&t->sandbox.component_db, lua_code, graphics_luaref);
-    ts_transistor_unlock(t);
+    ts_unlock(t);
     return r;
 }
 
-ts_Result ts_transistor_component_db_native_simulation(ts_Transistor* t, const char* name, SimulateFn sim_fn)
+ts_Result ts_component_db_native_simulation(ts_Transistor* t, const char* name, SimulateFn sim_fn)
 {
-    ts_transistor_lock(t);
+    ts_lock(t);
     ts_component_db_update_simulation(&t->sandbox.component_db, name, sim_fn);
-    ts_transistor_unlock(t);
+    ts_unlock(t);
     return TS_OK;
 }
 
@@ -185,7 +185,7 @@ ts_Result ts_transistor_component_db_native_simulation(ts_Transistor* t, const c
 // execution
 //
 
-ts_Result ts_transistor_run(ts_Transistor* t, size_t run_for_us)
+ts_Result ts_run(ts_Transistor* t, size_t run_for_us)
 {
     if (!t->config.multithreaded)
         return ts_simulation_run(&t->sandbox.simulation, run_for_us);
@@ -196,70 +196,70 @@ ts_Result ts_transistor_run(ts_Transistor* t, size_t run_for_us)
 // cursor
 //
 
-ts_Result ts_transistor_cursor_set_pointer(ts_Transistor* t, ts_BoardIdx board_idx, ts_Position pos)
+ts_Result ts_on_cursor_set_position(ts_Transistor* t, ts_BoardIdx board_idx, ts_Position pos)
 {
     ts_Result r;
-    ts_transistor_lock(t);
+    ts_lock(t);
     if (pos.x < 0 || pos.y < 0 || pos.x >= t->sandbox.boards[board_idx].w || pos.y >= t->sandbox.boards[board_idx].h)
         r = ts_cursor_set_pointer_out_of_bounds(&t->sandbox.boards[board_idx].cursor);
     else
         r = ts_cursor_set_pointer(&t->sandbox.boards[board_idx].cursor, pos);
-    ts_transistor_unlock(t);
+    ts_unlock(t);
     return r;
 }
 
-ts_Result ts_transistor_cursor_click(ts_Transistor* t, ts_BoardIdx board_idx, ts_CursorButton button)
+ts_Result ts_on_cursor_click(ts_Transistor* t, ts_BoardIdx board_idx, ts_CursorButton button)
 {
-    ts_transistor_lock(t);
+    ts_lock(t);
     ts_Result r = ts_cursor_click(&t->sandbox.boards[board_idx].cursor, button);
-    ts_transistor_unlock(t);
+    ts_unlock(t);
     return r;
 }
 
-ts_Result ts_transistor_cursor_release(ts_Transistor* t, uint8_t button)
+ts_Result ts_on_cursor_release(ts_Transistor* t, uint8_t button)
 {
     ts_Result r = TS_OK;
-    ts_transistor_lock(t);
+    ts_lock(t);
     for (int i = 0; i < arrlen(t->sandbox.boards); ++i) {
         r = ts_cursor_release(&t->sandbox.boards[i].cursor, button);
         if (r != TS_OK)
             break;
     }
-    ts_transistor_unlock(t);
+    ts_unlock(t);
     return r;
 }
 
-ts_Result ts_transistor_cursor_key_press(ts_Transistor* t, ts_BoardIdx board_idx, char key, uint8_t keymod)
+ts_Result ts_on_cursor_key_press(ts_Transistor* t, ts_BoardIdx board_idx, char key, uint8_t keymod)
 {
-    ts_transistor_lock(t);
+    ts_lock(t);
     ts_Result r = ts_cursor_key_press(&t->sandbox.boards[board_idx].cursor, key, keymod);
-    ts_transistor_unlock(t);
+    ts_unlock(t);
     return r;
 }
 
-ts_Result ts_transistor_cursor_key_release(ts_Transistor* t, char key)
+ts_Result ts_on_key_release(ts_Transistor* t, char key)
 {
     ts_Result r = TS_OK;
-    ts_transistor_lock(t);
+    ts_lock(t);
     for (int i = 0; i < arrlen(t->sandbox.boards); ++i) {
         r = ts_cursor_key_release(&t->sandbox.boards[i].cursor, key);
         if (r != TS_OK)
             break;
     }
-    ts_transistor_unlock(t);
+    ts_unlock(t);
     return r;
 }
 
-ts_Result ts_transistor_cursor_select_component_def(ts_Transistor* t, const char* name)
+ts_Result ts_on_select_component_def(ts_Transistor* t, const char* name)
 {
     ts_Result r = TS_OK;
-    ts_transistor_lock(t);
+    ts_lock(t);
     for (int i = 0; i < arrlen(t->sandbox.boards); ++i) {
         r = ts_cursor_select_component_def(&t->sandbox.boards[i].cursor, name);
         if (r != TS_OK)
             break;
     }
-    ts_transistor_unlock(t);
+    ts_unlock(t);
     return r;
 }
 
@@ -267,7 +267,7 @@ ts_Result ts_transistor_cursor_select_component_def(ts_Transistor* t, const char
 // other information
 //
 
-lua_State* ts_transistor_lua_state(ts_Transistor const* t)
+lua_State* ts_lua_state(ts_Transistor const* t)
 {
     return t->sandbox.L;
 }
@@ -301,7 +301,7 @@ static void add_component_def(ts_ComponentDef const* def, ts_Component const* co
     }
 }
 
-ts_Result ts_transistor_take_snapshot(ts_Transistor const* t, ts_TransistorSnapshot* snap)
+ts_Result ts_take_snapshot(ts_Transistor const* t, ts_TransistorSnapshot* snap)
 {
     const size_t MAX_WIRE_CURSOR = 2000;
 
@@ -401,7 +401,7 @@ ts_Result ts_snapshot_finalize(ts_TransistorSnapshot* snap)
     return TS_OK;
 }
 
-ts_Result ts_transistor_component_onclick(ts_Transistor* t, ts_ComponentSnapshot const* component)
+ts_Result ts_component_onclick(ts_Transistor* t, ts_ComponentSnapshot const* component)
 {
     lua_State* L = t->sandbox.L;
 
@@ -422,21 +422,44 @@ ts_Result ts_transistor_component_onclick(ts_Transistor* t, ts_ComponentSnapshot
     return TS_OK;
 }
 
-ts_Result ts_transistor_component_render(ts_Transistor const* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y)
+static int direction_angle(ts_Direction dir)
+{
+    switch (dir) {
+        case TS_CENTER: return 0;
+        case TS_N: return 0;
+        case TS_E: return 90;
+        case TS_S: return 180;
+        case TS_W: return 270;
+    }
+    return 0;
+}
+
+ts_Result ts_component_render(ts_Transistor const* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y)
 {
     PL_TRACE("Calling LUA function 'render' for component");
 
     lua_State* L = t->sandbox.L;
 
+    // LUA call
     lua_rawgeti(L, LUA_REGISTRYINDEX, component->def_luaref);
     lua_getfield(L, -1, "render");
 
+    // parameters (component, G, x, y)
     lua_rawgeti(L, LUA_REGISTRYINDEX, component->luaref);
     lua_rawgeti(L, LUA_REGISTRYINDEX, graphics_luaref);
     lua_pushinteger(L, x);
     lua_pushinteger(L, y);
 
-    int r = lua_pcall(L, 4, 0, 0);
+    // create context
+    lua_newtable(L);
+    lua_pushnumber(L, direction_angle(component->direction));
+    lua_setfield(L, -2, "rotation");
+    if (component->cursor) {
+        lua_pushnumber(L, .5f);
+        lua_setfield(L, -2, "opacity");
+    }
+
+    int r = lua_pcall(L, 5, 0, 0);
     if (r != LUA_OK) {
         const char* error = lua_tostring(L, -1);
         lua_pop(L, 2);
@@ -446,7 +469,7 @@ ts_Result ts_transistor_component_render(ts_Transistor const* t, ts_ComponentSna
     return TS_OK;
 }
 
-int ts_transistor_steps_per_second(ts_Transistor* t)
+int ts_steps_per_second(ts_Transistor* t)
 {
     struct timeval now;
     gettimeofday(&now, NULL);
