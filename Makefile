@@ -7,7 +7,7 @@ all: $(LIB)
 
 include contrib/pastel-base/mk/config.mk
 
-CPPFLAGS += -Isrc -Icontrib/stb -Icontrib/pastel-base/pl_log -Icontrib/doctest
+CPPFLAGS += -Isrc -Icontrib/stb -Icontrib/pastel-base/pl_log -Icontrib/doctest -Icontrib/pastel-base/mk/LuaJIT/src
 
 # library
 
