@@ -434,8 +434,10 @@ static int direction_angle(ts_Direction dir)
     return 0;
 }
 
-ts_Result ts_component_render(ts_Transistor const* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y)
+ts_Result ts_component_render(ts_Transistor* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y)
 {
+    ts_lock(t);
+
     PL_TRACE("Calling LUA function 'render' for component");
 
     lua_State* L = t->sandbox.L;
@@ -466,6 +468,8 @@ ts_Result ts_component_render(ts_Transistor const* t, ts_ComponentSnapshot const
         PL_ERROR_RET(TS_LUA_FUNCTION_ERROR, "lua function 'render' error: %s", error);
     }
     lua_pop(L, 1);
+    ts_unlock(t);
+
     return TS_OK;
 }
 

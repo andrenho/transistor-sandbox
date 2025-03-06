@@ -120,6 +120,6 @@ ts_Result ts_snapshot_finalize(ts_TransistorSnapshot* snap);
 // execute Lua functions
 
 ts_Result ts_component_onclick(ts_Transistor* t, ts_ComponentSnapshot const* component);
-ts_Result ts_component_render(ts_Transistor const* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y); // TODO - add context
+ts_Result ts_component_render(ts_Transistor* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y); // TODO - add context
 
 #endif //TRANSISTOR_SANDBOX_H
