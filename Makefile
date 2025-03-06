@@ -3,7 +3,7 @@ PROJECT_VERSION = 0.1.0
 
 LIB = $(PROJECT_NAME).a
 
-all: $(LIB) libtransistor-tests
+all: $(LIB)
 
 include contrib/pastel-base/mk/config.mk
 
