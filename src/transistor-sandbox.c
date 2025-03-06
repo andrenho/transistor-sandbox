@@ -264,15 +264,6 @@ ts_Result ts_on_select_component_def(ts_Transistor* t, const char* name)
 }
 
 //
-// other information
-//
-
-lua_State* ts_lua_state(ts_Transistor const* t)
-{
-    return t->sandbox.L;
-}
-
-//
 // snapshots
 //
 
@@ -479,7 +470,9 @@ int ts_steps_per_second(ts_Transistor* t)
     gettimeofday(&now, NULL);
 
     if (timercmp(&now, &t->next_step_calculation, >=)) {
+        ts_lock(t);
         int total_steps = ts_simulation_steps(&t->sandbox.simulation);
+        ts_unlock(t);
         t->steps_per_second = total_steps - t->last_step_count;
         t->last_step_count = total_steps;
 
@@ -488,4 +481,11 @@ int ts_steps_per_second(ts_Transistor* t)
     }
 
     return t->steps_per_second;
+}
+
+void ts_borrow_lua(ts_Transistor* t, void(*f)(lua_State* L, void* data), void* data)
+{
+    ts_lock(t);
+    f(t->sandbox.L, data);
+    ts_unlock(t);
 }

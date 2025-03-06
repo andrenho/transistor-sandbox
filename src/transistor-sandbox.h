@@ -67,8 +67,7 @@ ts_Result ts_on_key_release(ts_Transistor* t, char key);
 ts_Result ts_on_select_component_def(ts_Transistor* t, const char* name);
 
 // other information
-lua_State* ts_lua_state(ts_Transistor const* t);
-int        ts_steps_per_second(ts_Transistor* t);
+int       ts_steps_per_second(ts_Transistor* t);
 
 //
 // take snapshot
@@ -121,5 +120,8 @@ ts_Result ts_snapshot_finalize(ts_TransistorSnapshot* snap);
 
 ts_Result ts_component_onclick(ts_Transistor* t, ts_ComponentSnapshot const* component);
 ts_Result ts_component_render(ts_Transistor* t, ts_ComponentSnapshot const* component, int graphics_luaref, int x, int y); // TODO - add context
+
+// lock multithreaded execution, and borrow the Lua state
+void ts_borrow_lua(ts_Transistor* t, void(*f)(lua_State* L, void* data), void* data);
 
 #endif //TRANSISTOR_SANDBOX_H
