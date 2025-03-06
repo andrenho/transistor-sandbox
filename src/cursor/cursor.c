@@ -86,7 +86,7 @@ ts_Result ts_cursor_key_press(ts_Cursor* cursor, char key, uint8_t keymod)
             switch (key) {
                 case 'r': {
                     ts_Component* component = ts_board_component(cursor->board, cursor->pos);
-                    if (component && component->def->type == TS_SINGLE_TILE)
+                    if (component && component->def->can_rotate)
                         ts_board_rotate_tile(cursor->board, cursor->pos);
                     else
                         cursor->selected_direction = ts_direction_rotate_component(cursor->selected_direction);

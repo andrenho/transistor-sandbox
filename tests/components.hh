@@ -10,7 +10,7 @@ return {
     key = "__button",
     type = "single_tile",
 
-    can_rotate = false,
+    can_rotate = true,  -- not real
     data_size = 1,
 
     pins = {
