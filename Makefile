@@ -53,6 +53,8 @@ libtransistor-tests: $(TEST_OBJ) $(LIB) libluajit.a
 check: libtransistor-tests
 	./$^
 
+# clean
+
 .PHONY: clean
 clean:
 	rm -f $(LIB) $(OBJ) $(TEST_OBJ) $(CLEANFILES) libtransistor-tests
