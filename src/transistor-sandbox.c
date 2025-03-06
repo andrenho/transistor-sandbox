@@ -13,14 +13,8 @@
 #include "stb_ds.h"
 #include "sandbox/sandbox.h"
 
-const char* ts_version(int* major, int* minor, int* patch)
+const char* ts_version()
 {
-    if (major)
-        *major = PROJECT_VERSION_MAJOR;
-    if (minor)
-        *minor = PROJECT_VERSION_MINOR;
-    if (patch)
-        *patch = PROJECT_VERSION_PATCH;
     return PROJECT_VERSION;
 }
 
@@ -156,7 +150,7 @@ ts_Result ts_unlock(ts_Transistor* t)
 // boards
 //
 
-[[noreturn]] ts_BoardIdx ts_add_board(ts_Transistor* t, int w, int h)
+ts_BoardIdx ts_add_board(ts_Transistor* t, int w, int h)
 {
     abort();  // TODO - not implemented yet
 }

@@ -33,7 +33,7 @@ typedef struct ts_Transistor {
 typedef unsigned int ts_BoardIdx;
 
 // version
-const char* ts_version(int* major, int* minor, int* patch);
+const char* ts_version();
 
 // initialization
 ts_Result ts_init(ts_Transistor* t, ts_TransistorConfig config);
