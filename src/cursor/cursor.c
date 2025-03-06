@@ -28,15 +28,22 @@ ts_Result ts_cursor_set_pointer(ts_Cursor* cursor, ts_Position pos)
     cursor->in_bounds = true;
     cursor->pos = pos;
 
-    if (cursor->wire.drawing && !cursor->wire.orientation_defined) {
+    if (cursor->wire.drawing) {
         int dx = cursor->wire.starting_pos.x - pos.x;
         int dy = cursor->wire.starting_pos.y - pos.y;
-        if (dx != 0 || dy != 0) {
-            if (abs(dx) > abs(dy))
+        if (!cursor->wire.orientation_defined && (dx != 0 || dy != 0)) {
+            if (abs(dx) > abs(dy)) {
+                PL_DEBUG("Drawing horizontal wire");
                 cursor->wire.orientation = TS_HORIZONTAL;
-            else
+            } else {
+                PL_DEBUG("Drawing vertical wire");
                 cursor->wire.orientation = TS_VERTICAL;
+            }
             cursor->wire.orientation_defined = true;
+        }
+        if (cursor->wire.orientation_defined && dx == 0 && dy == 0) {
+            cursor->wire.orientation_defined = false;
+            PL_DEBUG("Drawing orientation reset");
         }
     }
 
