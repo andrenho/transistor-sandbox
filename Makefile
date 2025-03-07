@@ -7,7 +7,8 @@ all: $(LIB) libtransistor-tests
 
 include contrib/pastel-base/mk/config.mk
 
-CPPFLAGS += -Isrc -Icontrib/stb -Icontrib/pastel-base/pl_log -Icontrib/doctest
+CPPFLAGS += -Isrc -Icontrib/stb -Icontrib/pastel-base/pl_log -Icontrib/doctest `pkg-config --cflags luajit`
+LDFLAGS += `pkg-config --libs luajit`
 
 # library
 
@@ -47,8 +48,8 @@ TEST_OBJ = \
 	tests/custom_ic.o \
 	tests/_implementation.o
 
-libtransistor-tests: $(TEST_OBJ) $(LIB) libluajit.a
-	$(CXX) -o $@ $^
+libtransistor-tests: $(TEST_OBJ) $(LIB) 
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 check: libtransistor-tests
 	./$^
